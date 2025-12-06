@@ -4,9 +4,9 @@
 # Environment variables
 /backend/.env
 # Ignore uploads
-uploads/
-public/uploads/
-tmp/
+/backend/uploads/
+/backend/public/uploads/
+/backend/tmp/
 # Logs
 logs/
 *.log
