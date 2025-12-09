@@ -19,7 +19,7 @@ export function Header({ title }: HeaderProps) {
   const notificationCount = 3; // Replace with actual notification count
 
   return (
-    <header className="flex h-20 shrink-0 items-center gap-2 border-b px-4">
+    <header className="flex h-20 shrink-0 items-center gap-2 border-b px-4 bg-sidebar">
       <SidebarTrigger className="-ml-1" />
       {title && <h1 className="text-lg font-semibold">{title}</h1>}
       <div className="ml-auto flex items-center gap-2">

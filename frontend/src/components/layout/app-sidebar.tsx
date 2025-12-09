@@ -72,7 +72,7 @@ export function AppSidebar() {
                 <div className="flex aspect-square p-3 group-data-[collapsible=icon]:aspect-square group-data-[collapsible=icon]:size-8  items-center justify-center rounded-lg bg-primary text-primary-foreground">
                         LOGO                  
                 </div>
-                <div className="grid flex-1 group-data-[collapsible=icon]:hidden text-center gap-1 text-sm leading-tight">
+                <div className="grid flex-1 group-data-[collapsible=icon]:opacity-0 text-center gap-1 text-sm leading-tight">
                   <span className="truncate font-semibold">
                     Driving Evaluation
                   </span>
@@ -86,7 +86,7 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-      <SidebarGroup className="px-10 group-data-[collapsible=icon]:px-2">
+      <SidebarGroup className="px-8 group-data-[collapsible=icon]:px-2">
           <SidebarGroupContent>
             <SidebarMenu className="gap-2">
               {navigationItems.map((item) => (
@@ -95,10 +95,11 @@ export function AppSidebar() {
                     asChild
                     isActive={pathname === item.url}
                     tooltip={item.title}
-                  >
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span className="text-base">{item.title}</span>
+                    className="text-primary px-5 py-5 group-data-[collapsible=icon]:px-0 data-[active=true]:bg-primary data-[active=true]:text-primary-foreground"
+                    >
+                    <Link href={item.url} className="flex   group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:items-center ">
+                      <item.icon className="group-data-[collapsible=icon]:size-5" />
+                      <span className="text-base group-data-[collapsible=icon]:hidden">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
