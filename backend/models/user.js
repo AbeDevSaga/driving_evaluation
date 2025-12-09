@@ -11,6 +11,17 @@ module.exports = (sequelize, DataTypes) => {
         otherKey: "role_id",
         as: "roles",
       });
+      // A user (examiner) can have many section evaluations
+      User.hasMany(models.ExamSectionEvaluation, {
+        foreignKey: "examiner_id",
+        as: "sectionEvaluations",
+      });
+
+      // A user (examinee) can have many section evaluations
+      User.hasMany(models.ExamSectionEvaluation, {
+        foreignKey: "examinee_id",
+        as: "takenEvaluations",
+      });
     }
   }
 
