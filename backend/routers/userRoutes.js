@@ -16,14 +16,6 @@ const {
   toggleUserActiveStatus,
   resetUserPassword,
   getUserTypes,
-  getUsersByInstituteId,
-  getUsersAssignedToNode,
-  getUsersAssignedToProject,
-  getUsersNotAssignedToProject,
-  getInternalUsersNotAssignedToProject,
-  getInternalUsersAssignedToProject,
-  getProjectSubNodeUsers,
-  getInternalUsersAssignedToNode,
   getUserPositions,
 } = require("../controllers/userController");
 
@@ -260,11 +252,6 @@ router.use("/user-positions", getUserPositions);
  *       500:
  *         description: Internal server error
  */
-router.get(
-  "/institute/:institute_id",
-  authenticateToken,
-  getUsersByInstituteId
-);
 
 /**
  * @swagger
@@ -297,17 +284,6 @@ router.get(
  *       500:
  *         description: Internal server error
  */
-router.get(
-  "/project/:project_id/node/:hierarchy_node_id",
-  authenticateToken,
-  getUsersAssignedToNode
-);
-
-router.get(
-  "/project/internal/:project_id/node/:internal_node_id",
-  authenticateToken,
-  getInternalUsersAssignedToNode
-);
 
 /**
  * @swagger
@@ -333,17 +309,6 @@ router.get(
  *       500:
  *         description: Internal server error
  */
-router.get(
-  "/project/:project_id",
-  authenticateToken,
-  getUsersAssignedToProject
-);
-
-router.get(
-  "/project/internal/:project_id",
-  authenticateToken,
-  getInternalUsersAssignedToProject
-);
 
 /**
  * @swagger
@@ -376,23 +341,6 @@ router.get(
  *       500:
  *         description: Internal server error
  */
-router.get(
-  "/not-assigned/:institute_id/:project_id",
-  authenticateToken,
-  getUsersNotAssignedToProject
-);
-
-router.get(
-  "/internal-not-assigned/:project_id",
-  authenticateToken,
-  getInternalUsersNotAssignedToProject
-);
-
-router.get(
-  "/project-subnode-users/:project_id/:Internal_node_id",
-  authenticateToken,
-  getProjectSubNodeUsers
-);
 
 /**
  * @swagger

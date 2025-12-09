@@ -1,34 +1,25 @@
-
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const {
   validateCreateRole,
   validateUpdateRole,
 } = require("../validators/roleValidator");
-const {authenticateToken}=require('../middlewares/authMiddleware')
+const { authenticateToken } = require("../middlewares/authMiddleware");
 const {
   createRole,
   getRoles,
   getRoleById,
   updateRole,
   deleteRole,
-  getSubRolesByRole,
-  getPermissionsByRoleSubRole
-} = require('../controllers/roleController');
+} = require("../controllers/roleController");
 
 // Role CRUD routes
-router.post('/',authenticateToken,validateCreateRole, createRole);
-router.get('/',authenticateToken, getRoles);
-router.get('/:id',authenticateToken, getRoleById);
-router.put("/:id", authenticateToken, validateUpdateRole,updateRole);
-router.delete('/:id',authenticateToken, deleteRole);
+router.post("/", authenticateToken, validateCreateRole, createRole);
+router.get("/", authenticateToken, getRoles);
+router.get("/:id", authenticateToken, getRoleById);
+router.put("/:id", authenticateToken, validateUpdateRole, updateRole);
+router.delete("/:id", authenticateToken, deleteRole);
 
-// Additional role-related routes
-router.get("/:id/sub-roles", authenticateToken,getSubRolesByRole);
-router.get(
-  "/:roleId/sub-roles/:subRoleId/permissions",
-  authenticateToken,getPermissionsByRoleSubRole
-);
 /**
  * @swagger
  * tags:
