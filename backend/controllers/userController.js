@@ -1,21 +1,9 @@
 const {
   User,
   UserType,
-  Institute,
   UserPosition,
-  ProjectUserRole,
   Role,
-  SubRole,
-  RoleSubRole,
-  RoleSubRolePermission,
-  InternalProjectUserRole,
-  ProjectMetricUser,
-  Permission,
-  InternalNode,
-  ProjectMetric,
-  Project,
   UserRoles,
-  HierarchyNode,
   sequelize,
 } = require("../models");
 const { v4: uuidv4, validate: isUuid } = require("uuid");
@@ -23,8 +11,6 @@ const { Op } = require("sequelize");
 const bcrypt = require("bcrypt");
 const { generateRandomPassword } = require("../utils/password");
 const { sendEmail } = require("../utils/sendEmail");
-
-const { getPagination, getPagingData } = require("../utils/pagination");
 
 const getUserTypes = async (req, res) => {
   try {
