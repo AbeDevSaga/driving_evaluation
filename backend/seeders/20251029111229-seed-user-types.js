@@ -8,17 +8,23 @@ module.exports = {
     await queryInterface.bulkInsert("user_types", [
       {
         user_type_id: uuidv4(),
-        name: "external_user",
-        description:
-          "Users who are external stakeholders, such as clients or partners, interacting with the Issue Tracking System.",
+        name: "test_one",
+        description: "Test user type one for development or testing purposes.",
         created_at: now,
         updated_at: now,
       },
       {
         user_type_id: uuidv4(),
-        name: "internal_user",
+        name: "test_two",
+        description: "Test user type two for development or testing purposes.",
+        created_at: now,
+        updated_at: now,
+      },
+      {
+        user_type_id: uuidv4(),
+        name: "test_three",
         description:
-          "Users who are internal staff or employees within the organization managing or overseeing projects and issues.",
+          "Test user type three for development or testing purposes.",
         created_at: now,
         updated_at: now,
       },
