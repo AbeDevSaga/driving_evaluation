@@ -2,17 +2,19 @@
 
 import { useState } from "react";
 import { Header } from "@/components/layout/header";
+import { PageLayout } from "@/components/common/TableLayout";
 import { DataTable } from "@/components/common/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Eye, MoreHorizontal } from "lucide-react";
+import { Eye, MoreHorizontal, Plus, Download } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { FilterField, ActionButton } from "@/types/tableLayout";
 
 // Define the Evaluation type
 type Evaluation = {
@@ -129,8 +131,17 @@ const columns: ColumnDef<Evaluation>[] = [
     cell: ({ row }) => {
       const score = row.getValue("score") as number;
       const status = row.original.status;
-      if (status === "pending") return <span className="text-muted-foreground">-</span>;
-      return <span className={score >= 70 ? "text-green-600 font-medium" : "text-red-600 font-medium"}>{score}%</span>;
+      if (status === "pending")
+        return <span className="text-muted-foreground">-</span>;
+      return (
+        <span
+          className={
+            score >= 70 ? "text-green-600 font-medium" : "text-red-600 font-medium"
+          }
+        >
+          {score}%
+        </span>
+      );
     },
   },
   {
@@ -179,6 +190,8 @@ const columns: ColumnDef<Evaluation>[] = [
 export default function DashboardPage() {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
+  const [statusFilter, setStatusFilter] = useState("");
+  const [vehicleFilter, setVehicleFilter] = useState("");
 
   const handlePagination = (index: number, size: number) => {
     setPageIndex(index);
@@ -189,9 +202,57 @@ export default function DashboardPage() {
   const totalEvaluations = mockEvaluations.length;
   const passedCount = mockEvaluations.filter((e) => e.status === "passed").length;
   const pendingCount = mockEvaluations.filter((e) => e.status === "pending").length;
-  const passRate = totalEvaluations > 0 
-    ? Math.round((passedCount / (totalEvaluations - pendingCount)) * 100) 
-    : 0;
+  const passRate =
+    totalEvaluations > 0
+      ? Math.round((passedCount / (totalEvaluations - pendingCount)) * 100)
+      : 0;
+
+  // Define filters
+  const filters: FilterField[] = [
+    {
+      key: "status",
+      label: "Status",
+      type: "select",
+      placeholder: "Select status",
+      value: statusFilter,
+      onChange: setStatusFilter,
+      options: [
+        { label: "Passed", value: "passed" },
+        { label: "Failed", value: "failed" },
+        { label: "Pending", value: "pending" },
+      ],
+    },
+    {
+      key: "vehicle",
+      label: "Vehicle Type",
+      type: "select",
+      placeholder: "Select vehicle",
+      value: vehicleFilter,
+      onChange: setVehicleFilter,
+      options: [
+        { label: "Sedan", value: "Sedan" },
+        { label: "SUV", value: "SUV" },
+        { label: "Truck", value: "Truck" },
+        { label: "Motorcycle", value: "Motorcycle" },
+      ],
+    },
+  ];
+
+  // Define actions
+  const actions: ActionButton[] = [
+    {
+      label: "Export",
+      icon: <Download className="h-4 w-4" />,
+      variant: "outline",
+      onClick: () => console.log("Export clicked"),
+    },
+    {
+      label: "New Evaluation",
+      icon: <Plus className="h-4 w-4" />,
+      variant: "default",
+      onClick: () => console.log("New evaluation clicked"),
+    },
+  ];
 
   return (
     <>
@@ -206,9 +267,7 @@ export default function DashboardPage() {
             <p className="text-2xl font-bold">{totalEvaluations}</p>
           </div>
           <div className="rounded-lg border bg-card p-6 shadow-sm">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Passed
-            </h3>
+            <h3 className="text-sm font-medium text-muted-foreground">Passed</h3>
             <p className="text-2xl font-bold text-green-600">{passedCount}</p>
           </div>
           <div className="rounded-lg border bg-card p-6 shadow-sm">
@@ -225,9 +284,14 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Recent Evaluations Table */}
-        <div className="rounded-lg border bg-card p-6 shadow-sm">
-          <h2 className="text-lg font-semibold mb-4">Recent Evaluations</h2>
+        {/* Recent Evaluations Table with PageLayout */}
+        <PageLayout
+          title="Recent Evaluations"
+          description="View and manage all driving evaluations"
+          actions={actions}
+          filters={filters}
+          filterColumnsPerRow={2}
+        >
           <DataTable
             columns={columns}
             data={mockEvaluations}
@@ -236,7 +300,7 @@ export default function DashboardPage() {
             tablePageSize={pageSize}
             currentIndex={pageIndex}
           />
-        </div>
+        </PageLayout>
       </main>
     </>
   );
