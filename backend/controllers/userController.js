@@ -1,21 +1,9 @@
 const {
   User,
   UserType,
-  Institute,
   UserPosition,
-  ProjectUserRole,
   Role,
-  SubRole,
-  RoleSubRole,
-  RoleSubRolePermission,
-  InternalProjectUserRole,
-  ProjectMetricUser,
-  Permission,
-  InternalNode,
-  ProjectMetric,
-  Project,
   UserRoles,
-  HierarchyNode,
   sequelize,
 } = require("../models");
 const { v4: uuidv4, validate: isUuid } = require("uuid");
@@ -23,8 +11,6 @@ const { Op } = require("sequelize");
 const bcrypt = require("bcrypt");
 const { generateRandomPassword } = require("../utils/password");
 const { sendEmail } = require("../utils/sendEmail");
-
-const { getPagination, getPagingData } = require("../utils/pagination");
 
 const getUserTypes = async (req, res) => {
   try {
@@ -307,7 +293,7 @@ const updateUser = async (req, res) => {
 const getUsers = async (req, res) => {
   try {
     const {
-      institute_id,
+      // institute_id,
       user_type_id,
       is_active,
       search, // optional: for name/email search
@@ -316,7 +302,7 @@ const getUsers = async (req, res) => {
     // ====== Build filters dynamically ======
     const whereClause = {};
 
-    if (institute_id) whereClause.institute_id = institute_id;
+    // if (institute_id) whereClause.institute_id = institute_id;
     if (user_type_id) whereClause.user_type_id = user_type_id;
     if (is_active !== undefined) whereClause.is_active = is_active === "true";
 

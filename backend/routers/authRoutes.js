@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
 const { validateLogin } = require("../validators/authValidator");
-const { authenticateToken } = require("../middlewares/authMiddleware");
 /**
  * @swagger
  * tags:
@@ -51,21 +50,5 @@ router.post("/login", validateLogin, authController.login);
  *         description: Logout successful
  */
 router.post("/logout", authController.logout);
-
-/**
- * @swagger
- * /api/auth/me:
- *   get:
- *     summary: Get current logged-in user details
- *     tags: [Auth]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Returns the logged-in user details
- *       401:
- *         description: Unauthorized, invalid or missing token
- */
-router.get("/me", authenticateToken, authController.getCurrentUser);
 
 module.exports = router;

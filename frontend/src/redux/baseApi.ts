@@ -1,5 +1,5 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-const BASE_URL = "http://localhost:3000" 
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+const BASE_URL = "http://localhost:3000";
 // Custom base query with authentication
 const baseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
@@ -8,19 +8,15 @@ const baseQuery = fetchBaseQuery({
     // if (session?.accessToken) {
     //   headers.set('authorization', `Bearer ${session.accessToken}`);
     // }
-    headers.set('content-type', 'application/json');
-    headers.set('accept', 'application/json');
+    headers.set("content-type", "application/json");
+    headers.set("accept", "application/json");
     return headers;
   },
 });
 
- 
-
 export const baseApi = createApi({
-  reducerPath: 'api',
+  reducerPath: "api",
   baseQuery: baseQuery,
-  tagTypes: [
-    'User',
-  ],
+  tagTypes: ["User", "Roles", "Permissions"],
   endpoints: () => ({}),
 });

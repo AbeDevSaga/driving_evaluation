@@ -5,22 +5,17 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
+      // User belongs to UserType
+      User.belongsTo(models.UserType, {
+        foreignKey: "user_type_id",
+        as: "userType",
+      });
+
       User.belongsToMany(models.Role, {
         through: models.UserRoles,
         foreignKey: "user_id",
         otherKey: "role_id",
         as: "roles",
-      });
-      // A user (examiner) can have many section evaluations
-      User.hasMany(models.ExamSectionEvaluation, {
-        foreignKey: "examiner_id",
-        as: "sectionEvaluations",
-      });
-
-      // A user (examinee) can have many section evaluations
-      User.hasMany(models.ExamSectionEvaluation, {
-        foreignKey: "examinee_id",
-        as: "takenEvaluations",
       });
     }
   }
