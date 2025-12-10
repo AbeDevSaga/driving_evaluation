@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
 const { validateLogin } = require("../validators/authValidator");
-const { authenticateToken } = require("../middlewares/authMiddleware");
 /**
  * @swagger
  * tags:
