@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/searchable-select";
 import { cn } from "@/lib/utils";
 import type { FilterField } from "@/types/tableLayout";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
 interface FilterDrawerProps {
   isOpen: boolean;
