@@ -1,12 +1,12 @@
 import React, { useCallback } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import { PageLayoutProps } from "@/types/tableLayout";
-import { FilterPopover } from "@/components/common/FilterDrawer";
+import { FilterPopover } from "./FilterDrawer";
 import { useSearchParams, useRouter } from "next/navigation";
 
-export const PageLayout: React.FC<PageLayoutProps> = ({
+export const TableLayout: React.FC<PageLayoutProps> = ({
   title,
   description,
   actions = [],
