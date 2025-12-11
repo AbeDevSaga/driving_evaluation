@@ -159,3 +159,6 @@ socketServer.listen(socketPort, () => {
 app.set("socketio", io);
 
 module.exports = { appServer, io, onlineUsers };
+
+// Expose the server using
+// cloudflared tunnel --url http://localhost:4000
