@@ -16,7 +16,6 @@ export const authApi = baseApi.injectEndpoints({
 
         // Store token and user immediately
         if (response.token) {
-          // define localstorage for authToken
           localStorage.setItem("authToken", response.token);
         }
         if (user) {
