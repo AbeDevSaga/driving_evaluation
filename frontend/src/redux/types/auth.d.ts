@@ -12,6 +12,7 @@ export interface Permission {
 export interface Role {
   role_id: string;
   name: string;
+  is_active?: boolean;
   permissions: Permission[];
 }
 
