@@ -24,6 +24,7 @@ export interface User {
   is_first_logged_in: boolean;
 }
 
+// Auth Response Matching The Backend
 export interface AuthResponse {
   token: string;
   user: User | null;

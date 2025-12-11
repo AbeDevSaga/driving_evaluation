@@ -26,7 +26,7 @@ const login = async (req, res) => {
                 {
                   model: Permission,
                   as: "permission",
-                  attributes: ["permission_id", "name", "key"],
+                  attributes: ["permission_id", "resource", "action"],
                 },
               ],
             },
@@ -51,8 +51,8 @@ const login = async (req, res) => {
       name: role.name,
       permissions: role.rolePermissions.map((rp) => ({
         permission_id: rp.permission_id,
-        name: rp.permission?.name,
-        key: rp.permission?.key,
+        resource: rp.permission?.resource,
+        action: rp.permission?.action,
       })),
     }));
 

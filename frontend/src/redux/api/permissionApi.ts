@@ -37,6 +37,7 @@ export const permissionApi = baseApi.injectEndpoints({
       query: (permission_id) => ({
         url: `/permissions/toggle/${permission_id}`,
         method: "PUT",
+        body: {},
       }),
       transformResponse: (response: any): Permission => response.data,
       invalidatesTags: ["Permissions"],

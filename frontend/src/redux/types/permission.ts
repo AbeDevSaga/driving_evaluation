@@ -1,6 +1,7 @@
 export interface Permission {
   permission_id: string;
   name: string;
+  action: string;
   key: string;
   resource: string;
   is_active: boolean;

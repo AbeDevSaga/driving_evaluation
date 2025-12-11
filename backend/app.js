@@ -28,6 +28,7 @@ const appServer = http.createServer(app);
 app.use(
   express.json({
     verify: (req, res, buf) => {
+      if (!buf.length) return; // allow empty body
       try {
         JSON.parse(buf);
       } catch (e) {
