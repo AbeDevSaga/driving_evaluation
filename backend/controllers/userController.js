@@ -15,13 +15,7 @@ const { sendEmail } = require("../utils/sendEmail");
 const getUserTypes = async (req, res) => {
   try {
     const userTypes = await UserType.findAll({
-      attributes: [
-        "user_type_id",
-        "name",
-        "description",
-        "created_at",
-        "updated_at",
-      ],
+      attributes: ["name", "description", "created_at", "updated_at"],
       order: [["name", "ASC"]],
     });
 
