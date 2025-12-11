@@ -16,11 +16,11 @@ const {
   deleteRole,
 } = require("../controllers/roleController");
 
-router.post("/", authenticateToken, validateCreateRole, createRole);
-router.get("/", authenticateToken, getRoles);
-router.get("/:id", authenticateToken, getRoleById);
-router.put("/:id", authenticateToken, validateUpdateRole, updateRole);
-router.delete("/:id", authenticateToken, deleteRole);
+router.post("/", validateCreateRole, createRole);
+router.get("/", getRoles);
+router.get("/:id", getRoleById);
+router.put("/:id", validateUpdateRole, updateRole);
+router.delete("/:id", deleteRole);
 
 /**
  * @swagger
