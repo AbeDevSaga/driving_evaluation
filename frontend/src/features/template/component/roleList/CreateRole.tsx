@@ -247,7 +247,6 @@ export default function CreateRole() {
           data: {
             name: name.trim(),
             description: description.trim(),
-            role_type: roleType,
             permission_ids: selectedPermissionIds,
           },
         }).unwrap();
@@ -258,13 +257,12 @@ export default function CreateRole() {
         await createRole({
           name: name.trim(),
           description: description.trim(),
-          role_type: roleType,
           permission_ids: selectedPermissionIds,
         }).unwrap();
 
         toast.success("Role created successfully!");
         resetForm();
-        router.push("/role");
+        router.push("/users/roles");
       }
     } catch (error: any) {
       toast.error(
