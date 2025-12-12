@@ -52,7 +52,7 @@ export const BasicInfo: React.FC<BasicInfoProps> = ({
           </div>
 
           {/* Role Type Dropdown */}
-          <div className="space-y-2 flex col-span-1 flex-col gap-2">
+          {/* <div className="space-y-2 flex col-span-1 flex-col gap-2">
             <Label
               htmlFor="role_type"
               className="text-sm font-medium text-[#094C81]"
@@ -71,7 +71,7 @@ export const BasicInfo: React.FC<BasicInfoProps> = ({
                 <SelectItem value="external">External</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
 
           <div className="space-y-2 flex col-span-1 flex-col gap-2">
             <Label
