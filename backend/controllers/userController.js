@@ -79,13 +79,13 @@ const createUser = async (req, res) => {
     }
 
     // ====== Validate user type ======
-    const userType = await UserType.findByPk(user_type_id, { transaction: t });
-    if (!userType) {
-      await t.rollback();
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid user type." });
-    }
+    // const userType = await UserType.findByPk(user_type_id, { transaction: t });
+    // if (!userType) {
+    //   await t.rollback();
+    //   return res
+    //     .status(400)
+    //     .json({ success: false, message: "Invalid user type." });
+    // }
 
     // ====== MULTIPLE ROLE VALIDATION ======
     if (role_ids && Array.isArray(role_ids) && role_ids.length > 0) {

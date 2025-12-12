@@ -45,7 +45,7 @@ export interface CreateUserPayload {
   full_name: string;
   email: string;
   phone_number?: string;
-  user_type_id: string;
+  user_type_id?: string;
   role_ids?: string[];
 }
 
