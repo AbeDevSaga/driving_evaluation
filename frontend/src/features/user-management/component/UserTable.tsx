@@ -9,8 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Plus, MoreHorizontal } from "lucide-react";
 
 import type { FilterField, ActionButton } from "@/types/tableLayout";
-import { useRouter } from "next/navigation";
-import { useGetUsersQuery } from "@/redux/api/userApi";
+import { useExportUsersMutation, useGetUsersQuery } from "@/redux/api/userApi";
 import { User } from "@/redux/types/user";
 import { CreateUserModal } from "@/components/common/modal/CreateUserModal";
 
@@ -59,6 +58,8 @@ const columns: ColumnDef<User>[] = [
 
 export default function UserTable() {
   const { data = [], isLoading, isError, refetch } = useGetUsersQuery();
+  const [exportUsers, { isLoading: exportLoading }] = useExportUsersMutation();
+
   // Pagination states
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
@@ -93,8 +94,25 @@ export default function UserTable() {
       label: "Export",
       icon: <Download className="h-4 w-4" />,
       variant: "outline",
-      onClick: () => console.log("Export clicked"),
+      loading: exportLoading,
+      onClick: async () => {
+        try {
+          const blob = await exportUsers().unwrap();
+          // Create download link
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "users.csv";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        } catch (err) {
+          console.error("Export failed", err);
+        }
+      },
     },
+
     {
       label: "New User",
       icon: <Plus className="h-4 w-4" />,

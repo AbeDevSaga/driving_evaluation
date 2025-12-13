@@ -11,6 +11,7 @@ const {
   getProfile,
   getUserTypes,
   getUserPositions,
+  exportUsers,
 } = require("../controllers/userController");
 
 // Middleware for authentication if needed (example)
@@ -46,6 +47,68 @@ router.get("/types", getUserTypes);
  *         description: List of user positions
  */
 router.get("/positions", getUserPositions);
+
+/**
+ * @swagger
+ * /users/export:
+ *   get:
+ *     summary: Export users as CSV or Excel
+ *     tags: [Users]
+ *     description: >
+ *       Export users based on filters into CSV or Excel (.xlsx) format.
+ *       Query params allow filtering by user type, active status, and search text.
+ *     parameters:
+ *       - in: query
+ *         name: format
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [csv, xlsx]
+ *         description: File format to export (default: csv)
+ *
+ *       - in: query
+ *         name: user_type_id
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Filter users by user type ID
+ *
+ *       - in: query
+ *         name: is_active
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [true, false]
+ *         description: Filter users by active status
+ *
+ *       - in: query
+ *         name: search
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Search users by name, email, or phone number
+ *
+ *     responses:
+ *       200:
+ *         description: File downloaded successfully
+ *         content:
+ *           text/csv:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       400:
+ *         description: Invalid request
+ *       404:
+ *         description: No users found for export
+ *       500:
+ *         description: Server error while generating export
+ */
+
+router.get("/export", exportUsers);
 
 /**
  * @swagger
@@ -242,5 +305,4 @@ router.patch("/:id/toggle-status", toggleUserActiveStatus);
  *         description: Password reset successfully
  */
 router.post("/:id/reset-password", resetUserPassword);
-
 module.exports = router;

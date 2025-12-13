@@ -132,7 +132,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
             {/* ROLE MULTI SELECT */}
 
             <div className="w-full space-y-2">
-              <Label className="text-sm font-medium text-[#094C81] mt-2 pr-2">
+              <Label className="block text-sm text-[#094C81] font-medium mb-2">
                 Role <span className="text-red-500">*</span>
               </Label>
               <Select
@@ -146,7 +146,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                   );
                 }}
               >
-                <SelectTrigger className="w-full h-12 border p-2 rounded mt-1 text-[#094C81]">
+                <SelectTrigger className="w-full h-12 border border-gray-300 px-4 py-5 rounded-md focus:ring focus:ring-[#094C81] focus:border-transparent transition-all duration-200 outline-none">
                   <div className="flex items-center justify-between w-full">
                     <SelectValue asChild>
                       <span>
