@@ -14,7 +14,6 @@ const { swaggerUi, swaggerSpec } = require("./swagger");
 
 const userRoute = require("./routers/userRoutes");
 const roleRoute = require("./routers/roleRoutes");
-const rolePermissionRoute = require("./routers/rolePermissionRoutes");
 const userRoleRoute = require("./routers/userRoleRoutes");
 const authRoute = require("./routers/authRoutes");
 const permissionRoute = require("./routers/permissionRoutes");
@@ -29,6 +28,7 @@ const appServer = http.createServer(app);
 app.use(
   express.json({
     verify: (req, res, buf) => {
+      if (!buf.length) return; // allow empty body
       try {
         JSON.parse(buf);
       } catch (e) {
@@ -100,7 +100,6 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/api/users", userRoute);
 app.use("/api/roles", roleRoute);
-app.use("/api/role-permission", rolePermissionRoute);
 app.use("/api/user-roles", userRoleRoute);
 app.use("/api/auth", authRoute);
 app.use("/api/change-password", changePasswordRoutes);
@@ -160,3 +159,6 @@ socketServer.listen(socketPort, () => {
 app.set("socketio", io);
 
 module.exports = { appServer, io, onlineUsers };
+
+// Expose the server using
+// cloudflared tunnel --url http://localhost:4000

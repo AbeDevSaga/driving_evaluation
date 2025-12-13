@@ -1,10 +1,13 @@
 const express = require("express");
 const router = express.Router();
+
 const {
   validateCreateRole,
   validateUpdateRole,
 } = require("../validators/roleValidator");
+
 const { authenticateToken } = require("../middlewares/authMiddleware");
+
 const {
   createRole,
   getRoles,
@@ -13,105 +16,86 @@ const {
   deleteRole,
 } = require("../controllers/roleController");
 
-// Role CRUD routes
-router.post("/", authenticateToken, validateCreateRole, createRole);
-router.get("/", authenticateToken, getRoles);
-router.get("/:id", authenticateToken, getRoleById);
-router.put("/:id", authenticateToken, validateUpdateRole, updateRole);
-router.delete("/:id", authenticateToken, deleteRole);
+router.post("/", validateCreateRole, createRole);
+router.get("/", getRoles);
+router.get("/:id", getRoleById);
+router.put("/:id", validateUpdateRole, updateRole);
+router.delete("/:id", deleteRole);
 
 /**
  * @swagger
  * tags:
  *   name: Roles
- *   description: Role management including sub-roles and permissions
+ *   description: Manage system roles and their permissions
  */
 
 /**
  * @swagger
  * components:
  *   schemas:
+ *     PermissionRef:
+ *       type: object
+ *       properties:
+ *         permission_id:
+ *           type: string
+ *         resource:
+ *           type: string
+ *         action:
+ *           type: string
+ *
  *     Role:
  *       type: object
  *       properties:
  *         role_id:
  *           type: string
- *           format: uuid
- *           example: "a8f1d1a2-93e0-4f4a-bc6e-213a5f6f77f3"
  *         name:
  *           type: string
- *           example: "Project Manager"
  *         description:
  *           type: string
- *           example: "Manages project activities and oversees team performance"
  *         is_active:
  *           type: boolean
- *           example: true
- *         created_at:
- *           type: string
- *           format: date-time
- *         updated_at:
- *           type: string
- *           format: date-time
- *     SubRole:
- *       type: object
- *       properties:
- *         sub_role_id:
- *           type: string
- *           format: uuid
- *           example: "bd45c090-6c35-4d1a-b7f5-5dc6a91e6af3"
- *         name:
- *           type: string
- *           example: "Frontend Developer"
- *         description:
- *           type: string
- *           example: "Responsible for user interface and client-side logic"
- *     Permission:
- *       type: object
- *       properties:
- *         permission_id:
- *           type: string
- *           format: uuid
- *           example: "f52b58b5-1989-4aab-8dc9-5b9c0cf4f8b3"
- *         resource:
- *           type: string
- *           example: "project"
- *         action:
- *           type: string
- *           example: "create"
- *     RoleCreateRequest:
+ *         rolePermissions:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               role_permission_id:
+ *                 type: string
+ *               permission:
+ *                 $ref: '#/components/schemas/PermissionRef'
+ *
+ *     CreateRoleRequest:
  *       type: object
  *       required:
  *         - name
  *       properties:
  *         name:
  *           type: string
- *           example: "Administrator"
  *         description:
  *           type: string
- *           example: "Full system access and management rights"
- *         sub_roles:
+ *         permission_ids:
  *           type: array
  *           items:
- *             type: object
- *             properties:
- *               sub_role_id:
- *                 type: string
- *                 format: uuid
- *                 example: "bd45c090-6c35-4d1a-b7f5-5dc6a91e6af3"
- *               permission_ids:
- *                 type: array
- *                 items:
- *                   type: string
- *                   format: uuid
- *                   example: "f52b58b5-1989-4aab-8dc9-5b9c0cf4f8b3"
+ *             type: string
+ *
+ *     UpdateRoleRequest:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *         description:
+ *           type: string
+ *         permission_ids:
+ *           type: array
+ *           items:
+ *             type: string
  */
 
 /**
  * @swagger
  * /api/roles:
  *   post:
- *     summary: Create a new role with sub-roles and permissions
+ *     summary: Create a new role with permissions
  *     tags: [Roles]
  *     security:
  *       - bearerAuth: []
@@ -120,23 +104,24 @@ router.delete("/:id", authenticateToken, deleteRole);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/RoleCreateRequest'
+ *             $ref: '#/components/schemas/CreateRoleRequest'
  *     responses:
  *       201:
  *         description: Role created successfully
  *       400:
- *         description: Validation error or role already exists
- *       500:
- *         description: Server error
+ *         description: Invalid payload or role already exists
  *
  *   get:
- *     summary: Get all roles with sub-roles and permissions
+ *     summary: Get all roles
  *     tags: [Roles]
+ *     parameters:
+ *       - in: query
+ *         name: is_active
+ *         schema:
+ *           type: boolean
  *     responses:
  *       200:
- *         description: Successfully retrieved list of roles
- *       500:
- *         description: Server error
+ *         description: List of roles
  */
 
 /**
@@ -146,125 +131,54 @@ router.delete("/:id", authenticateToken, deleteRole);
  *     summary: Get a specific role by ID
  *     tags: [Roles]
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
+ *         required: true
  *         schema:
  *           type: string
- *           format: uuid
- *         required: true
- *         description: Role ID
  *     responses:
  *       200:
- *         description: Successfully retrieved role
+ *         description: Role found
  *       404:
  *         description: Role not found
- *       500:
- *         description: Server error
  *
  *   put:
- *     summary: Update a specific role, sub-roles, and permissions
+ *     summary: Update a role (including its permissions)
  *     tags: [Roles]
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
+ *         required: true
  *         schema:
  *           type: string
- *           format: uuid
- *         required: true
- *         description: Role ID
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/RoleCreateRequest'
+ *             $ref: '#/components/schemas/UpdateRoleRequest'
  *     responses:
  *       200:
- *         description: Role updated successfully
- *       400:
- *         description: Validation error or name conflict
- *       404:
- *         description: Role not found
- *       500:
- *         description: Server error
+ *         description: Updated successfully
  *
  *   delete:
- *     summary: Soft delete a specific role
+ *     summary: Soft delete a role
  *     tags: [Roles]
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
+ *         required: true
  *         schema:
  *           type: string
- *           format: uuid
- *         required: true
- *         description: Role ID
  *     responses:
  *       200:
- *         description: Role deleted successfully
+ *         description: Deleted successfully
  *       400:
- *         description: Role is in use and cannot be deleted
- *       404:
- *         description: Role not found
- *       500:
- *         description: Server error
- */
-
-/**
- * @swagger
- * /api/roles/{id}/sub-roles:
- *   get:
- *     summary: Get all sub-roles for a specific role
- *     tags: [Roles]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *           format: uuid
- *         required: true
- *         description: Role ID
- *     responses:
- *       200:
- *         description: List of sub-roles for the given role
- *       404:
- *         description: Role not found
- *       500:
- *         description: Server error
- */
-
-/**
- * @swagger
- * /api/roles/{roleId}/sub-roles/{subRoleId}/permissions:
- *   get:
- *     summary: Get all permissions for a specific role-subrole combination
- *     tags: [Roles]
- *     parameters:
- *       - in: path
- *         name: roleId
- *         schema:
- *           type: string
- *           format: uuid
- *         required: true
- *         description: Role ID
- *       - in: path
- *         name: subRoleId
- *         schema:
- *           type: string
- *           format: uuid
- *         required: true
- *         description: Sub-role ID
- *     responses:
- *       200:
- *         description: List of permissions for the role-subrole pair
- *       404:
- *         description: Role or sub-role not found
- *       500:
- *         description: Server error
+ *         description: Cannot delete — role in use
  */
 
 module.exports = router;

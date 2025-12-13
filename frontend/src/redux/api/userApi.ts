@@ -1,82 +1,154 @@
-import { baseApi } from "@/redux/baseApi";
-import type { User, UserListParams } from "@/types/userType";
+import { baseApi } from "../baseApi";
+import { UserType, UserPosition, User } from "../types/user";
+import {
+  CreateUserPayload,
+  UpdateUserPayload,
+  ToggleUserStatusPayload,
+} from "../types/user";
 
-export const userApi = baseApi
-  .enhanceEndpoints({
-    addTagTypes: ["User"],
-  })
-  .injectEndpoints({
-    endpoints: (builder) => ({
-      // Query endpoint (GET) - Get list of users
-      getUsersList: builder.query<User[], UserListParams | void>({
-        query: (params) => ({
-          url: `/user/users`,
-          method: "GET" as const,
-          // params: params, // Uncomment when you have query params
-        }),
-        providesTags: (result) =>
-          result
-            ? [
-                ...result.map(({ id }) => ({ type: "User" as const, id })),
-                { type: "User", id: "LIST" },
-              ]
-            : [{ type: "User", id: "LIST" }],
+export const userApi = baseApi.injectEndpoints({
+  endpoints: (builder) => ({
+    /** ---------------------------
+     * GET ALL USERS
+     * --------------------------- */
+    getUsers: builder.query<
+      User[],
+      { user_type_id?: string; is_active?: boolean; search?: string } | void
+    >({
+      query: (params) =>
+        params ? { url: "/users", params } : { url: "/users" },
+      transformResponse: (response: any): User[] => response.data ?? [],
+      providesTags: ["User"],
+    }),
+
+    /** ---------------------------
+     * GET USER BY ID
+     * --------------------------- */
+    getUserById: builder.query<User, string>({
+      query: (id) => `/users/${id}`,
+      transformResponse: (response: any): User => response.data,
+      providesTags: (_r, _e, id) => [{ type: "User", id }],
+    }),
+
+    /** ---------------------------
+     * GET CURRENT USER PROFILE
+     * --------------------------- */
+    getProfile: builder.query<User, void>({
+      query: () => `/users/profile/me`,
+      transformResponse: (response: any): User => response.data,
+      providesTags: ["User"],
+    }),
+
+    /** ---------------------------
+     * CREATE USER
+     * --------------------------- */
+    createUser: builder.mutation<User, CreateUserPayload>({
+      query: (body) => ({
+        url: "/users",
+        method: "POST",
+        body,
       }),
+      transformResponse: (response: any): User => response.data,
+      invalidatesTags: ["User"],
+    }),
 
-      // Query endpoint (GET) - Get single user by ID
-      getUserById: builder.query<User, string>({
-        query: (id) => ({
-          url: `/user/users/${id}`,
-          method: "GET" as const,
+    /** ---------------------------
+     * UPDATE USER
+     * --------------------------- */
+    updateUser: builder.mutation<User, { id: string; data: UpdateUserPayload }>(
+      {
+        query: ({ id, data }) => ({
+          url: `/users/${id}`,
+          method: "PUT",
+          body: data,
         }),
-        providesTags: (result, error, id) => [{ type: "User", id }],
+        transformResponse: (response: any): User => response.data,
+        invalidatesTags: (_r, _e, { id }) => [{ type: "User", id }, "User"],
+      }
+    ),
+
+    /** ---------------------------
+     * DELETE USER (SOFT DELETE)
+     * --------------------------- */
+    deleteUser: builder.mutation<{ message: string }, string>({
+      query: (id) => ({
+        url: `/users/${id}`,
+        method: "DELETE",
       }),
+      transformResponse: (response: any) => response,
+      invalidatesTags: ["User"],
+    }),
 
-      // Mutation endpoint (POST) - Create new user
-      createUser: builder.mutation<User, Partial<User>>({
-        query: (user) => ({
-          url: "/user/users",
-          method: "POST" as const,
-          body: user,
-        }),
-        invalidatesTags: [{ type: "User", id: "LIST" }],
+    /** ---------------------------
+     * TOGGLE USER ACTIVE STATUS
+     * --------------------------- */
+    toggleUserStatus: builder.mutation<
+      User,
+      { id: string; data: ToggleUserStatusPayload }
+    >({
+      query: ({ id, data }) => ({
+        url: `/users/${id}/toggle-status`,
+        method: "PATCH",
+        body: data,
       }),
+      transformResponse: (response: any): User => response.data,
+      invalidatesTags: (_r, _e, { id }) => [{ type: "User", id }, "User"],
+    }),
 
-      // Mutation endpoint (PUT) - Update user
-      updateUser: builder.mutation<
-        User,
-        { id: string; updates: Partial<User> }
-      >({
-        query: ({ id, updates }) => ({
-          url: `/user/users/${id}`,
-          method: "PUT" as const,
-          body: updates,
-        }),
-        invalidatesTags: (result, error, { id }) => [
-          { type: "User", id },
-          { type: "User", id: "LIST" },
-        ],
+    /** ---------------------------
+     * RESET USER PASSWORD
+     * --------------------------- */
+    resetUserPassword: builder.mutation<{ message: string }, string>({
+      query: (id) => ({
+        url: `/users/${id}/reset-password`,
+        method: "POST",
       }),
+      transformResponse: (response: any) => response,
+      invalidatesTags: ["User"],
+    }),
 
-      // Mutation endpoint (DELETE) - Delete user
-      deleteUser: builder.mutation<void, string>({
-        query: (id) => ({
-          url: `/user/users/${id}`,
-          method: "DELETE" as const,
-        }),
-        invalidatesTags: (result, error, id) => [
-          { type: "User", id },
-          { type: "User", id: "LIST" },
-        ],
+    /** ---------------------------
+     * GET USER TYPES
+     * --------------------------- */
+    getUserTypes: builder.query<UserType[], void>({
+      query: () => "/users/types",
+      transformResponse: (response: any): UserType[] => response.data ?? [],
+      providesTags: ["User"],
+    }),
+
+    /** ---------------------------
+     * GET USER POSITIONS
+     * --------------------------- */
+    getUserPositions: builder.query<UserPosition[], void>({
+      query: () => "/users/positions",
+      transformResponse: (response: any): UserPosition[] => response.data ?? [],
+      providesTags: ["User"],
+    }),
+
+    /** ---------------------------
+     * EXPORT USERS
+     * --------------------------- */
+    exportUsers: builder.mutation<Blob, void>({
+      query: () => ({
+        url: "/users/export",
+        method: "GET",
+        responseHandler: (response) => response.blob(), // <-- handle file
+        cache: "no-cache",
       }),
     }),
-  });
+  }),
+});
 
-// Export hooks
 export const {
-  useGetUsersListQuery,
+  useGetUsersQuery,
   useGetUserByIdQuery,
+  useGetProfileQuery,
   useCreateUserMutation,
   useUpdateUserMutation,
   useDeleteUserMutation,
+  useToggleUserStatusMutation,
+  useResetUserPasswordMutation,
+  useGetUserTypesQuery,
+  useGetUserPositionsQuery,
+  useExportUsersMutation,
 } = userApi;
