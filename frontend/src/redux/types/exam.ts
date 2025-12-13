@@ -12,12 +12,14 @@ export interface CreateExamPayload {
   name: string;
   description?: string;
   pass_percentage: number;
+  vehicle_category_id: string;
 }
 
 export interface UpdateExamPayload {
   name?: string;
   description?: string;
   pass_percentage?: number;
+  vehicle_category_id?: string;
   is_active?: boolean;
 }
 
