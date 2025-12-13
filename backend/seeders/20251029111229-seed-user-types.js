@@ -8,23 +8,17 @@ module.exports = {
     await queryInterface.bulkInsert("user_types", [
       {
         user_type_id: uuidv4(),
-        name: "test_one",
-        description: "Test user type one for development or testing purposes.",
-        created_at: now,
-        updated_at: now,
-      },
-      {
-        user_type_id: uuidv4(),
-        name: "test_two",
-        description: "Test user type two for development or testing purposes.",
-        created_at: now,
-        updated_at: now,
-      },
-      {
-        user_type_id: uuidv4(),
-        name: "test_three",
+        name: "internal",
         description:
-          "Test user type three for development or testing purposes.",
+          "Internal system users such as administrators, examiners, and staff.",
+        created_at: now,
+        updated_at: now,
+      },
+      {
+        user_type_id: uuidv4(),
+        name: "external",
+        description:
+          "External users such as examinees who take driving license exams.",
         created_at: now,
         updated_at: now,
       },
@@ -32,6 +26,8 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete("user_types", null, {});
+    await queryInterface.bulkDelete("user_types", {
+      name: ["internal", "external"],
+    });
   },
 };
