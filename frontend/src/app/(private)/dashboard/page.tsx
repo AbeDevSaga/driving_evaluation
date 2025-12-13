@@ -1,10 +1,10 @@
 "use client";
 
-import AreaChart01 from "@/features/template/component/ReCharts/AreaCharts/AreaChart01";
-import BarChart01 from "@/features/template/component/ReCharts/BarCharts/BarChart01";
-import BarChart08 from "@/features/template/component/ReCharts/BarCharts/BarChart08";
-import PieChart11 from "@/features/template/component/ReCharts/PieCharts/PieChart11";
-import ChartRadialText01 from "@/features/template/component/ReCharts/RadialCharts/ChartRadialText01";
+import AreaChart01 from "@/features/template/component/reCharts/AreaCharts/AreaChart01";
+import BarChart01 from "@/features/template/component/reCharts/BarCharts/BarChart01";
+import BarChart08 from "@/features/template/component/reCharts/BarCharts/BarChart08";
+import PieChart11 from "@/features/template/component/reCharts/PieCharts/PieChart11";
+import ChartRadialText01 from "@/features/template/component/reCharts/RadialCharts/ChartRadialText01";
 import TableComponentExample from "@/features/template/usage/TableComponent.Example";
 
 export default function DashboardPage() {
