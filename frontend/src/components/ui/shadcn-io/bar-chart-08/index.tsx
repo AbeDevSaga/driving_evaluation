@@ -49,12 +49,13 @@ const chartConfig = {
 export function ChartBarMixed() {
   return (
     <div className="w-full h-full flex flex-col p-4">
-      <div className="flex flex-col gap-1 pb-4 mb-4 border-b">
+      <div className="flex flex-col gap-1 pb-4 mb-4 ">
         <h3 className="text-lg font-semibold">Bar Chart - Mixed</h3>
         <p className="text-sm text-muted-foreground">January - June 2024</p>
       </div>
+
       <div className="flex-1 flex items-center justify-center min-h-0">
-        <ChartContainer config={chartConfig} className="h-[250px] w-full">
+        <ChartContainer config={chartConfig} className="h-[300px] w-full">
           <BarChart
             accessibilityLayer
             data={chartData}

@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { signOut } from "next-auth/react";
 
 interface NavUserProps {
   user: {
@@ -30,8 +31,7 @@ export function NavUser({ user }: NavUserProps) {
     .slice(0, 2);
 
   const handleLogout = () => {
-    // TODO: Implement logout logic
-    console.log("Logout clicked");
+    signOut({ redirectTo: "/login" });
   };
 
   return (

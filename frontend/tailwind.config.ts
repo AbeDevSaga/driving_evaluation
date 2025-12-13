@@ -11,6 +11,9 @@ const config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

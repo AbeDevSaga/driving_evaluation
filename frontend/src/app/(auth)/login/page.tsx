@@ -10,6 +10,7 @@ import { ArrowLeftIcon, EyeIcon, EyeOffIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signIn } from "@/auth";
 import { login } from "@/actions/user";
+import Image from "next/image";
 
 export default function ExternalLogin() {
   const [showPassword, setShowPassword] = useState(false);
@@ -51,10 +52,12 @@ export default function ExternalLogin() {
         {/* Left Section */}
         <div className="w-full bg-cover bg-center p-8 flex items-center justify-center">
           <div className="backdrop-blur-md p-6 rounded-xl text-center">
-            <img
+            <Image
               src="/logo-aii.png"
               alt="Organization Logo"
-              className="h-72 mx-auto mb-3 rounded-xl p-2"
+              width={288}
+              height={288}
+              className="mx-auto mb-3 rounded-xl p-2"
             />
           </div>
         </div>

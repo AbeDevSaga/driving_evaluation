@@ -107,7 +107,7 @@ export default function RoleList() {
       description="View and manage user roles"
       actions={actions}
       filters={filters}
-      filterColumnsPerRow={2}
+      filterColumnsPerRow={1}
     >
       <DataTable
         columns={columns}

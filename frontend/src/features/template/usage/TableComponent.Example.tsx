@@ -6,7 +6,7 @@ import { TableLayout } from "@/features/template/component/tableList/TableLayout
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Plus, Download } from "lucide-react";
+import { MoreHorizontal, Plus, Download, Eye, Edit, Trash } from "lucide-react";
 import type { FilterField, ActionButton } from "@/types/tableLayout";
 
 type Evaluation = {
@@ -117,9 +117,17 @@ const columns: ColumnDef<Evaluation>[] = [
     header: "Actions",
     cell: () => {
       return (
+        <div className="flex items-center">
         <Button variant="ghost" size="icon">
-          <MoreHorizontal />
+          <Eye className="h-4 w-4" />
         </Button>
+        <Button variant="ghost" size="icon">
+          <Edit className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon">
+          <Trash className="h-4 w-4" />
+        </Button>
+        </div>
       );
     },
   },
