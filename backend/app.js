@@ -22,6 +22,9 @@ const changePasswordRoutes = require("./routers/user-routes/passwordChangeRoutes
 // ================== Exam Routes ==========================
 const examRoute = require("./routers/exam-routes/examRoutes");
 
+// ================== Structure Routes ==========================
+const structureRoulte = require("./routers/structure-routes/structureNodeRoutes");
+
 // const issueFileAttachmentRoutes = require("./routers/issueAttachmentRoutes");
 // const fileAttachmentRoutes = require("./routers/attachementRoutes");
 
@@ -83,8 +86,6 @@ sequelize
   .then(() => console.log(" Database connected successfully"))
   .catch((err) => console.error(" Database connection error:", err));
 
-
-  
 // ================== API Routes go here ==================
 // ================== Swagger Setup ==================
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -99,6 +100,9 @@ app.use("/api/permissions", permissionRoute);
 
 // ================== Api Exam Routes =====================
 app.use("/api/exams", examRoute);
+
+// ================== Api Structure Routes =====================
+app.use("/api/structure-nodes", structureRoulte);
 
 // app.use("/api/issue-attachments", issueFileAttachmentRoutes);
 // app.use("/api/attachments", fileAttachmentRoutes);
