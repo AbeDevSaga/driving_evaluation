@@ -9,7 +9,6 @@ import {
   Settings,
   Home,
   Users as UsersIcon,
-  Briefcase,
   AlertCircle,
   Building,
   Layers,

@@ -11,6 +11,8 @@ const { Op } = require("sequelize");
 const bcrypt = require("bcrypt");
 const { generateRandomPassword } = require("../utils/password");
 const { sendEmail } = require("../utils/sendEmail");
+const { Parser } = require("json2csv");
+const ExcelJS = require("exceljs");
 
 const getUserTypes = async (req, res) => {
   try {
@@ -79,13 +81,13 @@ const createUser = async (req, res) => {
     }
 
     // ====== Validate user type ======
-    const userType = await UserType.findByPk(user_type_id, { transaction: t });
-    if (!userType) {
-      await t.rollback();
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid user type." });
-    }
+    // const userType = await UserType.findByPk(user_type_id, { transaction: t });
+    // if (!userType) {
+    //   await t.rollback();
+    //   return res
+    //     .status(400)
+    //     .json({ success: false, message: "Invalid user type." });
+    // }
 
     // ====== MULTIPLE ROLE VALIDATION ======
     if (role_ids && Array.isArray(role_ids) && role_ids.length > 0) {
@@ -584,6 +586,111 @@ const getProfile = async (req, res) => {
   }
 };
 
+// Export users
+const exportUsers = async (req, res) => {
+  try {
+    let { format, user_type_id, is_active, search } = req.query;
+
+    if (!format) format = "csv"; // default export
+
+    // ====== Build filters dynamically ======
+    const whereClause = {};
+
+    if (user_type_id) whereClause.user_type_id = user_type_id;
+    if (is_active !== undefined) whereClause.is_active = is_active === "true";
+
+    if (search) {
+      whereClause[Op.or] = [
+        { full_name: { [Op.like]: `%${search}%` } },
+        { email: { [Op.like]: `%${search}%` } },
+        { phone_number: { [Op.like]: `%${search}%` } },
+      ];
+    }
+
+    // ====== Fetch users with minimal fields ======
+    const users = await User.findAll({
+      where: whereClause,
+      include: [
+        {
+          model: UserType,
+          as: "userType",
+          attributes: ["name"],
+        },
+      ],
+      order: [["created_at", "DESC"]],
+    });
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No users found for export.",
+      });
+    }
+
+    // Convert to plain object
+    const data = users.map((u) => ({
+      full_name: u.full_name,
+      email: u.email,
+      phone_number: u.phone_number,
+      user_type: u.userType?.name || "",
+      is_active: u.is_active ? "Active" : "Inactive",
+      created_at: u.created_at,
+    }));
+
+    // ====================================================
+    //  EXPORT: CSV
+    // ====================================================
+    if (format === "csv") {
+      const json2csvParser = new Parser();
+      const csv = json2csvParser.parse(data);
+
+      res.header("Content-Type", "text/csv");
+      res.attachment("users.csv");
+      return res.send(csv);
+    }
+
+    // ====================================================
+    //  EXPORT: Excel (.xlsx)
+    // ====================================================
+    if (format === "xlsx") {
+      const workbook = new ExcelJS.Workbook();
+      const sheet = workbook.addWorksheet("Users");
+
+      sheet.columns = [
+        { header: "Full Name", key: "full_name", width: 25 },
+        { header: "Email", key: "email", width: 25 },
+        { header: "Phone Number", key: "phone_number", width: 20 },
+        { header: "User Type", key: "user_type", width: 20 },
+        { header: "Status", key: "is_active", width: 15 },
+        { header: "Created At", key: "created_at", width: 25 },
+      ];
+
+      sheet.addRows(data);
+
+      res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      );
+      res.setHeader("Content-Disposition", "attachment; filename=users.xlsx");
+
+      await workbook.xlsx.write(res);
+      return res.end();
+    }
+
+    return res.status(400).json({
+      success: false,
+      message: "Invalid export format. Valid: csv, xlsx",
+    });
+  } catch (error) {
+    console.error("Error exporting users:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to export users.",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createUser,
   getUsers,
@@ -595,4 +702,5 @@ module.exports = {
   getProfile,
   getUserTypes,
   getUserPositions,
+  exportUsers,
 };

@@ -81,12 +81,6 @@ export default function RoleList() {
   // Actions
   const actions: ActionButton[] = [
     {
-      label: "Export",
-      icon: <Download className="h-4 w-4" />,
-      variant: "outline",
-      onClick: () => console.log("Export clicked"),
-    },
-    {
       label: "New Role",
       icon: <Plus className="h-4 w-4" />,
       variant: "default",
