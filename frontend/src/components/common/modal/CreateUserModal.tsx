@@ -125,7 +125,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
           {/* User Detail */}
           <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4  mt-2 pr-2">
             {/* Structure Selection (only if not passed from parent) */}
-            {!structure_node_id && (
+            {!structure_node_id && user_type === "external" && (
               <div className="w-full space-y-2">
                 <Label className="block text-sm text-[#094C81] font-medium mb-2">
                   Structure <span className="text-red-500">*</span>
@@ -140,7 +140,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                   </SelectTrigger>
 
                   <SelectContent className="text-[#094C81] bg-white max-h-64 overflow-y-auto">
-                    {structureResponse.map((s: any) => (
+                    {structures.map((s: any) => (
                       <SelectItem
                         key={s.structure_node_id}
                         value={s.structure_node_id}
