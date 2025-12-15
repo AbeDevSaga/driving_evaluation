@@ -16,6 +16,13 @@ const createExamSchema = Joi.object({
     "number.max": "Pass percentage cannot exceed 100.",
     "any.required": "Pass percentage is required.",
   }),
+  vehicle_category_id: Joi.string()
+    .guid({ version: "uuidv4" })
+    .required()
+    .messages({
+      "string.guid": "Vehicle Category ID must be a valid UUID.",
+      "any.required": "Vehicle Category ID is required.",
+    }),
 });
 
 // =================== Update Exam Schema ===================
@@ -23,6 +30,7 @@ const updateExamSchema = Joi.object({
   name: Joi.string().min(3).max(150).optional(),
   description: Joi.string().allow(null, "").optional(),
   pass_percentage: Joi.number().min(0).max(100).optional(),
+  vehicle_category_id: Joi.string().guid({ version: "uuidv4" }).optional(),
   is_active: Joi.boolean().optional(),
 });
 

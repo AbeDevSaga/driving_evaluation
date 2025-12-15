@@ -2,62 +2,53 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class Exam extends Model {
+  class VehicleCategory extends Model {
     static associate(models) {
-      Exam.hasMany(models.ExamSection, {
-        foreignKey: "exam_id",
-        as: "sections",
-      });
-
-      Exam.hasMany(models.ExamSchedule, {
-        foreignKey: "exam_id",
-        as: "schedules",
-      });
-
-      Exam.hasMany(models.ExamineeExam, {
-        foreignKey: "exam_id",
-        as: "examinees",
-      });
-
-      Exam.belongsTo(models.VehicleCategory, {
+      // One category can have many exams
+      VehicleCategory.hasMany(models.Exam, {
         foreignKey: "vehicle_category_id",
-        as: "vehicleCategory",
+        as: "exams",
       });
     }
   }
 
-  Exam.init(
+  VehicleCategory.init(
     {
-      exam_id: {
+      vehicle_category_id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      vehicle_category_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-      },
+
       name: {
-        type: DataTypes.STRING(150),
+        type: DataTypes.STRING(100),
         allowNull: false,
+        unique: true,
+        // e.g. Motorcycle, Light Vehicle, Heavy Truck
       },
+
+      code: {
+        type: DataTypes.STRING(20),
+        allowNull: false,
+        unique: true,
+        // e.g. A, B, C, D, CE
+      },
+
       description: {
         type: DataTypes.TEXT,
         allowNull: true,
       },
-      pass_percentage: {
-        type: DataTypes.FLOAT,
-        allowNull: false,
-        defaultValue: 70, // configurable
-      },
+
       is_active: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
       },
+
       created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
       },
+
       updated_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
@@ -65,12 +56,12 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "Exam",
-      tableName: "exams",
+      modelName: "VehicleCategory",
+      tableName: "vehicle_categories",
       timestamps: false,
       underscored: true,
     }
   );
 
-  return Exam;
+  return VehicleCategory;
 };
