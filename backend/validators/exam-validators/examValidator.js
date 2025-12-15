@@ -23,6 +23,13 @@ const createExamSchema = Joi.object({
       "string.guid": "Vehicle Category ID must be a valid UUID.",
       "any.required": "Vehicle Category ID is required.",
     }),
+  structure_node_id: Joi.string()
+    .guid({ version: "uuidv4" })
+    .required()
+    .messages({
+      "string.guid": "Structure ID must be a valid UUID.",
+      "any.required": "Structure ID is required.",
+    }),
 });
 
 // =================== Update Exam Schema ===================

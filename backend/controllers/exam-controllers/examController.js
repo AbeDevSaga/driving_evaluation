@@ -5,6 +5,7 @@ const {
   ExamSection,
   ExamSchedule,
   VehicleCategory,
+  StructureNode,
   sequelize,
 } = require("../../models");
 
@@ -17,10 +18,36 @@ const { Op } = require("sequelize");
 const createExam = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const { name, description, pass_percentage, vehicle_category_id } =
-      req.body;
+    const {
+      name,
+      description,
+      pass_percentage,
+      vehicle_category_id,
+      structure_node_id,
+    } = req.body;
 
-    // ====== Check duplicate exam name ======
+    const structureNode = await StructureNode.findByPk(structure_node_id, {
+      transaction: t,
+    });
+
+    if (!structureNode) {
+      await t.rollback();
+      return res.status(404).json({
+        success: false,
+        message: "Structure node not found.",
+      });
+    }
+
+    // Optional: Validate structure node is active
+    if (!structureNode.is_active) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        message: "The selected structure node is not active.",
+      });
+    }
+
+    // ====== Validate Vehicle Category ======
     const category = await VehicleCategory.findByPk(vehicle_category_id, {
       transaction: t,
     });
@@ -35,7 +62,7 @@ const createExam = async (req, res) => {
 
     // ====== Check duplicate exam name ======
     const existingExam = await Exam.findOne({
-      where: { name },
+      where: { name, structure_node_id },
       transaction: t,
     });
 
@@ -55,6 +82,7 @@ const createExam = async (req, res) => {
         description,
         pass_percentage,
         vehicle_category_id,
+        structure_node_id,
         is_active: true,
         created_at: new Date(),
         updated_at: new Date(),

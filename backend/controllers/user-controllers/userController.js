@@ -2,6 +2,7 @@ const {
   User,
   UserType,
   UserPosition,
+  StructureNode,
   Role,
   UserRoles,
   sequelize,
@@ -66,7 +67,14 @@ const getUserPositions = async (req, res) => {
 const createUser = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const { full_name, email, user_type_id, role_ids, phone_number } = req.body;
+    const {
+      full_name,
+      email,
+      user_type_id,
+      role_ids,
+      phone_number,
+      structure_node_id,
+    } = req.body;
 
     // ====== Check existing email ======
     const existingUser = await User.findOne({
@@ -89,6 +97,48 @@ const createUser = async (req, res) => {
         .json({ success: false, message: "Invalid user type." });
     }
 
+    // ====== STRUCTURE NODE VALIDATION FOR EXTERNAL USERS ======
+    const isExternalUser = userType.name === "external";
+
+    if (isExternalUser) {
+      // Structure node is required for external users
+      if (!structure_node_id) {
+        await t.rollback();
+        return res.status(400).json({
+          success: false,
+          message: "Structure node is required for external users.",
+        });
+      }
+      // Validate structure node exists
+      const structureNode = await StructureNode.findByPk(structure_node_id, {
+        transaction: t,
+      });
+
+      if (!structureNode) {
+        await t.rollback();
+        return res.status(400).json({
+          success: false,
+          message: "Invalid structure node.",
+        });
+      }
+      // Optional: Validate structure node is active
+      if (!structureNode.is_active) {
+        await t.rollback();
+        return res.status(400).json({
+          success: false,
+          message: "The selected structure node is not active.",
+        });
+      }
+    } else {
+      // For internal users, structure node should be null
+      if (structure_node_id) {
+        await t.rollback();
+        return res.status(400).json({
+          success: false,
+          message: "Structure node should not be assigned to internal users.",
+        });
+      }
+    }
     // ====== MULTIPLE ROLE VALIDATION ======
     if (role_ids && Array.isArray(role_ids) && role_ids.length > 0) {
       const roles = await Role.findAll({
@@ -119,6 +169,7 @@ const createUser = async (req, res) => {
         password: hashedPassword,
         phone_number,
         user_type_id,
+        structure_node_id: isExternalUser ? structure_node_id : null,
         is_first_logged_in: true,
         is_active: true,
         created_at: new Date(),
@@ -155,6 +206,7 @@ const createUser = async (req, res) => {
       Email: ${email}
       Temporary Password: ${password}
       Please change your password after first login.
+      ${isExternalUser ? `Assigned Structure: ${structureNode?.name}` : ""}
     `
     );
 
@@ -289,7 +341,7 @@ const updateUser = async (req, res) => {
 const getUsers = async (req, res) => {
   try {
     const {
-      // institute_id,
+      structure_node_id,
       user_type_id,
       is_active,
       search, // optional: for name/email search
@@ -298,7 +350,7 @@ const getUsers = async (req, res) => {
     // ====== Build filters dynamically ======
     const whereClause = {};
 
-    // if (institute_id) whereClause.institute_id = institute_id;
+    if (structure_node_id) whereClause.structure_node_id = structure_node_id;
     if (user_type_id) whereClause.user_type_id = user_type_id;
     if (is_active !== undefined) whereClause.is_active = is_active === "true";
 
@@ -318,6 +370,11 @@ const getUsers = async (req, res) => {
           model: UserType,
           as: "userType",
           attributes: ["user_type_id", "name"],
+        },
+        {
+          model: StructureNode,
+          as: "structureNode",
+          attributes: ["structure_node_id", "name"],
         },
       ],
       order: [["created_at", "DESC"]],
@@ -355,6 +412,11 @@ const getUserById = async (req, res) => {
         {
           model: Role,
           as: "roles",
+          through: { attributes: [] },
+        },
+        {
+          model: StructureNode,
+          as: "structureNode",
           through: { attributes: [] },
         },
       ],
