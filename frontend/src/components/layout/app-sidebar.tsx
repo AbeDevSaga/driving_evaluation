@@ -60,6 +60,11 @@ const navigationItems = [
     url: "/reports",
     icon: FileText,
   },
+  {
+    title: "Base Data",
+    url: "/basedata",
+    icon: FileText,
+  },
 ];
 
 // Nested menu for User Management

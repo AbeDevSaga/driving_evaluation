@@ -1,5 +1,7 @@
 "use client";
 
+import DashboardLayout01 from "@/features/template/component/dashboardCards/DashboardLayout01";
+import DashboardStatsCards from "@/features/template/component/dashboardCards/DashboardStatsCards";
 import AreaChart01 from "@/features/template/component/ReCharts/AreaCharts/AreaChart01";
 import BarChart01 from "@/features/template/component/ReCharts/BarCharts/BarChart01";
 import BarChart08 from "@/features/template/component/ReCharts/BarCharts/BarChart08";
@@ -10,8 +12,9 @@ import TableComponentExample from "@/features/template/usage/TableComponent.Exam
 export default function DashboardPage() {
   return (
     <main className="flex-1 space-y-6">
-      {/* Table Example */}
-      <TableComponentExample />
+      {/* Dashboard Cards */}
+      <DashboardStatsCards />
+      {/* <DashboardLayout01 /> */}
       {/* Interactive Charts */}
       <div className="grid md:grid-cols-2 grid-cols-1 gap-2">
         <AreaChart01 />
@@ -20,6 +23,8 @@ export default function DashboardPage() {
         <PieChart11 />
         <ChartRadialText01 />
       </div>
+      {/* Table Example */}
+      <TableComponentExample />
     </main>
   );
 }

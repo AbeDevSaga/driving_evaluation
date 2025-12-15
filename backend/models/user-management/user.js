@@ -11,6 +11,11 @@ module.exports = (sequelize, DataTypes) => {
         as: "userType",
       });
 
+      User.belongsTo(models.StructureNode, {
+        foreignKey: "structure_node_id",
+        as: "structureNode",
+      });
+
       User.belongsToMany(models.Role, {
         through: models.UserRoles,
         foreignKey: "user_id",
@@ -48,6 +53,18 @@ module.exports = (sequelize, DataTypes) => {
       profile_image: {
         type: DataTypes.STRING(255),
         allowNull: true,
+      },
+      user_type_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      structure_node_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+          model: "structure_nodes",
+          key: "structure_node_id",
+        },
       },
       is_first_logged_in: {
         type: DataTypes.BOOLEAN,

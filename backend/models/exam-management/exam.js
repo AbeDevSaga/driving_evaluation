@@ -18,6 +18,15 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "exam_id",
         as: "examinees",
       });
+
+      Exam.belongsTo(models.VehicleCategory, {
+        foreignKey: "vehicle_category_id",
+        as: "vehicleCategory",
+      });
+      Exam.belongsTo(models.StructureNode, {
+        foreignKey: "structure_node_id",
+        as: "structureNode",
+      });
     }
   }
 
@@ -27,6 +36,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
+      },
+      vehicle_category_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      structure_node_id: {
+        type: DataTypes.UUID,
+        allowNull: false, // Required for all exams
+        references: {
+          model: "structure_nodes",
+          key: "structure_node_id",
+        },
       },
       name: {
         type: DataTypes.STRING(150),

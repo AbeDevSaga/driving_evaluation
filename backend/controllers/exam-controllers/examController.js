@@ -1,8 +1,15 @@
 "use strict";
 
-const { Exam, ExamSection, ExamSchedule, sequelize } = require("../../models");
+const {
+  Exam,
+  ExamSection,
+  ExamSchedule,
+  VehicleCategory,
+  StructureNode,
+  sequelize,
+} = require("../../models");
 
-const { v4: uuidv4, validate: isUuid } = require("uuid");
+const { v4: uuidv4 } = require("uuid");
 const { Op } = require("sequelize");
 
 /**
@@ -11,11 +18,51 @@ const { Op } = require("sequelize");
 const createExam = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const { name, description, pass_percentage } = req.body;
+    const {
+      name,
+      description,
+      pass_percentage,
+      vehicle_category_id,
+      structure_node_id,
+    } = req.body;
+
+    const structureNode = await StructureNode.findByPk(structure_node_id, {
+      transaction: t,
+    });
+
+    if (!structureNode) {
+      await t.rollback();
+      return res.status(404).json({
+        success: false,
+        message: "Structure node not found.",
+      });
+    }
+
+    // Optional: Validate structure node is active
+    if (!structureNode.is_active) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        message: "The selected structure node is not active.",
+      });
+    }
+
+    // ====== Validate Vehicle Category ======
+    const category = await VehicleCategory.findByPk(vehicle_category_id, {
+      transaction: t,
+    });
+
+    if (!category) {
+      await t.rollback();
+      return res.status(404).json({
+        success: false,
+        message: "Vehicle category not found.",
+      });
+    }
 
     // ====== Check duplicate exam name ======
     const existingExam = await Exam.findOne({
-      where: { name },
+      where: { name, structure_node_id },
       transaction: t,
     });
 
@@ -34,6 +81,8 @@ const createExam = async (req, res) => {
         name,
         description,
         pass_percentage,
+        vehicle_category_id,
+        structure_node_id,
         is_active: true,
         created_at: new Date(),
         updated_at: new Date(),
@@ -64,12 +113,15 @@ const createExam = async (req, res) => {
  */
 const getExams = async (req, res) => {
   try {
-    const { is_active, search } = req.query;
+    const { is_active, search, vehicle_category_id } = req.query;
 
     const whereClause = {};
 
     if (is_active !== undefined) {
       whereClause.is_active = is_active === "true";
+    }
+    if (vehicle_category_id) {
+      whereClause.vehicle_category_id = vehicle_category_id;
     }
 
     if (search) {
@@ -86,6 +138,11 @@ const getExams = async (req, res) => {
           model: ExamSection,
           as: "sections",
           attributes: ["section_id", "name", "weight_percentage"],
+        },
+        {
+          model: VehicleCategory,
+          as: "vehicleCategory",
+          attributes: ["vehicle_category_id", "name"],
         },
       ],
       order: [["created_at", "DESC"]],
@@ -113,13 +170,6 @@ const getExamById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (!isUuid(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid exam ID format.",
-      });
-    }
-
     const exam = await Exam.findByPk(id, {
       include: [
         {
@@ -129,6 +179,10 @@ const getExamById = async (req, res) => {
         {
           model: ExamSchedule,
           as: "schedules",
+        },
+        {
+          model: VehicleCategory,
+          as: "vehicleCategory",
         },
       ],
     });
@@ -162,14 +216,6 @@ const updateExam = async (req, res) => {
   const t = await sequelize.transaction();
   try {
     const { id } = req.params;
-
-    if (!isUuid(id)) {
-      await t.rollback();
-      return res.status(400).json({
-        success: false,
-        message: "Invalid exam ID format.",
-      });
-    }
 
     const exam = await Exam.findByPk(id, { transaction: t });
 
@@ -214,15 +260,6 @@ const deleteExam = async (req, res) => {
   const t = await sequelize.transaction();
   try {
     const { id } = req.params;
-
-    if (!isUuid(id)) {
-      await t.rollback();
-      return res.status(400).json({
-        success: false,
-        message: "Invalid exam ID format.",
-      });
-    }
-
     const exam = await Exam.findByPk(id, { transaction: t });
 
     if (!exam) {
@@ -265,14 +302,6 @@ const toggleExamActiveStatus = async (req, res) => {
   const t = await sequelize.transaction();
   try {
     const { id } = req.params;
-
-    if (!isUuid(id)) {
-      await t.rollback();
-      return res.status(400).json({
-        success: false,
-        message: "Invalid exam ID format.",
-      });
-    }
 
     const exam = await Exam.findByPk(id, { transaction: t });
 

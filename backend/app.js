@@ -25,6 +25,9 @@ const examRoute = require("./routers/exam-routes/examRoutes");
 // ================== Structure Routes ==========================
 const structureRoulte = require("./routers/structure-routes/structureNodeRoutes");
 
+// ================== Vehicles Category Routes ==========================
+const vehicleCategoryRoulte = require("./routers/vehicles-routes/vehiclesCategoryRoutes");
+
 // const issueFileAttachmentRoutes = require("./routers/issueAttachmentRoutes");
 // const fileAttachmentRoutes = require("./routers/attachementRoutes");
 
@@ -104,12 +107,15 @@ app.use("/api/exams", examRoute);
 // ================== Api Structure Routes =====================
 app.use("/api/structure-nodes", structureRoulte);
 
+// ================== Api Vehicle Category Routes =====================
+app.use("/api/vehicle-categories", vehicleCategoryRoulte);
+
 // app.use("/api/issue-attachments", issueFileAttachmentRoutes);
 // app.use("/api/attachments", fileAttachmentRoutes);
 
 // ================== Root Endpoint ==================
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to Issue Tracking System API 🚀" });
+  res.json({ message: "Welcome to Driving Evaluation System API 🚀" });
 });
 
 // ================== Error Handler ==================
