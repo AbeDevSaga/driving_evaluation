@@ -10,14 +10,20 @@ dotenv.config();
 
 const { swaggerUi, swaggerSpec } = require("./swagger");
 
-// ================== Here Import Routes=================
+// ================== Import Routes=================
+// ================== User Routes ==========================
+const userRoute = require("./routers/user-routes/userRoutes");
+const roleRoute = require("./routers/user-routes/roleRoutes");
+const userRoleRoute = require("./routers/user-routes/userRoleRoutes");
+const authRoute = require("./routers/user-routes/authRoutes");
+const permissionRoute = require("./routers/user-routes/permissionRoutes");
+const changePasswordRoutes = require("./routers/user-routes/passwordChangeRoutes");
 
-const userRoute = require("./routers/userRoutes");
-const roleRoute = require("./routers/roleRoutes");
-const userRoleRoute = require("./routers/userRoleRoutes");
-const authRoute = require("./routers/authRoutes");
-const permissionRoute = require("./routers/permissionRoutes");
-const changePasswordRoutes = require("./routers/passwordChangeRoutes");
+// ================== Exam Routes ==========================
+const examRoute = require("./routers/exam-routes/examRoutes");
+
+// ================== Structure Routes ==========================
+const structureRoulte = require("./routers/structure-routes/structureNodeRoutes");
 
 // const issueFileAttachmentRoutes = require("./routers/issueAttachmentRoutes");
 // const fileAttachmentRoutes = require("./routers/attachementRoutes");
@@ -46,19 +52,6 @@ app.use(bodyParser.json({ limit: "10mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "10mb" }));
 
 // ===========Serve static files (PDFs, uploads)=====================
-app.use(
-  express.static(path.join(__dirname, "public"), {
-    setHeaders: (res, filePath) => {
-      res.set("Access-Control-Allow-Origin", "*");
-      res.set("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS");
-      res.set("Access-Control-Allow-Headers", "Content-Type");
-      if (filePath.endsWith(".pdf")) {
-        res.set("Content-Disposition", "inline");
-      }
-    },
-  })
-);
-
 app.use(
   "/uploads",
   express.static(path.join(__dirname, "uploads"), {
@@ -93,17 +86,23 @@ sequelize
   .then(() => console.log(" Database connected successfully"))
   .catch((err) => console.error(" Database connection error:", err));
 
+// ================== API Routes go here ==================
 // ================== Swagger Setup ==================
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// ================== API Routes go here ==================
-
+// ================== Api User Routes =====================
 app.use("/api/users", userRoute);
 app.use("/api/roles", roleRoute);
 app.use("/api/user-roles", userRoleRoute);
 app.use("/api/auth", authRoute);
 app.use("/api/change-password", changePasswordRoutes);
 app.use("/api/permissions", permissionRoute);
+
+// ================== Api Exam Routes =====================
+app.use("/api/exams", examRoute);
+
+// ================== Api Structure Routes =====================
+app.use("/api/structure-nodes", structureRoulte);
 
 // app.use("/api/issue-attachments", issueFileAttachmentRoutes);
 // app.use("/api/attachments", fileAttachmentRoutes);

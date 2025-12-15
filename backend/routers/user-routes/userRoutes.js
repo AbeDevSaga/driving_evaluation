@@ -12,7 +12,7 @@ const {
   getUserTypes,
   getUserPositions,
   exportUsers,
-} = require("../controllers/userController");
+} = require("../../controllers/user-controllers/userController");
 
 // Middleware for authentication if needed (example)
 // const { authenticate } = require("../middlewares/authMiddleware");
