@@ -11,7 +11,7 @@ export const TableLayout: React.FC<PageLayoutProps> = ({
   description,
   actions = [],
   filters = [],
-  leftSideActions = [],
+  sideActions = [],
   children,
   filterColumnsPerRow = 1,
 }) => {
@@ -46,9 +46,9 @@ export const TableLayout: React.FC<PageLayoutProps> = ({
             )}
            </div>}
           <div className="flex w-fit">
-            {leftSideActions && leftSideActions.length > 0 && (
+            {sideActions && sideActions.length > 0 && (
               <div className="flex flex-wrap items-center gap-3">
-                {leftSideActions.map((action: ActionButton, index: number) => (
+                {sideActions.map((action: ActionButton, index: number) => (
                   <Button
                     key={index}
                     variant={action.variant || "default"}

@@ -18,7 +18,6 @@ const ExcelJS = require("exceljs");
 const getUserTypes = async (req, res) => {
   try {
     const userTypes = await UserType.findAll({
-      attributes: ["name", "description", "created_at", "updated_at"],
       order: [["name", "ASC"]],
     });
 
