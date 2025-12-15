@@ -23,6 +23,12 @@ export const baseApi = createApi({
     "Exam",
     "StructureNode",
     "VehicleCategory",
+    "ExamSchedule",
+    "ExamSection",
+    "ExamineeExam",
+    "ExaminerAssignment",
+    "SectionResult",
+    "Batch",
   ],
   endpoints: () => ({}),
 });

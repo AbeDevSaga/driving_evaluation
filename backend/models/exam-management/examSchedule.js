@@ -8,6 +8,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "exam_id",
         as: "exam",
       });
+      ExamSchedule.hasMany(models.ExamineeExam, {
+        foreignKey: "exam_schedule_id",
+        as: "examinees",
+      });
     }
   }
 
