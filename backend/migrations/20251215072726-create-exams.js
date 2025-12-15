@@ -2,77 +2,64 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("users", {
-      user_id: {
+    await queryInterface.createTable("exams", {
+      exam_id: {
         type: Sequelize.UUID,
         allowNull: false,
         primaryKey: true,
         defaultValue: Sequelize.UUIDV4,
       },
-      user_type_id: {
+
+      vehicle_category_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "user_types",
-          key: "user_type_id",
+          model: "vehicle_categories",
+          key: "vehicle_category_id",
         },
         onUpdate: "CASCADE",
-        onDelete: "SET NULL",
+        onDelete: "RESTRICT",
       },
+
       structure_node_id: {
         type: Sequelize.UUID,
-        allowNull: true,
+        allowNull: false,
         references: {
           model: "structure_nodes",
           key: "structure_node_id",
         },
         onUpdate: "CASCADE",
-        onDelete: "SET NULL",
+        onDelete: "RESTRICT",
       },
-      full_name: {
-        type: Sequelize.STRING(100),
+
+      name: {
+        type: Sequelize.STRING(150),
         allowNull: false,
       },
-      email: {
-        type: Sequelize.STRING(255),
+
+      description: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
+
+      pass_percentage: {
+        type: Sequelize.FLOAT,
         allowNull: false,
-        unique: true,
+        defaultValue: 70,
       },
-      password: {
-        type: Sequelize.STRING(255),
-        allowNull: false,
-      },
-      phone_number: {
-        type: Sequelize.STRING(50),
-        allowNull: true,
-      },
-      profile_image: {
-        type: Sequelize.STRING(255),
-        allowNull: true,
-      },
-      is_first_logged_in: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: true,
-      },
-      last_login_at: {
-        type: Sequelize.DATE,
-        allowNull: true,
-      },
-      password_changed_at: {
-        type: Sequelize.DATE,
-        allowNull: true,
-      },
+
       is_active: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: true,
       },
+
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
+
       updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -82,6 +69,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("users");
+    await queryInterface.dropTable("exams");
   },
 };

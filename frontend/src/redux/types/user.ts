@@ -1,3 +1,5 @@
+import { StructureNode } from "./structureNode";
+
 export interface UserType {
   user_type_id: string;
   name: string;
@@ -5,7 +7,6 @@ export interface UserType {
   created_at: string;
   updated_at: string;
 }
-
 export interface UserPosition {
   user_position_id: string;
   name: string;
@@ -29,6 +30,7 @@ export interface User {
   email: string;
   phone_number?: string;
   user_type_id: string;
+  structure_node_id?: string;
   is_active: boolean;
   is_first_logged_in: boolean;
   last_login_at?: string;
@@ -37,6 +39,7 @@ export interface User {
   created_at: string;
   updated_at: string;
   userType?: UserType;
+  structure?: StructureNode;
   roles?: Role[];
 }
 
@@ -46,6 +49,7 @@ export interface CreateUserPayload {
   email: string;
   phone_number?: string;
   user_type_id?: string;
+  structure_node_id?: string;
   role_ids?: string[];
 }
 
@@ -54,6 +58,7 @@ export interface UpdateUserPayload {
   email?: string;
   phone_number?: string;
   user_type_id?: string;
+  structure_node_id?: string;
   role_ids?: string[];
   is_active?: boolean;
 }
