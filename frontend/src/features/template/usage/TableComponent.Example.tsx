@@ -84,7 +84,9 @@ const columns: ColumnDef<Evaluation>[] = [
       return (
         <span
           className={
-            score >= 70 ? "text-green-600 font-medium" : "text-red-600 font-medium"
+            score >= 70
+              ? "text-green-600 font-medium"
+              : "text-red-600 font-medium"
           }
         >
           {score}%
@@ -118,15 +120,15 @@ const columns: ColumnDef<Evaluation>[] = [
     cell: () => {
       return (
         <div className="flex items-center">
-        <Button variant="ghost" size="icon">
-          <Eye className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon">
-          <Edit className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon">
-          <Trash className="h-4 w-4" />
-        </Button>
+          <Button variant="ghost" size="icon">
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Trash className="h-4 w-4" />
+          </Button>
         </div>
       );
     },

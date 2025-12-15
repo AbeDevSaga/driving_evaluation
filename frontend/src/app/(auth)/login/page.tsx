@@ -2,21 +2,24 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
-import { ArrowLeftIcon, EyeIcon, EyeOffIcon } from "lucide-react";
+import { ArrowLeftIcon, EyeIcon, EyeOffIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { signIn } from "@/auth";
 import { login } from "@/actions/user";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 
 export default function ExternalLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
+  const { update } = useSession();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const [formData, setFormData] = useState({
     email: "",
     password: ""
@@ -24,6 +27,7 @@ export default function ExternalLogin() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     console.log(formData.email, formData.password, "formData");
     const result = await login(formData.email as string, formData.password as string);
     console.log(result, "result");
@@ -32,8 +36,10 @@ export default function ExternalLogin() {
     }
 
     if (result?.success) {
-      router.push("/dashboard");
+      await update(); // Force session refresh
+      router.push(callbackUrl || "/dashboard");
     }
+    setIsLoading(false);
   };
 
   return (
@@ -128,9 +134,10 @@ export default function ExternalLogin() {
               {/* Submit */}
               <button
                 type="submit"
-                className="w-full bg-[#073954] h-14 hover:bg-[#073954]/90 text-xl text-white py-2 rounded-md shadow-md"
+                disabled={isLoading}
+                className=" disabled:opacity-50 w-full bg-[#073954] h-14 text-center items-center justify-center hover:bg-[#073954]/90 text-xl text-white py-2 rounded-md shadow-md"
               >
-                Log In
+                {isLoading ? <span className="flex w-full items-center justify-center"><Loader2 className="w-5 h-5 animate-spin" /> </span>: "Log In"}
               </button>
             </form>
 

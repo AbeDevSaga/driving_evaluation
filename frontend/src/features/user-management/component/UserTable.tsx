@@ -6,7 +6,7 @@ import { TableLayout } from "@/features/template/component/tableList/TableLayout
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Download, Plus, MoreHorizontal } from "lucide-react";
+import { Download, Plus, Eye, Edit, Trash, Users } from "lucide-react";
 
 import type { FilterField, ActionButton } from "@/types/tableLayout";
 import { useExportUsersMutation, useGetUsersQuery } from "@/redux/api/userApi";
@@ -48,10 +48,18 @@ const columns: ColumnDef<User>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: () => (
-      <Button variant="ghost" size="icon">
-        <MoreHorizontal />
-      </Button>
+    cell: ({ row }) => (
+      <div className="flex items-center">
+        <Button variant="ghost" size="icon">
+          <Eye className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon">
+          <Edit className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon">
+          <Trash className="h-4 w-4" />
+        </Button>
+        </div>
     ),
   },
 ];
@@ -64,7 +72,9 @@ export default function UserTable() {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [isModalOpen, setModalOpen] = useState(false);
-
+  const [activeTab, setActiveTab] = useState<"internal" | "external">(
+    "internal"
+  );
   const handlePagination = (index: number, size: number) => {
     setPageIndex(index);
     setPageSize(size);
@@ -120,6 +130,22 @@ export default function UserTable() {
       onClick: () => setModalOpen(true),
     },
   ];
+  const leftSideActions: ActionButton[] = [
+    {
+      label: "Internal Users",
+      icon: <Users className="h-4 w-4" />,
+      variant: activeTab === "internal" ? "default" : "outline",
+      size: "default",
+      onClick: () => setActiveTab("internal"),
+    },
+    {
+      label: "External Users",
+      icon: <Users className="h-4 w-4" />,
+      variant: activeTab === "external" ? "default" : "outline",
+      size: "default",
+      onClick: () => setActiveTab("external"),
+    },
+  ];
 
   // Apply filters locally (client-side)
   const filteredData = data.filter((role) => {
@@ -133,13 +159,12 @@ export default function UserTable() {
     pageIndex * pageSize,
     pageIndex * pageSize + pageSize
   );
-
+  console.log(activeTab, "activeTab");
   return (
     <>
-      <TableLayout
-        title="User Management"
-        description="View and manage users"
+      <TableLayout 
         actions={actions}
+        leftSideActions={leftSideActions}
         filters={filters}
         filterColumnsPerRow={1}
       >

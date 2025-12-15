@@ -13,18 +13,18 @@ export default async function middleware(req: NextRequest) {
 
   const isPublicRoute = publicRoutes.includes(pathname);
   const isAuthRoute = authRoutes.includes(pathname);
-
+  console.log(session, "session");
   // If user is logged in and trying to access auth routes (login), redirect to dashboard
-  // if (isAuthRoute && session) {
-  //   return NextResponse.redirect(new URL("/dashboard", req.url));
-  // }
+  if (isAuthRoute && session) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
 
   // If user is NOT logged in and trying to access protected routes, redirect to login
-  // if (!isPublicRoute && !session) {
-  //   const loginUrl = new URL("/login", req.url);
-  //   loginUrl.searchParams.set("callbackUrl", pathname); // Remember where they wanted to go
-  //   return NextResponse.redirect(loginUrl);
-  // }
+  if (!isPublicRoute && !session) {
+    const loginUrl = new URL("/login", req.url);
+    loginUrl.searchParams.set("callbackUrl", pathname); // Remember where they wanted to go
+    return NextResponse.redirect(loginUrl);
+  }
 
   return NextResponse.next();
 }

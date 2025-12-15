@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { PageLayoutProps } from "@/types/tableLayout";
+import { ActionButton, PageLayoutProps } from "@/types/tableLayout";
 import { FilterPopover } from "./FilterDrawer";
 import { useSearchParams, useRouter } from "next/navigation";
 
@@ -11,6 +11,7 @@ export const TableLayout: React.FC<PageLayoutProps> = ({
   description,
   actions = [],
   filters = [],
+  leftSideActions = [],
   children,
   filterColumnsPerRow = 1,
 }) => {
@@ -31,20 +32,40 @@ export const TableLayout: React.FC<PageLayoutProps> = ({
   );
 
   return (
-    <div className=" p-6 border rounded-lg bg-white shadow">
-      <div className="space-y-6">
+    <div className=" p-6 border rounded-lg w-full bg-white shadow">
+      <div className="space-y-6 w-full">
         {/* Page Header - Single Line Layout */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="flex flex-col w-full bg lg:flex-row lg:items-center lg:justify-between gap-4">
           {/* Left side - Title and Description */}
-          <div>
-            {title && (
+           {title && description && <div >
+           {title && (
               <h1 className="text-2xl font-semibold text-[#073954]">{title}</h1>
             )}
             {description && (
               <p className="text-gray-500 text-lg">{description}</p>
             )}
+           </div>}
+          <div className="flex w-fit">
+            {leftSideActions && leftSideActions.length > 0 && (
+              <div className="flex flex-wrap items-center gap-3">
+                {leftSideActions.map((action: ActionButton, index: number) => (
+                  <Button
+                    key={index}
+                    variant={action.variant || "default"}
+                    size={action.size || "default"}
+                    onClick={action.onClick}
+                    disabled={action.disabled || action.loading}
+                    className="flex items-center space-x-2"
+                  >
+                    {action.icon && (
+                      <span className="h-4 w-4">{action.icon}</span>
+                    )}
+                    <span>{action.label}</span>
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
-
           {/* Right side - Search, Filters, and Actions in one line */}
           <div className="flex flex-wrap items-center gap-3">
             {/* Search */}

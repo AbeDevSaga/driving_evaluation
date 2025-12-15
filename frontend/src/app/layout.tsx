@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import ReduxProvider from "@/providers/ReduxProvider";
-
+import NextTopLoader from 'nextjs-toploader';
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
@@ -24,6 +24,7 @@ export default function RootLayout({
       <body
         className={`${plusJakarta.variable} font-sans bg-slate-50 antialiased text-primary`}
       >
+        <NextTopLoader />
         <ReduxProvider>{children}</ReduxProvider>
       </body>
     </html>
