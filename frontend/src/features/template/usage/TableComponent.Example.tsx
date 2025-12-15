@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { DataTable } from "@/features/template/component/DataTable";
-import { TableLayout } from "@/features/template/component/TableLayout";
+import { DataTable } from "@/features/template/component/tableList/DataTable";
+import { TableLayout } from "@/features/template/component/tableList/TableLayout";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Plus, Download } from "lucide-react";
+import { MoreHorizontal, Plus, Download, Eye, Edit, Trash } from "lucide-react";
 import type { FilterField, ActionButton } from "@/types/tableLayout";
 
 type Evaluation = {
@@ -84,7 +84,9 @@ const columns: ColumnDef<Evaluation>[] = [
       return (
         <span
           className={
-            score >= 70 ? "text-green-600 font-medium" : "text-red-600 font-medium"
+            score >= 70
+              ? "text-green-600 font-medium"
+              : "text-red-600 font-medium"
           }
         >
           {score}%
@@ -117,9 +119,17 @@ const columns: ColumnDef<Evaluation>[] = [
     header: "Actions",
     cell: () => {
       return (
-        <Button variant="ghost" size="icon">
-          <MoreHorizontal />
-        </Button>
+        <div className="flex items-center">
+          <Button variant="ghost" size="icon">
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Trash className="h-4 w-4" />
+          </Button>
+        </div>
       );
     },
   },

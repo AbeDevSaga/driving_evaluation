@@ -18,13 +18,13 @@ export default function PrivateLayout({
     .map((item) => item.charAt(0).toUpperCase() + item.slice(1));
 
   // If only "/dashboard" → show just "Dashboard"
-  const title = breadcrumb.join(" / ");
+  const title = breadcrumb.join(" > ");
 
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <Header title={title || "Dashboard"} />
+        <Header title={title as string} />
         <div className="p-6">{children}</div>
       </SidebarInset>
     </SidebarProvider>

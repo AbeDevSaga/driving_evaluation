@@ -125,6 +125,7 @@ export function AppSidebar() {
                 >
                   <SidebarMenuButton
                     asChild
+                    type="button"
                     isActive={pathname === item.url}
                     tooltip={item.title}
                     className="text-primary px-5 py-5 group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:justify-center data-[active=true]:bg-primary data-[active=true]:text-primary-foreground"

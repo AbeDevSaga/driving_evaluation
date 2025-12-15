@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { DataTable } from "@/features/template/component/DataTable";
-import { TableLayout } from "@/features/template/component/TableLayout";
+import { DataTable } from "@/features/template/component/tableList/DataTable";
+import { TableLayout } from "@/features/template/component/tableList/TableLayout";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -107,7 +107,7 @@ export default function RoleList() {
       description="View and manage user roles"
       actions={actions}
       filters={filters}
-      filterColumnsPerRow={2}
+      filterColumnsPerRow={1}
     >
       <DataTable
         columns={columns}

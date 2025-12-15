@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { DataTable } from "@/features/template/component/DataTable";
-import { TableLayout } from "@/features/template/component/TableLayout";
+import { DataTable } from "@/features/template/component/tableList/DataTable";
+import { TableLayout } from "@/features/template/component/tableList/TableLayout";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Download, Plus, MoreHorizontal } from "lucide-react";
+import { Download, Plus, Eye, Edit, Trash, Users } from "lucide-react";
 
 import type { FilterField, ActionButton } from "@/types/tableLayout";
 import { useExportUsersMutation, useGetUsersQuery } from "@/redux/api/userApi";
@@ -48,15 +48,27 @@ const columns: ColumnDef<User>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: () => (
-      <Button variant="ghost" size="icon">
-        <MoreHorizontal />
-      </Button>
+    cell: ({ row }) => (
+      <div className="flex items-center">
+        <Button variant="ghost" size="icon">
+          <Eye className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon">
+          <Edit className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon">
+          <Trash className="h-4 w-4" />
+        </Button>
+      </div>
     ),
   },
 ];
 
-export default function UserTable() {
+export interface UserTableProps {
+  sideActions?: ActionButton[];
+}
+
+export default function InternalUserTable({ sideActions }: UserTableProps) {
   const { data = [], isLoading, isError, refetch } = useGetUsersQuery();
   const [exportUsers, { isLoading: exportLoading }] = useExportUsersMutation();
 
@@ -64,7 +76,6 @@ export default function UserTable() {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [isModalOpen, setModalOpen] = useState(false);
-
   const handlePagination = (index: number, size: number) => {
     setPageIndex(index);
     setPageSize(size);
@@ -114,7 +125,7 @@ export default function UserTable() {
     },
 
     {
-      label: "New User",
+      label: "New Internal User",
       icon: <Plus className="h-4 w-4" />,
       variant: "default",
       onClick: () => setModalOpen(true),
@@ -133,15 +144,13 @@ export default function UserTable() {
     pageIndex * pageSize,
     pageIndex * pageSize + pageSize
   );
-
   return (
     <>
       <TableLayout
-        title="User Management"
-        description="View and manage users"
         actions={actions}
+        sideActions={sideActions}
         filters={filters}
-        filterColumnsPerRow={2}
+        filterColumnsPerRow={1}
       >
         <DataTable
           columns={columns}
@@ -153,6 +162,7 @@ export default function UserTable() {
         />
       </TableLayout>
       <CreateUserModal
+        user_type="internal"
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
       />

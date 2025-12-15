@@ -148,7 +148,7 @@ export function ChartAreaInteractive() {
 
   return (
     <div className="w-full h-full flex flex-col p-4">
-      <div className="flex items-center gap-2 border-b pb-4 mb-4 sm:flex-row">
+      <div className="flex items-center gap-2   pb-4 mb-4 sm:flex-row">
         <div className="grid flex-1 gap-1">
           <h3 className="text-lg font-semibold">Area Chart - Interactive</h3>
           <p className="text-sm text-muted-foreground">
@@ -176,7 +176,7 @@ export function ChartAreaInteractive() {
         </Select>
       </div>
       <div className="flex-1 flex items-center justify-center min-h-0">
-        <ChartContainer config={chartConfig} className="h-[250px] w-full">
+        <ChartContainer config={chartConfig} className="h-[300px] w-full">
           <AreaChart data={filteredData}>
             <defs>
               <linearGradient
