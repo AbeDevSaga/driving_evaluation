@@ -29,6 +29,16 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "SET NULL",
       },
+      batch_id: {
+        type: Sequelize.UUID,
+        allowNull: true,
+        references: {
+          model: "batches",
+          key: "batch_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
+      },
       full_name: {
         type: Sequelize.STRING(100),
         allowNull: false,

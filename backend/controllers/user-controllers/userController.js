@@ -4,6 +4,7 @@ const {
   UserPosition,
   StructureNode,
   Role,
+  Batch,
   UserRoles,
   sequelize,
 } = require("../../models");
@@ -70,6 +71,7 @@ const createUser = async (req, res) => {
       full_name,
       email,
       user_type_id,
+      batch_id,
       role_ids,
       phone_number,
       structure_node_id,
@@ -169,6 +171,7 @@ const createUser = async (req, res) => {
         phone_number,
         user_type_id,
         structure_node_id: isExternalUser ? structure_node_id : null,
+        batch_id: batch_id ? batch_id : null,
         is_first_logged_in: true,
         is_active: true,
         created_at: new Date(),
@@ -342,6 +345,7 @@ const getUsers = async (req, res) => {
     const {
       structure_node_id,
       user_type_id,
+      batch_id,
       is_active,
       search, // optional: for name/email search
     } = req.query;
@@ -351,6 +355,7 @@ const getUsers = async (req, res) => {
 
     if (structure_node_id) whereClause.structure_node_id = structure_node_id;
     if (user_type_id) whereClause.user_type_id = user_type_id;
+    if (batch_id) whereClause.batch_id = batch_id;
     if (is_active !== undefined) whereClause.is_active = is_active === "true";
 
     if (search) {
@@ -374,6 +379,11 @@ const getUsers = async (req, res) => {
           model: StructureNode,
           as: "structureNode",
           attributes: ["structure_node_id", "name"],
+        },
+        {
+          model: Batch,
+          as: "batch",
+          attributes: ["batch_code", "name", "year"],
         },
       ],
       order: [["created_at", "DESC"]],
@@ -417,6 +427,11 @@ const getUserById = async (req, res) => {
           model: StructureNode,
           as: "structureNode",
           through: { attributes: [] },
+        },
+        {
+          model: Batch,
+          as: "batch",
+          attributes: ["batch_code", "name", "year"],
         },
       ],
     });
@@ -628,6 +643,11 @@ const getProfile = async (req, res) => {
           as: "userType",
           attributes: ["user_type_id", "name", "description"],
         },
+        {
+          model: Batch,
+          as: "batch",
+          attributes: ["batch_code", "name", "year"],
+        },
       ],
     });
 
@@ -650,14 +670,23 @@ const getProfile = async (req, res) => {
 // Export users
 const exportUsers = async (req, res) => {
   try {
-    let { format, user_type_id, is_active, search } = req.query;
+    let {
+      format,
+      user_type_id,
+      structure_node_id,
+      batch_id,
+      is_active,
+      search,
+    } = req.query;
 
     if (!format) format = "csv"; // default export
 
     // ====== Build filters dynamically ======
     const whereClause = {};
 
+    if (structure_node_id) whereClause.structure_node_id = structure_node_id;
     if (user_type_id) whereClause.user_type_id = user_type_id;
+    if (batch_id) whereClause.batch_id = batch_id;
     if (is_active !== undefined) whereClause.is_active = is_active === "true";
 
     if (search) {
@@ -677,6 +706,16 @@ const exportUsers = async (req, res) => {
           as: "userType",
           attributes: ["name"],
         },
+        {
+          model: StructureNode,
+          as: "structureNode",
+          attributes: ["structure_node_id", "name"],
+        },
+        {
+          model: Batch,
+          as: "batch",
+          attributes: ["batch_code", "name", "year"],
+        },
       ],
       order: [["created_at", "DESC"]],
     });
@@ -694,6 +733,8 @@ const exportUsers = async (req, res) => {
       email: u.email,
       phone_number: u.phone_number,
       user_type: u.userType?.name || "",
+      batch: u.batch?.name || "",
+      structure: u.structureNode?.name || "",
       is_active: u.is_active ? "Active" : "Inactive",
       created_at: u.created_at,
     }));
@@ -722,6 +763,8 @@ const exportUsers = async (req, res) => {
         { header: "Email", key: "email", width: 25 },
         { header: "Phone Number", key: "phone_number", width: 20 },
         { header: "User Type", key: "user_type", width: 20 },
+        { header: "Structure", key: "structure", width: 20 },
+        { header: "Batch", key: "batch", width: 20 },
         { header: "Status", key: "is_active", width: 15 },
         { header: "Created At", key: "created_at", width: 25 },
       ];

@@ -22,6 +22,11 @@ module.exports = (sequelize, DataTypes) => {
         otherKey: "role_id",
         as: "roles",
       });
+      // user can have multiple batches
+      User.belongsTo(models.Batch, {
+        foreignKey: "batch_id",
+        as: "batch",
+      });
     }
   }
 
@@ -32,6 +37,27 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
+      user_type_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      structure_node_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+          model: "structure_nodes",
+          key: "structure_node_id",
+        },
+      },
+      batch_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+          model: "batches",
+          key: "batch_id",
+        },
+      },
+
       full_name: {
         type: DataTypes.STRING(100),
         allowNull: false,
@@ -53,18 +79,6 @@ module.exports = (sequelize, DataTypes) => {
       profile_image: {
         type: DataTypes.STRING(255),
         allowNull: true,
-      },
-      user_type_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-      },
-      structure_node_id: {
-        type: DataTypes.UUID,
-        allowNull: true,
-        references: {
-          model: "structure_nodes",
-          key: "structure_node_id",
-        },
       },
       is_first_logged_in: {
         type: DataTypes.BOOLEAN,
