@@ -9,7 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Download, Plus, Eye, Edit, Trash, Users } from "lucide-react";
 
 import type { FilterField, ActionButton } from "@/types/tableLayout";
-import { useExportUsersMutation, useGetUsersQuery } from "@/redux/api/userApi";
+import {
+  useExportUsersMutation,
+  useGetUsersQuery,
+  useGetUserTypesQuery,
+} from "@/redux/api/userApi";
 import { User } from "@/redux/types/user";
 import { CreateUserModal } from "@/components/common/modal/CreateUserModal";
 
@@ -32,6 +36,16 @@ const columns: ColumnDef<User>[] = [
     accessorKey: "phone_number",
     header: "Phone Number",
     cell: ({ row }: any) => <div>{row.getValue("phone_number")}</div>,
+  },
+  {
+    id: "structure",
+    header: "Structure",
+    cell: ({ row }) => {
+      const structure = row.original.structureNode;
+      return (
+        <span className="text-sm font-medium">{structure?.name ?? "—"}</span>
+      );
+    },
   },
   {
     accessorKey: "is_active",
@@ -66,8 +80,23 @@ const columns: ColumnDef<User>[] = [
 export interface UserTableProps {
   sideActions?: ActionButton[];
 }
+// structure_node_id
 export default function ExternalUserTable({ sideActions }: UserTableProps) {
-  const { data = [], isLoading, isError, refetch } = useGetUsersQuery();
+  const {
+    data: userTypes = [],
+    isLoading: isLoadingType,
+    isError: typeError,
+    refetch: refetchType,
+  } = useGetUserTypesQuery();
+  const userTypeId = userTypes?.find(
+    (type: any) => type.name === "external"
+  )?.user_type_id;
+  const {
+    data = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useGetUsersQuery({ user_type_id: userTypeId });
   const [exportUsers, { isLoading: exportLoading }] = useExportUsersMutation();
 
   // Pagination states

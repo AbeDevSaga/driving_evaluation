@@ -75,9 +75,11 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
       full_name: fullName,
       email,
       role_ids: selectedRoles,
+      structure_node_id: structure_node_id
+        ? structure_node_id
+        : selectedStructure,
       ...(phoneNumber && { phone_number: phoneNumber }),
       ...(userTypeId && { user_type_id: userTypeId }),
-      ...(structure_node_id && { structure_node_id }),
     };
 
     try {
