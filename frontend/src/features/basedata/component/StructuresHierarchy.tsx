@@ -11,28 +11,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { shortenText } from "@/utils/shortenText";
+import { buildStructureTree } from "@/utils/buildStructureTree";
 import { StructureNode } from "@/redux/types/structureNode";
+import { CustomNodeProps, D3TreeNode, HierarchyD3TreeProps } from "@/types/d3treeNode";
+import { CreateChildModal } from "@/components/common/modal/CreateChildModal";
 
-/* -----------------------------
- Types
------------------------------ */
-
-interface D3TreeNode {
-  name: string;
-  attributes: {
-    structure_node_id: string;
-    description?: string;
-    parent_id?: string | null;
-    level?: number;
-    is_active: boolean;
-  };
-  children?: D3TreeNode[];
-}
-
-/* -----------------------------
- Recursive converter
------------------------------ */
-
+/**
+ * Converts a StructureNode to D3Tree format
+ * Recursively transforms the tree structure for react-d3-tree compatibility
+ * 
+ * @param node - StructureNode to convert
+ * @returns D3TreeNode formatted for react-d3-tree
+ */
 function convertToD3Tree(node: StructureNode): D3TreeNode {
   return {
     name: node.name || "Unnamed",
@@ -49,69 +39,93 @@ function convertToD3Tree(node: StructureNode): D3TreeNode {
   };
 }
 
-/* -----------------------------
- Custom Node UI
------------------------------ */
-
-interface CustomNodeProps {
-  nodeDatum: D3TreeNode & { __rd3t?: { collapsed?: boolean } };
-  toggleNode: () => void;
-}
-
+/**
+ * Custom Node Component for D3 Tree Visualization
+ * 
+ * Renders each node in the hierarchy tree with:
+ * - Expand/collapse button (if node has children)
+ * - Node name and description
+ * - Active/Inactive status badge
+ * - Action buttons (Details, Add Child)
+ */
 const CustomNode: React.FC<CustomNodeProps> = ({
   nodeDatum,
   toggleNode,
+  onAddChild,
 }) => {
   const hasChildren = !!nodeDatum.children?.length;
-  const collapsed = nodeDatum.__rd3t?.collapsed ?? false;
+  const isActive = nodeDatum.attributes.is_active;
+  const isCollapsed = nodeDatum.__rd3t?.collapsed ?? false;
+
+  // Handle Add Child button click
+  const handleAddChild = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onAddChild) {
+      onAddChild(nodeDatum.attributes.structure_node_id);
+    }
+  };
 
   return (
     <g>
-      {/* Expand / Collapse */}
+      {/* Expand / Collapse Button - Only shown for nodes with children */}
       {hasChildren && (
-        <g transform="translate(-160,-70)">
-          <foreignObject width={24} height={24}>
+        <g transform={`translate(-160, -70)`}>
+          <foreignObject x={-10} y={-10} width={20} height={20}>
             <button
               onClick={toggleNode}
-              className="w-6 h-6 rounded-full bg-[#094C81] text-white font-bold flex items-center justify-center hover:bg-[#073954]"
+              className="w-5 h-5 rounded-full bg-[#094C81] hover:bg-[#073954] text-white font-semibold flex items-center justify-center transition-colors duration-200 cursor-pointer text-sm"
+              aria-label={isCollapsed ? "Expand node" : "Collapse node"}
             >
-              {collapsed ? "+" : "−"}
+              {isCollapsed ? "+" : "−"}
             </button>
           </foreignObject>
         </g>
       )}
 
-      {/* Card */}
-      <foreignObject x={-150} y={-90} width={300} height={170}>
-        <div className="bg-white rounded-2xl border shadow-lg hover:shadow-xl transition p-4 flex flex-col justify-between">
-          <div className="flex justify-between items-start gap-2">
-            <h3 className="text-[#094C81] font-semibold text-sm line-clamp-2">
-              {nodeDatum.name}
+      {/* Node Card */}
+      <foreignObject x={-150} y={-90} width={300} height={150}>
+        <div className="w-full h-full bg-white rounded-2xl border border-gray-200 shadow-lg hover:border-[#094C81] hover:shadow-xl transition-all duration-200 cursor-pointer p-5 flex flex-col justify-between">
+          {/* Header: Name and Status */}
+          <div className="flex items-start justify-between mb-3">
+            <h3 className="text-secondary text-base font-semibold flex-1 pr-2 line-clamp-2">
+              {nodeDatum.name.length > 28
+                ? `${nodeDatum.name.substring(0, 28)}...`
+                : nodeDatum.name}
             </h3>
-
+            {/* Active/Inactive Status Badge */}
             <span
-              className={`text-xs px-2 py-1 rounded-full ${
-                nodeDatum.attributes.is_active
-                  ? "bg-green-100 text-green-800"
-                  : "bg-red-100 text-red-800"
+              className={`px-3 py-1 flex items-center justify-center rounded-full text-xs font-semibold text-white whitespace-nowrap ${
+                isActive ? "bg-green-100" : "bg-red-100"
               }`}
             >
-              {nodeDatum.attributes.is_active ? "Active" : "Inactive"}
+              {isActive ? (
+                <span className="text-green-900 text-xs font-semibold">
+                  Active
+                </span>
+              ) : (
+                <span className="text-red-900 text-xs font-semibold">
+                  Inactive
+                </span>
+              )}
             </span>
           </div>
 
+          {/* Description */}
           {nodeDatum.attributes.description && (
-            <p className="text-xs text-gray-600 mt-2 text-center">
-              {shortenText(nodeDatum.attributes.description, 30)}
+            <p className="text-gray-600 w-full text-sm font-bold text-center mb-3 line-clamp-3">
+              {shortenText(nodeDatum.attributes.description, 25)}
             </p>
           )}
 
-          {/* Buttons */}
-          <div className="flex gap-2 mt-3">
-            <button className="flex-1 bg-[#094C81] hover:bg-[#073954] text-white text-xs font-semibold py-2 rounded-lg">
+          {/* Action Buttons */}
+          <div className="flex flex-row justify-center gap-3">
+            <button className="flex-1 bg-secondary hover:bg-secondary/80 text-white font-semibold py-2 rounded-lg transition-colors duration-200 text-xs">
               Details
             </button>
-            <button className="flex-1 bg-[#094C81] hover:bg-[#073954] text-white text-xs font-semibold py-2 rounded-lg">
+            <button
+              onClick={handleAddChild}
+              className="flex-1 bg-secondary hover:bg-secondary/80 text-white font-semibold py-2 rounded-lg transition-colors duration-200 text-xs"
+            >
               Add Child
             </button>
           </div>
@@ -121,146 +135,228 @@ const CustomNode: React.FC<CustomNodeProps> = ({
   );
 };
 
-/* -----------------------------
- Main Component
------------------------------ */
-
-interface HierarchyD3TreeProps {
-  data: StructureNode[];
-  isLoading?: boolean;
-}
-
+/**
+ * Hierarchy D3 Tree Component
+ * 
+ * Displays a hierarchical tree structure using react-d3-tree library.
+ * Supports:
+ * - Building tree from flat array of structure nodes
+ * - Selecting root nodes when multiple roots exist
+ * - Interactive tree navigation (zoom, pan, expand/collapse)
+ * - Loading and empty states
+ * 
+ * @param data - Flat array of StructureNode objects
+ * @param isLoading - Loading state indicator
+ */
 const HierarchyD3Tree: React.FC<HierarchyD3TreeProps> = ({
   data,
   isLoading = false,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [selectedRootId, setSelectedRootId] = useState("");
+  
+  // Modal state for creating child nodes
+  const [isCreateChildModalOpen, setIsCreateChildModalOpen] = useState(false);
+  const [selectedParentId, setSelectedParentId] = useState<string>("");
 
-  /* -----------------------------
-   Roots only
-  ----------------------------- */
+  // Handle Add Child button click from CustomNode
+  const handleAddChild = (parentId: string) => {
+    setSelectedParentId(parentId);
+    setIsCreateChildModalOpen(true);
+  };
 
+  // Handle modal close
+  const handleCloseModal = () => {
+    setIsCreateChildModalOpen(false);
+    setSelectedParentId("");
+  };
+
+  // Build tree structure from flat array using utility function
   const rootNodes = useMemo(
-    () => data.filter((n) => n.parent_id === null),
+    () => buildStructureTree(data),
     [data]
   );
 
+  // Convert StructureNode tree to D3Tree format for visualization
   const d3TreeData = useMemo(
     () => rootNodes.map(convertToD3Tree),
     [rootNodes]
   );
 
+  // Generate options for root node selector dropdown
   const rootOptions = rootNodes.map((n) => ({
     value: n.structure_node_id,
     label: n.name,
   }));
 
-  /* -----------------------------
-   Default root
-  ----------------------------- */
-
+  // Auto-select first root node if available and none selected
   useEffect(() => {
-    if (!selectedRootId && rootOptions.length) {
+    if (
+      rootOptions.length > 0 &&
+      (!selectedRootId ||
+        !rootOptions.find((opt) => opt.value === selectedRootId))
+    ) {
       setTimeout(() => {
         setSelectedRootId(rootOptions[0].value);
       }, 0);
     }
   }, [rootOptions, selectedRootId]);
 
+  // Get the selected tree node for display
   const selectedTree = useMemo(() => {
+    if (!d3TreeData || !selectedRootId || !Array.isArray(d3TreeData))
+      return null;
     const node = d3TreeData.find(
       (n) => n.attributes.structure_node_id === selectedRootId
     );
     return node ? [node] : null;
   }, [d3TreeData, selectedRootId]);
 
-  /* -----------------------------
-   Resize & fullscreen
-  ----------------------------- */
-
+  // Handle container resize and calculate tree translation/positioning
   useEffect(() => {
-    const update = () => {
-      if (!containerRef.current) return;
-      const { width, height } = containerRef.current.getBoundingClientRect();
-      setTranslate({ x: width / 2, y: height / 6 });
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const { width, height } = containerRef.current.getBoundingClientRect();
+        setDimensions({ width, height });
+        // Center tree horizontally, position near top vertically
+        setTranslate({ x: width / 2, y: 80 });
+      }
     };
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
+    updateDimensions();
+    window.addEventListener("resize", updateDimensions);
+    return () => window.removeEventListener("resize", updateDimensions);
+  }, [selectedTree]);
 
-  /* -----------------------------
-   States
-  ----------------------------- */
-
+  // Loading State
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full" />
-      </div>
-    );
-  }
-
-  if (!d3TreeData.length) {
-    return (
-      <div className="text-center py-20 text-gray-500">
-        No hierarchy nodes found
-      </div>
-    );
-  }
-
-  /* -----------------------------
-   Render
-  ----------------------------- */
-
-  return (
-    <div className="space-y-4">
-      {rootOptions.length > 1 && (
-        <div className="w-[300px]">
-          <Label>Select Root Node</Label>
-          <Select value={selectedRootId} onValueChange={setSelectedRootId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select root node" />
-            </SelectTrigger>
-            <SelectContent>
-              {rootOptions.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <div className="flex items-center justify-center py-12 min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#094C81] mx-auto mb-4"></div>
+          <p className="text-[#1E516A] text-lg">Loading hierarchy tree...</p>
         </div>
-      )}
+      </div>
+    );
+  }
 
+  // Empty State - No data available
+  if (!d3TreeData || (Array.isArray(d3TreeData) && d3TreeData.length === 0)) {
+    return (
+      <div className="flex items-center justify-center py-12 min-h-[400px]">
+        <div className="text-center">
+          <p className="text-gray-500 text-lg font-medium">
+            No hierarchy nodes found
+          </p>
+          <p className="text-gray-400 text-sm mt-2">
+            Create a hierarchy node to get started.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Main Render
+  return (
+    <div className="w-full space-y-4">
       <div
         ref={containerRef}
-        className="w-full h-screen bg-[#F9FBFC] border rounded-lg overflow-hidden"
+        className="w-full h-full min-h-[600px] bg-[#F9FBFC] rounded-lg border border-gray-200 overflow-hidden"
+        style={{ position: "relative" }}
       >
-        {selectedTree && (
-          <Tree
-            data={selectedTree as unknown as RawNodeDatum[]}
-            translate={translate}
-            orientation="vertical"
-            pathFunc="straight"
-            nodeSize={{ x: 220, y: 260 }}
-            zoom={0.75}
-            scaleExtent={{ min: 0.3, max: 1.5 }}
-            renderCustomNodeElement={(props) => (
-              <CustomNode
-                nodeDatum={
-                  props.nodeDatum as unknown as D3TreeNode & {
-                    __rd3t?: { collapsed?: boolean };
-                  }
-                }
-                toggleNode={props.toggleNode}
+        {/* Root Node Selector - Only shown when multiple root nodes exist */}
+        {rootOptions.length > 1 && (
+          <div className="w-[350px] rounded-lg p-4">
+            <Label className="text-[#094C81] text-sm font-medium">
+              Select Root Node
+            </Label>
+            <Select value={selectedRootId} onValueChange={setSelectedRootId}>
+              <SelectTrigger className="w-full h-10 border border-gray-300 px-4 py-3 rounded-md focus:ring focus:ring-[#094C81] focus:border-transparent transition-all duration-200 outline-none">
+                <SelectValue placeholder="Select a root node to display" />
+              </SelectTrigger>
+              <SelectContent>
+                {rootOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {/* Custom styles for tree links */}
+        <style>{`.rd3t-link { stroke: #94A3B8 !important; stroke-width: 2.5px !important; fill: none !important; }`}</style>
+
+        {/* Tree Visualization */}
+        {selectedTree ? (
+          <>
+            <div
+              id="tree-container"
+              className="w-full h-full"
+              style={{
+                width: "100%",
+                height: dimensions.height || "600px",
+              }}
+            >
+              <Tree
+                data={selectedTree as unknown as RawNodeDatum[]}
+                translate={translate}
+                orientation="vertical"
+                pathFunc="straight"
+                separation={{ siblings: 2.5, nonSiblings: 2 }}
+                nodeSize={{ x: 220, y: 250 }}
+                zoom={0.75}
+                scaleExtent={{ min: 0.1, max: 2 }}
+                enableLegacyTransitions={true}
+                transitionDuration={300}
+                renderCustomNodeElement={(props) => (
+                  <CustomNode
+                    nodeDatum={
+                      props.nodeDatum as unknown as D3TreeNode & {
+                        __rd3t?: { collapsed?: boolean };
+                      }
+                    }
+                    toggleNode={props.toggleNode}
+                    onAddChild={handleAddChild}
+                  />
+                )}
               />
-            )}
-          />
+            </div>
+            {/* Controls Info Panel */}
+            <div className="absolute top-4 right-4 bg-white rounded-lg shadow-lg p-2 border border-gray-200">
+              <div className="text-xs text-gray-600 space-y-1">
+                <p className="font-semibold text-[#094C81] mb-2">Controls:</p>
+                <p>• Scroll to zoom</p>
+                <p>• Drag to pan</p>
+                <p>• Click nodes to expand/collapse</p>
+              </div>
+            </div>
+          </>
+        ) : (
+          // No Root Selected State
+          <div className="flex items-center justify-center py-12 min-h-[400px]">
+            <div className="text-center">
+              <p className="text-gray-500 text-lg font-medium">
+                No root node selected
+              </p>
+              <p className="text-gray-400 text-sm mt-2">
+                Please select a root node from the dropdown above.
+              </p>
+            </div>
+          </div>
         )}
       </div>
+
+      {/* Create Child Modal */}
+      {selectedParentId && (
+        <CreateChildModal
+          parent_id={selectedParentId}
+          isOpen={isCreateChildModalOpen}
+          onClose={handleCloseModal}
+        />
+      )}
     </div>
   );
 };

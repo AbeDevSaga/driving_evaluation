@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { shortenText } from "@/utils/shortenText";
 import { StructureNode } from "@/redux/types/structureNode";
+import { buildStructureTree } from "@/utils/buildStructureTree";
 
   interface StructureCreationProps {
   parent_hierarchy_node_id?: string | null;
@@ -67,10 +68,8 @@ export function CreateStructureModal({
 // };
   if (!isOpen) return null;
 
-  // Get the tree from API response - FIXED: Use 'nodes' instead of 'parentNodes'
   const allNodes = parentNodesData || [];
-  // make the tree only the root node with parent_id null
-  const tree = allNodes.filter((node: StructureNode) => node.parent_id === null);
+  const tree = buildStructureTree(allNodes);
   // Get current level nodes based on navigation stack
   const getCurrentLevelNodes = () => {
     if (navigationStack.length === 0) {
@@ -165,7 +164,7 @@ export function CreateStructureModal({
         setHasSelectedParent(false);
         onClose();
       } else {
-        toast.error(response.message || "Failed to create structure");
+        toast.error((response  as { data: { message: string } }).data?.message || "Failed to create structure");
       }
     } catch (error: unknown) {
       toast.error((error as Error).message || "Failed to create structure");
@@ -177,12 +176,12 @@ export function CreateStructureModal({
       {/* parent_hierarchy_node_id is provided then show the modal with width 500px else hasSelectedParent is true then show the modal with width 1000px else show the modal with width 700px */}
       <div className={`bg-white p-6 rounded-lg shadow-lg ${parent_hierarchy_node_id ? "w-[400px]" : hasSelectedParent ? "w-[1000px]" : "min-w-[700px]"} max-h-[85vh] overflow-y-auto`}>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-[#094C81]">
+          <h2 className="text-lg font-semibold text-secondary">
             Create Structure
           </h2>
           <button
             onClick={onClose}
-            className="text-[#094C81] hover:text-gray-600 transition-colors duration-200"
+            className="text-secondary hover:text-gray-600 transition-colors duration-200"
           >
             <XIcon className="w-6 h-6 cursor-pointer" />
           </button>
@@ -203,7 +202,7 @@ export function CreateStructureModal({
           {!parent_hierarchy_node_id && (
               <div className={`flex flex-col transition-all duration-500 ${isParentSelected ? 'w-1/2' : 'w-full'}`}>
                 {/* Structure Selection */}
-                <Label className="block text-sm text-[#094C81] font-medium mb-2">
+                <Label className="block text-sm text-secondary font-medium mb-2">
                   Select Parent Structure {!isParentSelected && '(required)'}
                 </Label>
 
@@ -219,15 +218,15 @@ export function CreateStructureModal({
                           onClick={goBack}
                           className="mb-2 flex items-center hover:bg-gray-100 rounded-md p-2 border-none outline-none shadow-none text-sm"
                         >
-                          <ArrowLeftIcon className="w-4 h-4 mr-2 text-[#094C81]" />
-                          <span className="text-sm text-[#094C81] font-medium">
+                          <ArrowLeftIcon className="w-4 h-4 mr-2 text-secondary" />
+                          <span className="text-sm text-secondary font-medium">
                             Back{" "}
                           </span>
                         </button>
                       )}
                       {/* Current Path Display */}
                       {navigationStack.length > 0 && (
-                        <div className="text-sm text-[#094C81] font-medium mb-2">
+                        <div className="text-sm text-secondary font-medium mb-2">
                           Current: {getCurrentPath()}
                         </div>
                       )}
@@ -239,12 +238,12 @@ export function CreateStructureModal({
                           type="button"
                           className={`block border text-left w-full py-2 px-3 rounded-md mb-2 transition-colors ${
                             selectedParentNode === null
-                              ? "bg-blue-100 border border-blue-300 text-blue-800"
+                              ? "bg-secondary/10 border border-secondary text-secondary"
                               : "hover:bg-gray-100 border"
                           }`}
                           onClick={() => handleNodeSelect(null)}
                         >
-                          <div className="flex items-center text-sm text-[#094C81] font-medium">
+                          <div className="flex items-center text-sm text-secondary font-medium">
                             <span className="mr-2">
                               <GitForkIcon className="w-4 h-4" />
                             </span>
@@ -261,7 +260,7 @@ export function CreateStructureModal({
                       {/* Structure Tree */}
                       <div className="flex flex-col gap-2 space-y-1 max-h-60 overflow-y-auto">
                         {currentLevelNodes?.length === 0 ? (
-                          <p className="text-sm text-center py-4 text-[#094C81] font-medium">
+                          <p className="text-sm text-center py-4 text-secondary font-medium">
                             No structures found at this level
                           </p>
                         ) : (
@@ -271,16 +270,16 @@ export function CreateStructureModal({
                               key={node.structure_node_id}
                               className={`flex border border-gray-300 rounded-md items-center
                                 hover:bg-blue-100  pr-3
-                                ${selectedParentNode === node.structure_node_id ? "bg-blue-200 border border-[#094C81] text-blue-800 " : ""}`}
+                                ${selectedParentNode === node.structure_node_id ? "bg-secondary/10 border border-secondary text-secondary " : ""}`}
                             >
                               <button
                                 type="button"
                                 onClick={() => handleNodeSelect(node.structure_node_id)}
                                 className={`block text-left w-full py-2 px-3 rounded-md mb-2 transition-colors ${
-                                  selectedParentNode === node.structure_node_id ? "text-blue-800" : ""
+                                  selectedParentNode === node.structure_node_id ? "text-secondary" : ""
                                 }`}
                               >
-                                <div className="flex w-full items-center text-sm text-[#094C81] font-medium">
+                                <div className="flex w-full items-center text-sm text-secondary font-medium">
                                   <span className="mr-2 mt-0.5">
                                     <GitForkIcon className="w-4 h-4" />
                                   </span>
@@ -310,7 +309,7 @@ export function CreateStructureModal({
                                   className="bg-transparent border-none w-fit opacity-70 group-hover:opacity-100 transition-opacity"
                                   title={`Explore ${node.name} structure`}
                                 >
-                                  <ArrowRightIcon className="w-6 h-6 hover:text-[#094C81]" />
+                                  <ArrowRightIcon className="w-6 h-6 hover:text-secondary" />
                                 </button>
                               )}
                               </div>
@@ -338,7 +337,7 @@ export function CreateStructureModal({
               >
                 {/* Node Name */}
                 <div className="w-full">
-                  <Label className="block text-sm text-[#094C81] font-medium mb-2">
+                  <Label className="block text-sm text-secondary font-medium mb-2">
                     Structure Name <span className="text-red-500">*</span>
                   </Label>
                   <input
@@ -349,7 +348,7 @@ export function CreateStructureModal({
                     onChange={(e) => setName(e.target.value)}
                     required
                   />
-                  <Label className="block text-sm text-[#094C81] font-medium mb-2">
+                  <Label className="block text-sm text-secondary font-medium mb-2">
                     Structure Description
                   </Label>
                   <textarea
@@ -370,14 +369,14 @@ export function CreateStructureModal({
               <div className="flex gap-4 flex-col w-full">
                 {/* Node Name */}
                 <div className="flex-1 w-full ">
-                  <Label className="block text-sm text-[#094C81] font-medium mb-2">
+                  <Label className="block text-sm text-secondary font-medium mb-2">
                     Structure Name <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="structure-name"
                     placeholder="Enter structure name"
                     value={name}
-                    className="w-full h-10 border border-gray-300 px-4 py-3 rounded-md focus:ring focus:ring-[#094C81] focus:border-transparent transition-all duration-200 outline-none"
+                    className="w-full h-10 border border-gray-300 px-4 py-3 rounded-md focus:ring focus:ring-secondary focus:border-transparent transition-all duration-200 outline-none"
                     onChange={(e) => setName(e.target.value)}
                     required
                   />
