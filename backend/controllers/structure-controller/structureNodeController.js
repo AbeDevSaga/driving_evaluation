@@ -90,7 +90,7 @@ const getStructureNodes = async (req, res) => {
           as: "parent",
         },
       ],
-      order: [["created_at", "DESC"]],
+      order: [["created_at", "ASC"]],
     });
 
     return res.status(200).json({

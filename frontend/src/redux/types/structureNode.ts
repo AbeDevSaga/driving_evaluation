@@ -11,6 +11,7 @@ export interface StructureNode {
   created_at: string; // ISO date string
   updated_at: string; // ISO date string
   deleted_at?: string | null; // Soft delete timestamp
+  parent?: StructureNode[];
   children?: StructureNode[]; // Optional children for nested structure
 }
 

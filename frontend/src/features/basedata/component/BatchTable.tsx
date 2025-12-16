@@ -7,15 +7,14 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Plus, Eye, Edit, Trash } from "lucide-react";
-
+import Link from "next/link";
 import type { FilterField, ActionButton } from "@/types/tableLayout";
-import { useGetStructureNodesQuery } from "@/redux/api/structureNodeApi";
-import { CreateStructureModal } from "@/components/common/modal/CreateStructureModal";
-import { StructureNode } from "@/redux/types/structureNode";
 import Loading01 from "@/features/template/component/Loading/Loading01";
-import HierarchyD3Tree from "./StructuresHierarchy";
+import { Batch } from "@/redux/types/batch";
+import { useGetBatchesQuery } from "@/redux/api/batchApi";
+import { CreateBatchModal } from "@/components/common/modal/CreateBatchModal";
 
-export const columns: ColumnDef<StructureNode>[] = [
+export const columns: ColumnDef<Batch>[] = [
   {
     accessorKey: "name",
     header: "Name",
@@ -29,30 +28,22 @@ export const columns: ColumnDef<StructureNode>[] = [
     ),
   },
   {
-    accessorKey: "description",
-    header: "Description",
+    accessorKey: "year",
+    header: "Year",
     cell: ({ row }) => (
       <div className="max-w-[300px] truncate text-muted-foreground">
-        {row.getValue("description")}
+        {row.getValue("year")}
       </div>
     ),
   },
-  // {
-  //   accessorKey: "level",
-  //   header: "Level",
-  //   cell: ({ row }) => (
-  //     <Badge variant="outline">Level {row.getValue("level")}</Badge>
-  //   ),
-  // },
   {
-    id: "parent",
-    header: "Parent",
-    cell: ({ row }) => {
-      const parent = row.original.parent?.name;
-      return (
-        <span className="text-sm text-muted-foreground">{parent ?? "—"}</span>
-      );
-    },
+    accessorKey: "batch_code",
+    header: "Batch Code",
+    cell: ({ row }) => (
+      <div className="max-w-[300px] truncate text-muted-foreground">
+        {row.getValue("batch_code")}
+      </div>
+    ),
   },
   {
     accessorKey: "is_active",
@@ -70,30 +61,34 @@ export const columns: ColumnDef<StructureNode>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-1">
-        <Button variant="ghost" size="icon">
-          <Eye className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon">
-          <Edit className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon">
-          <Trash className="h-4 w-4" />
-        </Button>
-      </div>
-    ),
+    cell: ({ row }) => {
+      const id = row.original.vehicle_category_id;
+      return (
+        <div className="flex items-center gap-1">
+          <Link href={`${id}`}>
+            <Button variant="ghost" size="icon">
+              <Eye className="h-4 w-4" />
+            </Button>
+          </Link>
+
+          <Button variant="ghost" size="icon">
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Trash className="h-4 w-4" />
+          </Button>
+        </div>
+      );
+    },
   },
 ];
 
-export default function StructuresTable() {
-  const [toggleHierarchyNode, setToggleHierarchyNode] = useState(false);
-  const {
-    data = [],
-    isLoading,
-    isError,
-    refetch,
-  } = useGetStructureNodesQuery();
+interface BatchTableProps {
+  vehicle_category_id: string;
+}
+
+export default function BatchTable({ vehicle_category_id }: BatchTableProps) {
+  const { data = [], isLoading, isError, refetch } = useGetBatchesQuery();
   // Pagination states
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
@@ -123,7 +118,7 @@ export default function StructuresTable() {
   // Actions
   const actions: ActionButton[] = [
     {
-      label: "New Structure",
+      label: "New Batch",
       icon: <Plus className="h-4 w-4" />,
       variant: "default",
       onClick: () => setModalOpen(true),
@@ -141,7 +136,7 @@ export default function StructuresTable() {
     return <Loading01 />;
   }
   if (isError) {
-    return <div>Error loading structures</div>;
+    return <div>Error loading batches</div>;
   }
 
   // Pagination slice
@@ -149,32 +144,20 @@ export default function StructuresTable() {
     pageIndex * pageSize,
     pageIndex * pageSize + pageSize
   );
-  console.log(paginatedData, "paginatedData");
   return (
     <>
-      <TableLayout
-        actions={actions}
-        filters={filters}
-        filterColumnsPerRow={1}
-        showToggleHierarchyNode={true}
-        toggleHierarchyNode={toggleHierarchyNode}
-        setToggleHierarchyNode={setToggleHierarchyNode}
-      >
-        {!toggleHierarchyNode ? (
-          <DataTable
-            columns={columns}
-            data={paginatedData}
-            totalPageCount={Math.ceil(filteredData.length / pageSize)}
-            handlePagination={handlePagination}
-            tablePageSize={pageSize}
-            currentIndex={pageIndex}
-          />
-        ) : (
-          <HierarchyD3Tree data={data} />
-        )}
+      <TableLayout actions={actions} filters={filters} filterColumnsPerRow={1}>
+        <DataTable
+          columns={columns}
+          data={paginatedData}
+          totalPageCount={Math.ceil(filteredData.length / pageSize)}
+          handlePagination={handlePagination}
+          tablePageSize={pageSize}
+          currentIndex={pageIndex}
+        />
       </TableLayout>
-      <CreateStructureModal
-        parent_hierarchy_node_id={null}
+      <CreateBatchModal
+        vehicle_category_id={vehicle_category_id}
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
       />
