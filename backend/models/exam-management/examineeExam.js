@@ -14,6 +14,11 @@ module.exports = (sequelize, DataTypes) => {
         as: "exam",
       });
 
+      ExamineeExam.belongsTo(models.ExamSchedule, {
+        foreignKey: "exam_schedule_id",
+        as: "schedule",
+      });
+
       ExamineeExam.hasMany(models.SectionResult, {
         foreignKey: "examinee_exam_id",
         as: "sectionResults",
@@ -33,6 +38,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       exam_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      exam_schedule_id: {
         type: DataTypes.UUID,
         allowNull: false,
       },

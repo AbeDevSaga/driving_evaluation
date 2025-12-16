@@ -21,12 +21,17 @@ const changePasswordRoutes = require("./routers/user-routes/passwordChangeRoutes
 
 // ================== Exam Routes ==========================
 const examRoute = require("./routers/exam-routes/examRoutes");
+const examScheduleRoute = require("./routers/exam-routes/examScheduleRoutes");
+const examSectionRoute = require("./routers/exam-routes/examSectionRoute");
+const examineeExamRoute = require("./routers/exam-routes/examineeExamRoutes");
+const examinerAssignmentRoute = require("./routers/exam-routes/examinerAssignmentRoutes");
 
 // ================== Structure Routes ==========================
 const structureRoulte = require("./routers/structure-routes/structureNodeRoutes");
 
 // ================== Vehicles Category Routes ==========================
 const vehicleCategoryRoulte = require("./routers/vehicles-routes/vehiclesCategoryRoutes");
+const batchRoulte = require("./routers/vehicles-routes/batchRoutes");
 
 // const issueFileAttachmentRoutes = require("./routers/issueAttachmentRoutes");
 // const fileAttachmentRoutes = require("./routers/attachementRoutes");
@@ -103,12 +108,17 @@ app.use("/api/permissions", permissionRoute);
 
 // ================== Api Exam Routes =====================
 app.use("/api/exams", examRoute);
+app.use("/api/exam-schedules", examScheduleRoute);
+app.use("/api/exam-sections", examSectionRoute);
+app.use("/api/examinee-exams", examineeExamRoute);
+app.use("/api/examiner-assignments", examinerAssignmentRoute);
 
 // ================== Api Structure Routes =====================
 app.use("/api/structure-nodes", structureRoulte);
 
 // ================== Api Vehicle Category Routes =====================
 app.use("/api/vehicle-categories", vehicleCategoryRoulte);
+app.use("/api/batches", batchRoulte);
 
 // app.use("/api/issue-attachments", issueFileAttachmentRoutes);
 // app.use("/api/attachments", fileAttachmentRoutes);

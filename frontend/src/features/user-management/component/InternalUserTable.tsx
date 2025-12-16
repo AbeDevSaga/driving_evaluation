@@ -9,7 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Download, Plus, Eye, Edit, Trash, Users } from "lucide-react";
 
 import type { FilterField, ActionButton } from "@/types/tableLayout";
-import { useExportUsersMutation, useGetUsersQuery } from "@/redux/api/userApi";
+import {
+  useExportUsersMutation,
+  useGetUsersQuery,
+  useGetUserTypesQuery,
+} from "@/redux/api/userApi";
 import { User } from "@/redux/types/user";
 import { CreateUserModal } from "@/components/common/modal/CreateUserModal";
 
@@ -59,22 +63,37 @@ const columns: ColumnDef<User>[] = [
         <Button variant="ghost" size="icon">
           <Trash className="h-4 w-4" />
         </Button>
-        </div>
+      </div>
     ),
   },
 ];
 
-export default function UserTable() {
-  const { data = [], isLoading, isError, refetch } = useGetUsersQuery();
+export interface UserTableProps {
+  sideActions?: ActionButton[];
+}
+
+export default function InternalUserTable({ sideActions }: UserTableProps) {
+  const {
+    data: userTypes = [],
+    isLoading: isLoadingType,
+    isError: typeError,
+    refetch: refetchType,
+  } = useGetUserTypesQuery();
+  const userTypeId = userTypes?.find(
+    (type: any) => type.name === "internal"
+  )?.user_type_id;
+  const {
+    data = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useGetUsersQuery({ user_type_id: userTypeId });
   const [exportUsers, { isLoading: exportLoading }] = useExportUsersMutation();
 
   // Pagination states
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [isModalOpen, setModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"internal" | "external">(
-    "internal"
-  );
   const handlePagination = (index: number, size: number) => {
     setPageIndex(index);
     setPageSize(size);
@@ -124,26 +143,10 @@ export default function UserTable() {
     },
 
     {
-      label: "New User",
+      label: "New Internal User",
       icon: <Plus className="h-4 w-4" />,
       variant: "default",
       onClick: () => setModalOpen(true),
-    },
-  ];
-  const leftSideActions: ActionButton[] = [
-    {
-      label: "Internal Users",
-      icon: <Users className="h-4 w-4" />,
-      variant: activeTab === "internal" ? "default" : "outline",
-      size: "default",
-      onClick: () => setActiveTab("internal"),
-    },
-    {
-      label: "External Users",
-      icon: <Users className="h-4 w-4" />,
-      variant: activeTab === "external" ? "default" : "outline",
-      size: "default",
-      onClick: () => setActiveTab("external"),
     },
   ];
 
@@ -159,12 +162,11 @@ export default function UserTable() {
     pageIndex * pageSize,
     pageIndex * pageSize + pageSize
   );
-  console.log(activeTab, "activeTab");
   return (
     <>
-      <TableLayout 
+      <TableLayout
         actions={actions}
-        leftSideActions={leftSideActions}
+        sideActions={sideActions}
         filters={filters}
         filterColumnsPerRow={1}
       >
@@ -178,6 +180,7 @@ export default function UserTable() {
         />
       </TableLayout>
       <CreateUserModal
+        user_type="internal"
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
       />

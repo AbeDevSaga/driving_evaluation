@@ -1,4 +1,3 @@
-// Updated CreateUserModal with normal div modal instead of Dialog
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -6,7 +5,10 @@ import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useGetRolesQuery } from "@/redux/api/roleApi";
-import { useCreateUserMutation } from "@/redux/api/userApi";
+import {
+  useCreateUserMutation,
+  useGetUserTypesQuery,
+} from "@/redux/api/userApi";
 import { CreateUserPayload } from "@/redux/types/user";
 import { Check, XIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -17,13 +19,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useGetStructureNodesQuery } from "@/redux/api/structureNodeApi";
 
 interface CreateUserModalProps {
+  user_type?: string;
+  structure_node_id?: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
 export const CreateUserModal: React.FC<CreateUserModalProps> = ({
+  user_type,
+  structure_node_id,
   isOpen,
   onClose,
 }) => {
@@ -31,11 +38,27 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [selectedStructure, setSelectedStructure] = useState<string>("");
 
   const { data: rolesResponse } = useGetRolesQuery();
+  const { data: structureResponse = [] } = useGetStructureNodesQuery(
+    undefined,
+    { skip: !!structure_node_id }
+  );
   const roles = rolesResponse || [];
+  const structures = structureResponse || [];
+
+  const {
+    data: userTypes = [],
+    isLoading: isLoadingType,
+    isError: typeError,
+    refetch: refetchType,
+  } = useGetUserTypesQuery();
 
   const [createUser, { isLoading }] = useCreateUserMutation();
+  const userTypeId = userTypes?.find(
+    (type: any) => type.name === user_type
+  )?.user_type_id;
 
   const handleSubmit = async () => {
     if (!fullName || !email || !selectedRoles.length) {
@@ -43,11 +66,20 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
       return;
     }
 
+    if (user_type && !userTypeId) {
+      toast.error("User type not resolved yet");
+      return;
+    }
+
     const payload: CreateUserPayload = {
       full_name: fullName,
       email,
-      phone_number: phoneNumber || undefined,
-      role_ids: selectedRoles || [],
+      role_ids: selectedRoles,
+      structure_node_id: structure_node_id
+        ? structure_node_id
+        : selectedStructure,
+      ...(phoneNumber && { phone_number: phoneNumber }),
+      ...(userTypeId && { user_type_id: userTypeId }),
     };
 
     try {
@@ -94,6 +126,35 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
         <div className="w-full flex flex-col space-y-4">
           {/* User Detail */}
           <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4  mt-2 pr-2">
+            {/* Structure Selection (only if not passed from parent) */}
+            {!structure_node_id && user_type === "external" && (
+              <div className="w-full space-y-2">
+                <Label className="block text-sm text-[#094C81] font-medium mb-2">
+                  Structure <span className="text-red-500">*</span>
+                </Label>
+
+                <Select
+                  value={selectedStructure}
+                  onValueChange={setSelectedStructure}
+                >
+                  <SelectTrigger className="w-full h-12 border border-gray-300 px-4 py-5 rounded-md focus:ring focus:ring-[#094C81] focus:border-transparent transition-all duration-200 outline-none">
+                    <SelectValue placeholder="Select Structure" />
+                  </SelectTrigger>
+
+                  <SelectContent className="text-[#094C81] bg-white max-h-64 overflow-y-auto">
+                    {structures.map((s: any) => (
+                      <SelectItem
+                        key={s.structure_node_id}
+                        value={s.structure_node_id}
+                      >
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label className="block text-sm text-[#094C81] font-medium mb-2">
                 Full Name <span className="text-red-500">*</span>
