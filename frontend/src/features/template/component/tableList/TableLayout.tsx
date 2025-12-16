@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ActionButton, PageLayoutProps } from "@/types/tableLayout";
 import { FilterPopover } from "./FilterDrawer";
 import { useSearchParams, useRouter } from "next/navigation";
+import { Select, SelectItem, SelectContent, SelectValue, SelectTrigger } from "@/components/ui/select";
 
 export const TableLayout: React.FC<PageLayoutProps> = ({
   title,
@@ -14,6 +15,9 @@ export const TableLayout: React.FC<PageLayoutProps> = ({
   leftSideActions = [],
   children,
   filterColumnsPerRow = 1,
+  showToggleHierarchyNode,
+  toggleHierarchyNode,
+  setToggleHierarchyNode,
 }) => {
   // Get URL state for search
   const searchParams = useSearchParams();
@@ -78,7 +82,30 @@ export const TableLayout: React.FC<PageLayoutProps> = ({
                 className="pl-10 w-64"
               />
             </div>
-
+            {showToggleHierarchyNode && (
+              <Select
+                value={toggleHierarchyNode ? "hierarchy" : "list"}
+                onValueChange={(value: string) => setToggleHierarchyNode?.(value === "hierarchy" ? true : false)}
+              >
+                <SelectTrigger className="w-40 bg-white text-gray-700 border-gray-300 focus:ring-0">
+                  <SelectValue placeholder="Hierarchy View" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem
+                    value="list"
+                    className="text-gray-700 hover:bg-gray-200"
+                  >
+                    List View
+                  </SelectItem>
+                  <SelectItem
+                    value="hierarchy"
+                    className="text-gray-700 hover:bg-gray-200"
+                  >
+                    Hierarchy View
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            )}
             {/* Filters */}
             {filters.length > 0 && (
               <FilterPopover

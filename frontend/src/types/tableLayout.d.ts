@@ -35,6 +35,9 @@ export interface PageLayoutProps {
   leftSideActions?: ActionButton[]
   children?: ReactNode
   filterColumnsPerRow?: number
+  toggleHierarchyNode?: boolean
+  setToggleHierarchyNode?: (value: boolean) => void
+  showToggleHierarchyNode?: boolean
 }
 
 export interface DetailPageLayoutProps {
