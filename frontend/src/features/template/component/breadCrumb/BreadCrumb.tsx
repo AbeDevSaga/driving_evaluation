@@ -14,6 +14,11 @@ const BREADCRUMB_ROUTES = new Map([
   ["/users/permissions", "/users/permissions"],
   ["/users/roles/new", "/users/roles/new"],
   ["/dashboard", "/dashboard"],
+  ["/basedata", "/basedata"],
+  ["/basedata/structures", "/basedata/structures"],
+  ["/basedata/exams", "/basedata/exams"],
+  ["/basedata/applicants", "/basedata/applicants"],
+  ["/basedata/vehicle-categories", "/basedata/vehicle-categories"],
 ]);
 
 const isInBreadcrumbRoutes = (path: string) => {
