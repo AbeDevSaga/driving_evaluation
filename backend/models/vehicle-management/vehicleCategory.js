@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
 
       code: {
         type: DataTypes.STRING(20),
-        allowNull: false,
+        allowNull: true,
         unique: true,
         // e.g. A, B, C, D, CE
       },
