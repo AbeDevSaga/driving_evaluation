@@ -128,14 +128,15 @@ export function AppSidebar() {
                     type="button"
                     isActive={pathname === item.url}
                     tooltip={item.title}
-                    className="text-primary px-5 py-5 group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:justify-center data-[active=true]:bg-primary data-[active=true]:text-primary-foreground"
+                    className="text-primary px-5 py-5 group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:justify-center hover:bg-green-100 data-[active=true]:bg-primary  data-[active=true]:text-primary-foreground"
                   >
                     <Link
                       href={item.url}
                       className="flex group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:items-center"
                     >
-                      <item.icon className="group-data-[collapsible=icon]:size-5" />
-                      <span className="text-base group-data-[collapsible=icon]:hidden">
+                      {/* if not collapsible, make the icon size 20 */}
+                      <item.icon className="group-data-[collapsible=icon]:size-5 " />
+                      <span className="text-base font-medium group-data-[collapsible=icon]:hidden">
                         {item.title}
                       </span>
                     </Link>
@@ -149,8 +150,9 @@ export function AppSidebar() {
                 defaultOpen={pathname.startsWith("/users")}
                 className="group/collapsible"
               >
+                 
                 <SidebarMenuItem className="group-data-[collapsible=icon]:w-fit">
-                  <CollapsibleTrigger asChild>
+                  <CollapsibleTrigger asChild className="data-[active=true]:hover:bg-primary data-[active=true]:hover:text-white">
                     <SidebarMenuButton
                       tooltip="Users"
                       isActive={pathname.startsWith("/users")}
@@ -172,8 +174,8 @@ export function AppSidebar() {
                             isActive={pathname === subItem.url}
                           >
                             <Link href={subItem.url}>
-                              <subItem.icon className="h-4 w-4" />
-                              <span>{subItem.title}</span>
+                              <subItem.icon className="h-4 w-4 text-primary group-data-[collapsible=icon]:size-5" />
+                              <span className="text-secondary">{subItem.title}</span>
                             </Link>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>

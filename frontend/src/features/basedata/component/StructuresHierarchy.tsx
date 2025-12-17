@@ -73,7 +73,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
           <foreignObject x={-10} y={-10} width={20} height={20}>
             <button
               onClick={toggleNode}
-              className="w-5 h-5 rounded-full bg-[#094C81] hover:bg-[#073954] text-white font-semibold flex items-center justify-center transition-colors duration-200 cursor-pointer text-sm"
+              className="w-5 h-5 rounded-full bg-secondary hover:bg-secondary/80 text-white font-semibold flex items-center justify-center transition-colors duration-200 cursor-pointer text-sm"
               aria-label={isCollapsed ? "Expand node" : "Collapse node"}
             >
               {isCollapsed ? "+" : "−"}
@@ -84,7 +84,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 
       {/* Node Card */}
       <foreignObject x={-150} y={-90} width={300} height={150}>
-        <div className="w-full h-full bg-white rounded-2xl border border-gray-200 shadow-lg hover:border-[#094C81] hover:shadow-xl transition-all duration-200 cursor-pointer p-5 flex flex-col justify-between">
+        <div className="w-full h-full bg-white rounded-2xl border border-gray-200 shadow-lg hover:border-secondary hover:shadow-xl transition-all duration-200 cursor-pointer p-5 flex flex-col justify-between">
           {/* Header: Name and Status */}
           <div className="flex items-start justify-between mb-3">
             <h3 className="text-secondary text-base font-semibold flex-1 pr-2 line-clamp-2">
@@ -119,12 +119,12 @@ const CustomNode: React.FC<CustomNodeProps> = ({
 
           {/* Action Buttons */}
           <div className="flex flex-row justify-center gap-3">
-            <button className="flex-1 bg-secondary hover:bg-secondary/80 text-white font-semibold py-2 rounded-lg transition-colors duration-200 text-xs">
+            <button className="flex-1 bg-primary hover:bg-primary/80 text-white font-semibold py-2 rounded-lg transition-colors duration-200 text-xs">
               Details
             </button>
             <button
               onClick={handleAddChild}
-              className="flex-1 bg-secondary hover:bg-secondary/80 text-white font-semibold py-2 rounded-lg transition-colors duration-200 text-xs"
+              className="flex-1 bg-primary hover:bg-primary/80 text-white font-semibold py-2 rounded-lg transition-colors duration-200 text-xs"
             >
               Add Child
             </button>
@@ -259,6 +259,7 @@ const HierarchyD3Tree: React.FC<HierarchyD3TreeProps> = ({
 
   // Main Render
   return (
+    <>
     <div className="w-full space-y-4">
       <div
         ref={containerRef}
@@ -268,7 +269,7 @@ const HierarchyD3Tree: React.FC<HierarchyD3TreeProps> = ({
         {/* Root Node Selector - Only shown when multiple root nodes exist */}
         {rootOptions.length > 1 && (
           <div className="w-[350px] rounded-lg p-4">
-            <Label className="text-[#094C81] text-sm font-medium">
+            <Label className="text-secondary text-sm font-medium">
               Select Root Node
             </Label>
             <Select value={selectedRootId} onValueChange={setSelectedRootId}>
@@ -348,16 +349,16 @@ const HierarchyD3Tree: React.FC<HierarchyD3TreeProps> = ({
           </div>
         )}
       </div>
-
-      {/* Create Child Modal */}
-      {selectedParentId && (
-        <CreateChildModal
-          parent_id={selectedParentId}
-          isOpen={isCreateChildModalOpen}
-          onClose={handleCloseModal}
-        />
-      )}
     </div>
+    {/* Create Child Modal */}
+    {selectedParentId && (
+      <CreateChildModal
+        parent_id={selectedParentId}
+        isOpen={isCreateChildModalOpen}
+        onClose={handleCloseModal}
+      />
+    )}
+    </>
   );
 };
 

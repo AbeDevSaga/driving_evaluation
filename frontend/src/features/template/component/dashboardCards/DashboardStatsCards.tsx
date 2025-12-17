@@ -75,17 +75,17 @@ export default function DashboardStatsCards() {
           >
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-sm font-medium text-secondary">
                   {item.title}
                 </CardTitle>
-                <MoreHorizontal className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-pointer" />
+                <MoreHorizontal className="h-4 w-4 text-secondary hover:text-foreground cursor-pointer" />
               </div>
             </CardHeader>
 
             <CardContent className="flex items-center justify-between">
               {/* Text Section */}
               <div className="flex flex-col space-y-4">
-                <div className="text-3xl font-bold tracking-tight">
+                <div className="text-3xl text-primary font-bold tracking-tight">
                   {item.value.toLocaleString()}
                 </div>
                 <div className="flex items-center gap-2">

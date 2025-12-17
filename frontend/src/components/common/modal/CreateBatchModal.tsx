@@ -25,6 +25,7 @@ export const CreateBatchModal = ({
   const [year, setYear] = useState(0);
 
   const [createBatch, { isLoading }] = useCreateBatchMutation();
+  if (!isOpen) return null;
 
   const handleSubmit = async () => {
     if (!name || !year || !batchCode) {
@@ -59,7 +60,6 @@ export const CreateBatchModal = ({
     if (e.target === e.currentTarget) handleClose();
   };
 
-  if (!isOpen) return null;
 
   return (
     <div
@@ -69,10 +69,10 @@ export const CreateBatchModal = ({
       <div className="bg-white p-6 rounded-2xl w-full max-w-[700px] shadow-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-[#094C81]">Create User</h2>
+          <h2 className="text-xl font-semibold text-secondary">Create Batch</h2>
           <button
             onClick={handleClose}
-            className="text-[#094C81] hover:text-gray-600 transition"
+            className="text-secondary hover:text-gray-600 transition"
           >
             <XIcon className="w-6 h-6 cursor-pointer" />
           </button>
@@ -83,29 +83,29 @@ export const CreateBatchModal = ({
           {/* User Detail */}
           <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4  mt-2 pr-2">
             <div className="space-y-2">
-              <Label className="block text-sm text-[#094C81] font-medium mb-2">
+              <Label className="block text-sm text-secondary font-medium mb-2">
                 Batch Code <span className="text-red-500">*</span>
               </Label>
               <Input
                 value={batchCode}
                 onChange={(e) => setBatchCode(e.target.value)}
-                placeholder="+251 9xxxxxxx"
+                placeholder="Batch Code"
                 className="w-full h-12 border border-gray-300 px-4 py-3 rounded-md focus:ring focus:ring-[#094C81] focus:border-transparent transition-all duration-200 outline-none"
               />
             </div>
             <div className="space-y-2">
-              <Label className="block text-sm text-[#094C81] font-medium mb-2">
+              <Label className="block text-sm text-secondary font-medium mb-2">
                 Name <span className="text-red-500">*</span>
               </Label>
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="John Doe"
+                placeholder="Batch Name"
                 className="w-full h-12 border border-gray-300 px-4 py-3 rounded-md focus:ring focus:ring-[#094C81] focus:border-transparent transition-all duration-200 outline-none"
               />
             </div>
             <div className="space-y-2">
-              <Label className="block text-sm text-[#094C81] font-medium mb-2">
+              <Label className="block text-sm text-secondary font-medium mb-2">
                 Year <span className="text-red-500">*</span>
               </Label>
 
@@ -118,7 +118,7 @@ export const CreateBatchModal = ({
                     setYear(value);
                   }
                 }}
-                placeholder="2025"
+                placeholder="Year"
                 min={1900}
                 max={new Date().getFullYear() + 1}
                 className="w-full h-12 border border-gray-300 px-4 py-3 rounded-md
