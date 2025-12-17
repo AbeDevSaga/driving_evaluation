@@ -39,7 +39,7 @@ export interface User {
   created_at: string;
   updated_at: string;
   userType?: UserType;
-  structure?: StructureNode;
+  structureNode?: StructureNode;
   roles?: Role[];
 }
 

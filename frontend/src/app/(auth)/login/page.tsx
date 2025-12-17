@@ -51,27 +51,30 @@ export default function ExternalLogin() {
           onClick={() => router.push("/")}
           className="cursor-pointer shadow-none z-50 bg-transparent hover:bg-slate-100 p-2 top-4 left-4 absolute flex items-center gap-1"
         >
-          <ArrowLeftIcon className="w-5 h-5 text-[#0C4A6E]" />
-          <span className="text-sm text-[#0C4A6E] font-medium">Back</span>
+          <ArrowLeftIcon className="w-5 h-5 text-secondary" />
+          <span className="text-sm text-secondary font-medium">Back</span>
         </Button>
 
         {/* Left Section */}
         <div className="w-full bg-cover bg-center p-8 flex items-center justify-center">
           <div className="backdrop-blur-md p-6 rounded-xl text-center">
-            <Image
+            <div className="w-48   text-white text-2xl font-bold h-48 bg-primary rounded-xl flex items-center justify-center">
+              Logo
+            </div>
+            {/* <Image
               src="/logo-aii.png"
               alt="Organization Logo"
               width={288}
               height={288}
               className="mx-auto mb-3 rounded-xl p-2"
-            />
+            /> */}
           </div>
         </div>
 
         {/* Right Section */}
         <div className="w-full px-16 py-8 flex items-center justify-center">
           <div className="w-full max-w-md">
-            <h1 className="text-3xl font-semibold text-center text-[#0C4A6E] mb-6">
+            <h1 className="text-3xl font-bold text-center text-secondary  mb-6">
               Login
             </h1>
 
@@ -85,20 +88,20 @@ export default function ExternalLogin() {
 
               {/* Email */}
               <div>
-                <Label className="text-[#0C4A6E]">Email</Label>
+                <Label className="text-secondary">Email</Label>
                 <Input
                   placeholder="example.xx@gov.et"
                   value={formData.email}
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="w-full h-14 mt-1 px-3 py-2   rounded-md text-sm border-blue-300 focus:ring-0 focus:outline-none focus:border-none"
+                  className="w-full h-14 mt-1 px-3 py-2 text-gray-700   rounded-md text-sm border-primary/50   focus:border-primary"
                 />
               </div>
 
               {/* Password */}
               <div>
-                <Label className="text-[#0C4A6E]">Password</Label>
+                <Label className="text-secondary">Password</Label>
                 <div className="relative mt-1">
                   <Input
                     type={showPassword ? "text" : "password"}
@@ -107,7 +110,7 @@ export default function ExternalLogin() {
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
-                    className="w-full h-14 px-3 py-2 pr-10 border rounded-md text-sm border-blue-300 focus:ring-0 focus:outline-none focus:border-none"
+                    className="w-full h-14 px-3 py-2 pr-10 border rounded-md text-sm text-gray-700 border-primary/50 focus:ring-none focus:outline-none focus:border-primary/50"
                   />
 
                   <button
@@ -116,9 +119,9 @@ export default function ExternalLogin() {
                     className="absolute top-1/2 right-3 -translate-y-1/2"
                   >
                     {showPassword ? (
-                      <EyeIcon className="h-5 w-5 text-[#0C4A6E]" />
+                      <EyeIcon className="h-5 w-5 text-gray-700" />
                     ) : (
-                      <EyeOffIcon className="h-5 w-5 text-[#0C4A6E]" />
+                      <EyeOffIcon className="h-5 w-5 text-gray-700" />
                     )}
                   </button>
                 </div>
@@ -126,7 +129,7 @@ export default function ExternalLogin() {
 
               {/* Forgot Password */}
               <div className="w-full text-right">
-                <Link href="/forgot-password" className="text-sm text-[#0C4A6E] hover:underline">
+                <Link href="/forgot-password" className="text-sm text-secondary hover:underline">
                   Forgot Password?
                 </Link>
               </div>
@@ -135,7 +138,7 @@ export default function ExternalLogin() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className=" disabled:opacity-50 w-full bg-[#073954] h-14 text-center items-center justify-center hover:bg-[#073954]/90 text-xl text-white py-2 rounded-md shadow-md"
+                className=" disabled:opacity-50 w-full bg-primary h-14 text-center items-center justify-center hover:bg-secondary/90 text-xl text-white font-bold py-2 rounded-xl shadow-md"
               >
                 {isLoading ? <span className="flex w-full items-center justify-center"><Loader2 className="w-5 h-5 animate-spin" /> </span>: "Log In"}
               </button>

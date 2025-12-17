@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button";
 import { ActionButton, PageLayoutProps } from "@/types/tableLayout";
 import { FilterPopover } from "./FilterDrawer";
 import { useSearchParams, useRouter } from "next/navigation";
+import {
+  Select,
+  SelectItem,
+  SelectContent,
+  SelectValue,
+  SelectTrigger,
+} from "@/components/ui/select";
 
 export const TableLayout: React.FC<PageLayoutProps> = ({
   title,
@@ -14,6 +21,9 @@ export const TableLayout: React.FC<PageLayoutProps> = ({
   sideActions = [],
   children,
   filterColumnsPerRow = 1,
+  showToggleHierarchyNode,
+  toggleHierarchyNode,
+  setToggleHierarchyNode,
 }) => {
   // Get URL state for search
   const searchParams = useSearchParams();
@@ -37,14 +47,18 @@ export const TableLayout: React.FC<PageLayoutProps> = ({
         {/* Page Header - Single Line Layout */}
         <div className="flex flex-col w-full bg lg:flex-row lg:items-center lg:justify-between gap-4">
           {/* Left side - Title and Description */}
-           {title && description && <div >
-           {title && (
-              <h1 className="text-2xl font-semibold text-[#073954]">{title}</h1>
-            )}
-            {description && (
-              <p className="text-gray-500 text-lg">{description}</p>
-            )}
-           </div>}
+          {title && description && (
+            <div>
+              {title && (
+                <h1 className="text-2xl font-semibold text-[#073954]">
+                  {title}
+                </h1>
+              )}
+              {description && (
+                <p className="text-gray-500 text-lg">{description}</p>
+              )}
+            </div>
+          )}
           <div className="flex w-fit">
             {sideActions && sideActions.length > 0 && (
               <div className="flex flex-wrap items-center gap-3">
@@ -78,7 +92,32 @@ export const TableLayout: React.FC<PageLayoutProps> = ({
                 className="pl-10 w-64"
               />
             </div>
-
+            {showToggleHierarchyNode && (
+              <Select
+                value={toggleHierarchyNode ? "hierarchy" : "list"}
+                onValueChange={(value: string) =>
+                  setToggleHierarchyNode?.(value === "hierarchy" ? true : false)
+                }
+              >
+                <SelectTrigger className="w-40 bg-white text-gray-700 border-gray-300 focus:ring-0">
+                  <SelectValue placeholder="Hierarchy View" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem
+                    value="list"
+                    className="text-gray-700 hover:bg-gray-200"
+                  >
+                    List View
+                  </SelectItem>
+                  <SelectItem
+                    value="hierarchy"
+                    className="text-gray-700 hover:bg-gray-200"
+                  >
+                    Hierarchy View
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            )}
             {/* Filters */}
             {filters.length > 0 && (
               <FilterPopover

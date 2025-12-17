@@ -25,7 +25,7 @@ export function Header({ title }: HeaderProps) {
   };
 
   return (
-    <header className="flex z-30 sticky shadow-md top-0 border h-16 shrink-0 items-center gap-2 px-4 rounded-xl bg-sidebar text-sidebar-foreground m-2 mb-0">
+    <header className="flex z-30 sticky shadow-md top-0 border h-20 shrink-0 items-center gap-2 px-4 rounded-xl bg-sidebar text-sidebar-foreground m-2 mb-0">
       <SidebarTrigger className="-ml-1" />
 
       <BreadcrumbTitle title={title} />

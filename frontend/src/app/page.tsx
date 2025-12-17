@@ -12,7 +12,7 @@ export default function Home() {
       </div>
 
       {/* Watermark Logo */}
-      <div
+      {/* <div
         className="fixed inset-0 mt-16 flex items-center justify-center pointer-events-none z-0"
         style={{ opacity: 0.04 }}
       >
@@ -23,19 +23,22 @@ export default function Home() {
           height={700}
           className="object-contain"
         />
-      </div>
+      </div> */}
 
       {/* Navigation */}
-      <header className="w-full z-20 bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 fixed top-0 left-0">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4 flex items-center justify-between">
+      <header className="w-full z-20 bg-white/80 backdrop-blur-md shadow-md border-b border-gray-100 fixed top-0 left-0">
+        <div className=" mx-auto px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Image
+            {/* <Image
               src="/logo-aii.png"
               alt="Logo"
               width={40}
               height={40}
               className="object-contain"
-            />
+            /> */}
+            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+              <span className="text-white text-2xl font-bold">D</span>
+            </div>
             <h1 className="text-xl font-semibold text-primary tracking-wide hidden sm:block">
               Driving Evaluation System
             </h1>

@@ -86,7 +86,7 @@ export function DataTable<TData, TValue>({
 					{table.getHeaderGroups().map((headerGroup) => (
 						<TableRow
 							key={headerGroup.id}
-							className="bg-primary rounded-md hover:bg-primary/90 overflow-clip"
+							className="bg-green-700 rounded-md hover:bg-primary/90 overflow-clip"
 						>
 							{headerGroup.headers.map((header) => {
 								return (
