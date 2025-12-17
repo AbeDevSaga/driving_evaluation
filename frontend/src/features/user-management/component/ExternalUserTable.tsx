@@ -38,6 +38,14 @@ const columns: ColumnDef<User>[] = [
     cell: ({ row }: any) => <div>{row.getValue("phone_number")}</div>,
   },
   {
+    id: "externalUserType",
+    header: "User Type",
+    cell: ({ row }) => {
+      const type = row.original.externalUserType;
+      return <span className="text-sm font-medium">{type?.name ?? "—"}</span>;
+    },
+  },
+  {
     id: "structure",
     header: "Structure",
     cell: ({ row }) => {

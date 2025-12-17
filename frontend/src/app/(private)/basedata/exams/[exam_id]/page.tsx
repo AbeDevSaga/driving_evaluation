@@ -4,6 +4,8 @@ import { FileText } from "lucide-react";
 import { useParams } from "next/navigation";
 import DetailCard from "@/components/common/cards/DetailCard";
 import { useGetExamByIdQuery } from "@/redux/api/examApi";
+import ExamSectionTable from "@/features/basedata/component/ExamSectionTable";
+import ExamScheduleTable from "@/features/basedata/component/ExamScheduleTable";
 
 function ExamDetailPage() {
   const { exam_id } = useParams() as { exam_id: string };
@@ -28,6 +30,8 @@ function ExamDetailPage() {
   return (
     <div className="flex flex-col space-y-4">
       <DetailCard item={detailItem} />
+      <ExamSectionTable exam_id={exam_id} />
+      <ExamScheduleTable exam_id={exam_id} />
     </div>
   );
 }
