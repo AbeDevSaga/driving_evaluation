@@ -3,25 +3,24 @@ import Loading01 from "@/features/template/component/Loading/Loading01";
 import { FileText } from "lucide-react";
 import { useParams } from "next/navigation";
 import DetailCard from "@/components/common/cards/DetailCard";
-import { useGetExamByIdQuery } from "@/redux/api/examApi";
-import ExamSectionTable from "@/features/basedata/component/ExamSectionTable";
-import ExamScheduleTable from "@/features/basedata/component/ExamScheduleTable";
+import { useGetExamSectionByIdQuery } from "@/redux/api/examSectionApi";
+import ExamExaminerTable from "@/features/user-management/component/ExamExaminerTable";
 
-function ExamDetailPage() {
-  const { exam_id } = useParams() as { exam_id: string };
+function ExamSectionDetailPage() {
+  const { section_id } = useParams() as { section_id: string };
   const {
     data = [],
     isLoading,
     isError,
     refetch,
-  } = useGetExamByIdQuery(exam_id);
+  } = useGetExamSectionByIdQuery(section_id);
 
   if (isLoading) return <Loading01 />;
   if (isError || !data) return <div>Failed to load vehicle category</div>;
 
   const detailItem: DetailCardItem = {
-    title: data.name,
-    subtitle: data.description,
+    title: "Exam Section",
+    subtitle: data.name,
     icon: FileText,
     date: new Date(data.created_at),
     active: data.is_active,
@@ -30,10 +29,9 @@ function ExamDetailPage() {
   return (
     <div className="flex flex-col space-y-4">
       <DetailCard item={detailItem} />
-      <ExamSectionTable exam_id={exam_id} />
-      <ExamScheduleTable exam_id={exam_id}/>
+      <ExamExaminerTable />
     </div>
   );
 }
 
-export default ExamDetailPage;
+export default ExamSectionDetailPage;

@@ -142,7 +142,8 @@ const getSectionsByExam = async (req, res) => {
  */
 const getSectionById = async (req, res) => {
   try {
-    const { section_id } = req.params;
+    const { id: section_id } = req.params;
+    console.log(req.params);
 
     const section = await ExamSection.findByPk(section_id, {
       include: [

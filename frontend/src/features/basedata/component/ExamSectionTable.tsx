@@ -14,80 +14,79 @@ import { ExamSection } from "@/redux/types/examSection";
 import { useGetSectionsByExamQuery } from "@/redux/api/examSectionApi";
 import { CreateExamSectionModal } from "@/components/common/modal/CreateExamSectionModal";
 
-export const columns: ColumnDef<ExamSection>[] = [
-  {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => (
-      console.log(row.original.name, "row.original.name"),
-      (
-        <span className="font-medium text-blue-600">
-          {row.getValue("name")}
-        </span>
-      )
-    ),
-  },
-  {
-    accessorKey: "weight_percentage",
-    header: "Weight Percentage",
-    cell: ({ row }) => (
-      <div className="max-w-[300px] truncate text-muted-foreground">
-        {row.getValue("weight_percentage")}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "max_score",
-    header: "Max Score",
-    cell: ({ row }) => (
-      <div className="max-w-[300px] truncate text-muted-foreground">
-        {row.getValue("max_score")}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "is_active",
-    header: "Status",
-    cell: ({ row }) => {
-      const isActive = row.getValue("is_active") as boolean;
-      return (
-        <Badge variant={isActive ? "default" : "secondary"}>
-          {isActive ? "Active" : "Inactive"}
-        </Badge>
-      );
-    },
-  },
-
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => {
-      const id = row.original.exam_id;
-      return (
-        <div className="flex items-center gap-1">
-          <Link href={`exams/${id}`}>
-            <Button variant="ghost" size="icon">
-              <Eye className="h-4 w-4" />
-            </Button>
-          </Link>
-
-          <Button variant="ghost" size="icon">
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <Trash className="h-4 w-4" />
-          </Button>
-        </div>
-      );
-    },
-  },
-];
-
 interface ExamSectionTableProps {
   exam_id: string;
 }
 
 export default function ExamSectionTable({ exam_id }: ExamSectionTableProps) {
+  const columns: ColumnDef<ExamSection>[] = [
+    {
+      accessorKey: "name",
+      header: "Name",
+      cell: ({ row }) => (
+        console.log(row.original.name, "row.original.name"),
+        (
+          <span className="font-medium text-blue-600">
+            {row.getValue("name")}
+          </span>
+        )
+      ),
+    },
+    {
+      accessorKey: "weight_percentage",
+      header: "Weight Percentage",
+      cell: ({ row }) => (
+        <div className="max-w-[300px] truncate text-muted-foreground">
+          {row.getValue("weight_percentage")}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "max_score",
+      header: "Max Score",
+      cell: ({ row }) => (
+        <div className="max-w-[300px] truncate text-muted-foreground">
+          {row.getValue("max_score")}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "is_active",
+      header: "Status",
+      cell: ({ row }) => {
+        const isActive = row.getValue("is_active") as boolean;
+        return (
+          <Badge variant={isActive ? "default" : "secondary"}>
+            {isActive ? "Active" : "Inactive"}
+          </Badge>
+        );
+      },
+    },
+
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const id = row.original.section_id;
+        return (
+          <div className="flex items-center gap-1">
+            <Link href={`${exam_id}/${id}`}>
+              <Button variant="ghost" size="icon">
+                <Eye className="h-4 w-4" />
+              </Button>
+            </Link>
+
+            <Button variant="ghost" size="icon">
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon">
+              <Trash className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
   const {
     data = [],
     isLoading,
