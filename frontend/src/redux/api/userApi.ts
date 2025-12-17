@@ -1,5 +1,5 @@
 import { baseApi } from "../baseApi";
-import { UserType, UserPosition, User } from "../types/user";
+import { UserType, UserPosition, User, ExternalUserType } from "../types/user";
 import {
   CreateUserPayload,
   UpdateUserPayload,
@@ -117,6 +117,16 @@ export const userApi = baseApi.injectEndpoints({
     }),
 
     /** ---------------------------
+     * GET EXTERNAL USER TYPES
+     * --------------------------- */
+    getExternalUserTypes: builder.query<ExternalUserType[], void>({
+      query: () => "/users/external_types",
+      transformResponse: (response: any): ExternalUserType[] =>
+        response.data ?? [],
+      providesTags: ["User"],
+    }),
+
+    /** ---------------------------
      * GET USER POSITIONS
      * --------------------------- */
     getUserPositions: builder.query<UserPosition[], void>({
@@ -149,6 +159,7 @@ export const {
   useToggleUserStatusMutation,
   useResetUserPasswordMutation,
   useGetUserTypesQuery,
+  useGetExternalUserTypesQuery,
   useGetUserPositionsQuery,
   useExportUsersMutation,
 } = userApi;

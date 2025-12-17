@@ -11,23 +11,23 @@ const createExamSectionSchema = Joi.object({
     "string.min": "Section name must be at least 3 characters long.",
     "string.max": "Section name must not exceed 100 characters.",
   }),
-  weight_percentage: Joi.number().min(0).max(100).required().messages({
+  weight_percentage: Joi.number().min(1).max(100).required().messages({
     "number.base": "Weight percentage must be a number.",
-    "number.min": "Weight percentage cannot be less than 0.",
+    "number.min": "Weight percentage cannot be less than 1.",
     "number.max": "Weight percentage cannot exceed 100.",
     "any.required": "Weight percentage is required.",
   }),
-  max_score: Joi.number().min(0).optional().messages({
+  max_score: Joi.number().min(1).required().messages({
     "number.base": "Max score must be a number.",
-    "number.min": "Max score cannot be less than 0.",
+    "number.min": "Max score cannot be less than 1.",
   }),
 });
 
 // =================== Update Exam Section Schema ===================
 const updateExamSectionSchema = Joi.object({
   name: Joi.string().min(3).max(100).optional(),
-  weight_percentage: Joi.number().min(0).max(100).optional(),
-  max_score: Joi.number().min(0).optional(),
+  weight_percentage: Joi.number().min(1).max(100).optional(),
+  max_score: Joi.number().min(1).optional(),
 });
 
 // =================== Validators ===================

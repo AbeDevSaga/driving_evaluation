@@ -31,13 +31,24 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "RESTRICT",
       },
+
+      exam_schedule_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: "exam_schedules",
+          key: "schedule_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "RESTRICT",
+      },
     });
 
     // ✅ Prevent duplicate examiner–section assignments
     await queryInterface.addConstraint("examiner_assignments", {
-      fields: ["examiner_id", "section_id"],
+      fields: ["examiner_id", "section_id", "exam_schedule_id"],
       type: "unique",
-      name: "unique_examiner_section_assignment",
+      name: "unique_examiner_section_schedule_assignment",
     });
   },
 

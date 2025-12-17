@@ -85,11 +85,13 @@ const columns: ColumnDef<User>[] = [
     ),
   },
 ];
-export interface UserTableProps {
+export interface ExamExaminerTableProps {
   sideActions?: ActionButton[];
 }
 // structure_node_id
-export default function ExternalUserTable({ sideActions }: UserTableProps) {
+export default function ExamExaminerTable({
+  sideActions,
+}: ExamExaminerTableProps) {
   const {
     data: userTypes = [],
     isLoading: isLoadingType,
@@ -160,7 +162,7 @@ export default function ExternalUserTable({ sideActions }: UserTableProps) {
     },
 
     {
-      label: "New External User",
+      label: "Assign Examiner",
       icon: <Plus className="h-4 w-4" />,
       variant: "default",
       onClick: () => setModalOpen(true),

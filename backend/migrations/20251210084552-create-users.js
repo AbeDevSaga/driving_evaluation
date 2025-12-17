@@ -19,6 +19,16 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "SET NULL",
       },
+      external_user_type_id: {
+        type: Sequelize.UUID,
+        allowNull: true,
+        references: {
+          model: "external_user_types",
+          key: "external_user_type_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
+      },
       structure_node_id: {
         type: Sequelize.UUID,
         allowNull: true,

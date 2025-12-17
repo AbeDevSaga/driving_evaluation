@@ -44,9 +44,19 @@ module.exports = {
         defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
+    await queryInterface.addConstraint("exam_sections", {
+      fields: ["exam_id", "name"],
+      type: "unique",
+      name: "unique_exam_section_per_exam",
+    });
   },
 
   async down(queryInterface, Sequelize) {
+    await queryInterface.removeConstraint(
+      "exam_sections",
+      "unique_exam_section_per_exam"
+    );
+
     await queryInterface.dropTable("exam_sections");
   },
 };

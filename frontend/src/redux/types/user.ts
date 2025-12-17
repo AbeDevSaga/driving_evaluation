@@ -7,6 +7,14 @@ export interface UserType {
   created_at: string;
   updated_at: string;
 }
+
+export interface ExternalUserType {
+  external_user_type_id: string;
+  name: string;
+  description?: string;
+  created_at: string;
+  updated_at: string;
+}
 export interface UserPosition {
   user_position_id: string;
   name: string;
@@ -39,6 +47,7 @@ export interface User {
   created_at: string;
   updated_at: string;
   userType?: UserType;
+  externalUserType?: ExternalUserType;
   structureNode?: StructureNode;
   roles?: Role[];
 }
@@ -49,6 +58,7 @@ export interface CreateUserPayload {
   email: string;
   phone_number?: string;
   user_type_id?: string;
+  external_user_type_id?: string;
   structure_node_id?: string;
   role_ids?: string[];
 }

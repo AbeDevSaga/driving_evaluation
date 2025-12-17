@@ -13,6 +13,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "section_id",
         as: "section",
       });
+
+      ExaminerAssignment.belongsTo(models.ExamSchedule, {
+        foreignKey: "exam_schedule_id",
+        as: "schedule",
+      });
     }
   }
 
@@ -28,6 +33,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       section_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      exam_schedule_id: {
         type: DataTypes.UUID,
         allowNull: false,
       },

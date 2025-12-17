@@ -1,6 +1,7 @@
 "use strict";
 
 const { ExamSection, Exam } = require("../../models");
+const { Op } = require("sequelize");
 
 /**
  * Create Exam Section
@@ -9,12 +10,53 @@ const createSection = async (req, res) => {
   try {
     const { exam_id, name, weight_percentage, max_score } = req.body;
 
+    // Basic validation
+    if (weight_percentage <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Weight percentage must be greater than 0",
+      });
+    }
+
     // Ensure exam exists
     const exam = await Exam.findByPk(exam_id);
     if (!exam) {
       return res.status(404).json({
         success: false,
         message: "Exam not found",
+      });
+    }
+
+    // Prevent duplicate section name for same exam
+    const existingSection = await ExamSection.findOne({
+      where: {
+        exam_id,
+        name: {
+          [Op.iLike]: name.trim(), // case-insensitive (Postgres)
+        },
+      },
+    });
+
+    if (existingSection) {
+      return res.status(409).json({
+        success: false,
+        message: "A section with this name already exists for this exam",
+      });
+    }
+
+    // Calculate current total weight for this exam
+    const totalWeight = await ExamSection.sum("weight_percentage", {
+      where: { exam_id },
+    });
+
+    const currentTotal = totalWeight || 0;
+    const newTotal = currentTotal + Number(weight_percentage);
+
+    // Prevent exceeding 100%
+    if (newTotal > 100) {
+      return res.status(400).json({
+        success: false,
+        message: `Total section weight cannot exceed 100%. Current: ${currentTotal}%, trying to add: ${weight_percentage}%`,
       });
     }
 
@@ -100,7 +142,8 @@ const getSectionsByExam = async (req, res) => {
  */
 const getSectionById = async (req, res) => {
   try {
-    const { section_id } = req.params;
+    const { id: section_id } = req.params;
+    console.log(req.params);
 
     const section = await ExamSection.findByPk(section_id, {
       include: [

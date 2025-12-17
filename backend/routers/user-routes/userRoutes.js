@@ -10,6 +10,7 @@ const {
   resetUserPassword,
   getProfile,
   getUserTypes,
+  getExternalUserTypes,
   getUserPositions,
   exportUsers,
 } = require("../../controllers/user-controllers/userController");
@@ -35,6 +36,18 @@ const {
  *         description: List of user types
  */
 router.get("/types", getUserTypes);
+
+/**
+ * @swagger
+ * /users/external_types:
+ *   get:
+ *     summary: Get all external user types
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: List of external user types
+ */
+router.get("/external_types", getExternalUserTypes);
 
 /**
  * @swagger
