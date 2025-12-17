@@ -1,7 +1,8 @@
+import ExamTable from "@/features/basedata/component/ExamTable";
 import React from "react";
 
 function ExamPage() {
-  return <div>ExamPage</div>;
+  return <ExamTable />;
 }
 
 export default ExamPage;
