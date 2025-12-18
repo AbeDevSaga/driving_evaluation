@@ -9,15 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Download, Plus, Eye, Edit, Trash, Users } from "lucide-react";
 
 import type { FilterField, ActionButton } from "@/types/tableLayout";
-import {
-  useExportUsersMutation,
-  useGetUsersQuery,
-  useGetUserTypesQuery,
-} from "@/redux/api/userApi";
-import { User } from "@/redux/types/user";
+import { useExportUsersMutation } from "@/redux/api/userApi";
 import { CreateUserModal } from "@/components/common/modal/CreateUserModal";
+import { ExaminerAssignment } from "@/redux/types/examinerAssignment";
+import { useGetAssignmentsQuery } from "@/redux/api/examinerAssignmentApi";
+import { CreateExamExaminerModal } from "@/components/common/modal/CreateExamExaminerModal";
 
-const columns: ColumnDef<User>[] = [
+const columns: ColumnDef<ExaminerAssignment>[] = [
   {
     accessorKey: "full_name",
     header: "Full Name",
@@ -41,7 +39,7 @@ const columns: ColumnDef<User>[] = [
     id: "externalUserType",
     header: "User Type",
     cell: ({ row }) => {
-      const type = row.original.externalUserType;
+      const type = row.original.examiner;
       return <span className="text-sm font-medium">{type?.name ?? "—"}</span>;
     },
   },
@@ -49,7 +47,7 @@ const columns: ColumnDef<User>[] = [
     id: "structure",
     header: "Structure",
     cell: ({ row }) => {
-      const structure = row.original.structureNode;
+      const structure = row.original.examiner;
       return (
         <span className="text-sm font-medium">{structure?.name ?? "—"}</span>
       );
@@ -86,27 +84,24 @@ const columns: ColumnDef<User>[] = [
   },
 ];
 export interface ExamExaminerTableProps {
+  exam_id: string;
+  section_id: string;
   sideActions?: ActionButton[];
 }
 // structure_node_id
 export default function ExamExaminerTable({
+  exam_id,
+  section_id,
   sideActions,
 }: ExamExaminerTableProps) {
-  const {
-    data: userTypes = [],
-    isLoading: isLoadingType,
-    isError: typeError,
-    refetch: refetchType,
-  } = useGetUserTypesQuery();
-  const userTypeId = userTypes?.find(
-    (type: any) => type.name === "external"
-  )?.user_type_id;
   const {
     data = [],
     isLoading,
     isError,
     refetch,
-  } = useGetUsersQuery({ user_type_id: userTypeId });
+  } = useGetAssignmentsQuery({
+    section_id,
+  });
   const [exportUsers, { isLoading: exportLoading }] = useExportUsersMutation();
 
   // Pagination states
@@ -198,8 +193,9 @@ export default function ExamExaminerTable({
           currentIndex={pageIndex}
         />
       </TableLayout>
-      <CreateUserModal
-        user_type="external"
+      <CreateExamExaminerModal
+        exam_id={exam_id}
+        user_type="examiner"
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
       />
