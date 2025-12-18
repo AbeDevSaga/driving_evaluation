@@ -11,6 +11,12 @@ module.exports = (sequelize, DataTypes) => {
         as: "userType",
       });
 
+      // User belongs to ExternalUserType
+      User.belongsTo(models.ExternalUserType, {
+        foreignKey: "external_user_type_id",
+        as: "externalUserType",
+      });
+
       User.belongsTo(models.StructureNode, {
         foreignKey: "structure_node_id",
         as: "structureNode",
@@ -40,6 +46,10 @@ module.exports = (sequelize, DataTypes) => {
       user_type_id: {
         type: DataTypes.UUID,
         allowNull: false,
+      },
+      external_user_type_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
       },
       structure_node_id: {
         type: DataTypes.UUID,

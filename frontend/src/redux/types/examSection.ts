@@ -4,6 +4,7 @@ export interface ExamSection {
   exam_id: string;
   name: string;
   weight_percentage: number;
+  is_active: boolean;
   max_score: number;
   created_at: string;
   exam?: Exam;

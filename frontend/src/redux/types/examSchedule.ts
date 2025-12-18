@@ -3,6 +3,7 @@ import { Exam } from "./exam";
 export interface ExamSchedule {
   schedule_id: string;
   exam_id: string;
+  is_active: boolean;
   exam_date: string; // ISO string
   location?: string | null;
   created_at?: string;

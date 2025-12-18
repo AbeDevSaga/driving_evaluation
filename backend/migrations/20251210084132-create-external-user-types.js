@@ -2,8 +2,8 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("vehicle_categories", {
-      vehicle_category_id: {
+    await queryInterface.createTable("external_user_types", {
+      external_user_type_id: {
         type: Sequelize.UUID,
         allowNull: false,
         primaryKey: true,
@@ -16,21 +16,9 @@ module.exports = {
         unique: true,
       },
 
-      code: {
-        type: Sequelize.STRING(20),
-        allowNull: true,
-        unique: true,
-      },
-
       description: {
         type: Sequelize.TEXT,
         allowNull: true,
-      },
-
-      is_active: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: true,
       },
 
       created_at: {
@@ -48,6 +36,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("vehicle_categories");
+    await queryInterface.dropTable("external_user_types");
   },
 };

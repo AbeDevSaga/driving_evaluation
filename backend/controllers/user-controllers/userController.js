@@ -1,6 +1,7 @@
 const {
   User,
   UserType,
+  ExternalUserType,
   UserPosition,
   StructureNode,
   Role,
@@ -25,6 +26,26 @@ const getUserTypes = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "User types fetched successfully",
+      data: userTypes,
+    });
+  } catch (error) {
+    console.error("Error fetching user types:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch user types",
+      error: error.message,
+    });
+  }
+};
+const getExternalUserTypes = async (req, res) => {
+  try {
+    const userTypes = await ExternalUserType.findAll({
+      order: [["name", "ASC"]],
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "External User types fetched successfully",
       data: userTypes,
     });
   } catch (error) {
@@ -71,6 +92,7 @@ const createUser = async (req, res) => {
       full_name,
       email,
       user_type_id,
+      external_user_type_id,
       batch_id,
       role_ids,
       phone_number,
@@ -96,6 +118,18 @@ const createUser = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "Invalid user type." });
+    }
+
+    // ====== Validate External user type ======
+    const externalUserType = await ExternalUserType.findByPk(
+      external_user_type_id,
+      { transaction: t }
+    );
+    if (!externalUserType) {
+      await t.rollback();
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid external user type." });
     }
 
     // ====== STRUCTURE NODE VALIDATION FOR EXTERNAL USERS ======
@@ -170,6 +204,7 @@ const createUser = async (req, res) => {
         password: hashedPassword,
         phone_number,
         user_type_id,
+        external_user_type_id,
         structure_node_id: isExternalUser ? structure_node_id : null,
         batch_id: batch_id ? batch_id : null,
         is_first_logged_in: true,
@@ -345,6 +380,7 @@ const getUsers = async (req, res) => {
     const {
       structure_node_id,
       user_type_id,
+      external_user_type_id,
       batch_id,
       is_active,
       search, // optional: for name/email search
@@ -355,6 +391,8 @@ const getUsers = async (req, res) => {
 
     if (structure_node_id) whereClause.structure_node_id = structure_node_id;
     if (user_type_id) whereClause.user_type_id = user_type_id;
+    if (external_user_type_id)
+      whereClause.external_user_type_id = external_user_type_id;
     if (batch_id) whereClause.batch_id = batch_id;
     if (is_active !== undefined) whereClause.is_active = is_active === "true";
 
@@ -374,6 +412,11 @@ const getUsers = async (req, res) => {
           model: UserType,
           as: "userType",
           attributes: ["user_type_id", "name"],
+        },
+        {
+          model: ExternalUserType,
+          as: "externalUserType",
+          attributes: ["external_user_type_id", "name"],
         },
         {
           model: StructureNode,
@@ -417,6 +460,11 @@ const getUserById = async (req, res) => {
           model: UserType,
           as: "userType",
           attributes: ["user_type_id", "name"],
+        },
+        {
+          model: ExternalUserType,
+          as: "externalUserType",
+          attributes: ["external_user_type_id", "name"],
         },
         {
           model: Role,
@@ -805,6 +853,7 @@ module.exports = {
   resetUserPassword,
   getProfile,
   getUserTypes,
+  getExternalUserTypes,
   getUserPositions,
   exportUsers,
 };
