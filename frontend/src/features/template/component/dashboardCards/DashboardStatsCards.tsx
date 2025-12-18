@@ -90,7 +90,7 @@ export default function DashboardStatsCards() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge
-                    variant="outline"
+                    status="outline"
                     className={`rounded-full border-0 ${
                       item.status === "positive"
                         ? "bg-green-50 text-green-700"

@@ -13,12 +13,14 @@ import Loading01 from "@/features/template/component/Loading/Loading01";
 import { ExamSection } from "@/redux/types/examSection";
 import { useGetSectionsByExamQuery } from "@/redux/api/examSectionApi";
 import { CreateExamSectionModal } from "@/components/common/modal/CreateExamSectionModal";
+import { formatStatus } from "@/utils/statusFormatter";
 
 interface ExamSectionTableProps {
   exam_id: string;
+  sideActions?: ActionButton[];
 }
 
-export default function ExamSectionTable({ exam_id }: ExamSectionTableProps) {
+export default function ExamSectionTable({ exam_id, sideActions }: ExamSectionTableProps) {
   const columns: ColumnDef<ExamSection>[] = [
     {
       accessorKey: "name",
@@ -56,8 +58,8 @@ export default function ExamSectionTable({ exam_id }: ExamSectionTableProps) {
       cell: ({ row }) => {
         const isActive = row.getValue("is_active") as boolean;
         return (
-          <Badge variant={isActive ? "default" : "secondary"}>
-            {isActive ? "Active" : "Inactive"}
+          <Badge status={isActive ? "active" : "inactive"}>
+            {formatStatus(isActive ? "Active" : "Inactive")}
           </Badge>
         );
       },
@@ -150,7 +152,9 @@ export default function ExamSectionTable({ exam_id }: ExamSectionTableProps) {
   );
   return (
     <>
-      <TableLayout actions={actions} filters={filters} filterColumnsPerRow={1}>
+      <TableLayout actions={actions} filters={filters}
+      sideActions={sideActions}
+      filterColumnsPerRow={1}>
         <DataTable
           columns={columns}
           data={paginatedData}

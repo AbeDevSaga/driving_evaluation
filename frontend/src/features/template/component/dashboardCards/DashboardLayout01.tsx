@@ -151,7 +151,7 @@ function DashboardLayout01() {
                   {item.icon}
                 </div>
                 <Badge
-                  variant="outline"
+                  status="outline"
                   className={`
                     ${
                       item.status === "positive"
@@ -341,7 +341,7 @@ function DashboardLayout01() {
                 <div className="text-right">
                   <div className="text-xl font-bold">95</div>
                   <Badge
-                    variant="outline"
+                    status="outline"
                     className="border-green-200 text-green-700"
                   >
                     <TrendingUp className="h-3 w-3 mr-1" />
@@ -365,7 +365,7 @@ function DashboardLayout01() {
                 <div className="text-right">
                   <div className="text-xl font-bold">30</div>
                   <Badge
-                    variant="outline"
+                    status="outline"
                     className="border-red-200 text-red-700"
                   >
                     <TrendingDown className="h-3 w-3 mr-1" />

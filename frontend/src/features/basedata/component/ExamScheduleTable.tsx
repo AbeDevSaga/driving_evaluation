@@ -13,48 +13,41 @@ import Loading01 from "@/features/template/component/Loading/Loading01";
 import { ExamSchedule } from "@/redux/types/examSchedule";
 import { useGetSchedulesByExamQuery } from "@/redux/api/examScheduleApi";
 import { CreateExamScheduleModal } from "@/components/common/modal/CreateExamScheduleModal";
-import { formatExamDateTime } from "@/utils/examScheduleConverter";
 
-interface ExamSectionTableProps {
-  exam_id: string;
-}
-
-export default function ExamScheduleTable({ exam_id }: ExamSectionTableProps) {
-  const columns: ColumnDef<ExamSchedule>[] = [
-    {
-      id: "exam_date",
-      header: "Exam Date",
-      cell: ({ row }) => {
-        const date = row.original.exam_date;
-        if (!date) return <span>—</span>;
-        return (
-          <span className="text-sm font-medium">
-            {formatExamDateTime(date)}
-          </span>
-        );
-      },
+export const columns: ColumnDef<ExamSchedule>[] = [
+  {
+    accessorKey: "exam_date",
+    header: "Exam Date",
+    cell: ({ row }) => (
+      console.log(row.original.exam_date, "row.original.exam_date"),
+      (
+        <span className="font-medium text-blue-600">
+          {row.getValue("exam_date")}
+        </span>
+      )
+    ),
+  },
+  {
+    accessorKey: "location",
+    header: "Location",
+    cell: ({ row }) => (
+      <div className="max-w-[300px] truncate text-muted-foreground">
+        {row.getValue("location")}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "is_active",
+    header: "Status",
+    cell: ({ row }) => {
+      const isActive = row.getValue("is_active") as boolean;
+      return (
+        <Badge variant={isActive ? "default" : "secondary"}>
+          {isActive ? "Active" : "Inactive"}
+        </Badge>
+      );
     },
-    {
-      accessorKey: "location",
-      header: "Location",
-      cell: ({ row }) => (
-        <div className="max-w-[300px] truncate text-muted-foreground">
-          {row.getValue("location")}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "is_active",
-      header: "Status",
-      cell: ({ row }) => {
-        const isActive = row.getValue("is_active") as boolean;
-        return (
-          <Badge variant={isActive ? "default" : "secondary"}>
-            {isActive ? "Active" : "Inactive"}
-          </Badge>
-        );
-      },
-    },
+  },
 
     {
       id: "actions",
@@ -69,17 +62,23 @@ export default function ExamScheduleTable({ exam_id }: ExamSectionTableProps) {
               </Button>
             </Link>
 
-            <Button variant="ghost" size="icon">
-              <Edit className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Trash className="h-4 w-4" />
-            </Button>
-          </div>
-        );
-      },
+          <Button variant="ghost" size="icon">
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Trash className="h-4 w-4" />
+          </Button>
+        </div>
+      );
     },
-  ];
+  },
+];
+
+interface ExamSectionTableProps {
+  exam_id: string;
+}
+
+export default function ExamScheduleTable({ exam_id }: ExamSectionTableProps) {
   const {
     data = [],
     isLoading,
@@ -143,7 +142,7 @@ export default function ExamScheduleTable({ exam_id }: ExamSectionTableProps) {
   );
   return (
     <>
-      <TableLayout actions={actions} filters={filters} filterColumnsPerRow={1}>
+      <TableLayout actions={actions} filters={filters} filterColumnsPerRow={1} sideActions={sideActions}>
         <DataTable
           columns={columns}
           data={paginatedData}

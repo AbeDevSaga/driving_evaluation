@@ -24,7 +24,7 @@ export default function RootLayout({
       <body
         className={`${plusJakarta.variable} font-sans bg-slate-50 antialiased text-primary`}
       >
-        <NextTopLoader />
+        <NextTopLoader showSpinner = {false}/>
         <ReduxProvider>{children}</ReduxProvider>
       </body>
     </html>

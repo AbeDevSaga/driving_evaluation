@@ -15,6 +15,7 @@ import { ExaminerAssignment } from "@/redux/types/examinerAssignment";
 import { useGetAssignmentsQuery } from "@/redux/api/examinerAssignmentApi";
 import { CreateExamExaminerModal } from "@/components/common/modal/CreateExamExaminerModal";
 import { formatExamDateTime } from "@/utils/examScheduleConverter";
+import { formatStatus } from "@/utils/statusFormatter";
 
 const columns: ColumnDef<ExaminerAssignment>[] = [
   {
@@ -66,7 +67,9 @@ const columns: ColumnDef<ExaminerAssignment>[] = [
     cell: ({ row }) => {
       const schedule = row.original.schedule;
       return (
-        <span className="text-sm font-medium">{schedule?.location || "—"}</span>
+        <Badge className="text-white" status={isActive ? "active" : "inactive"}>
+          {formatStatus(isActive ? "Active" : "Inactive")}
+        </Badge>
       );
     },
   },

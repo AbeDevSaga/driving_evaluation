@@ -48,7 +48,7 @@ function DetailCard({ item }: { item: DetailCardItem }) {
           </div>
 
           <Badge
-            variant="default"
+            status={item.active ? "active" : "inactive"}
             color={item.active ? "success" : "secondary"}
             className="text-xs shrink-0 flex items-center gap-1"
           >
