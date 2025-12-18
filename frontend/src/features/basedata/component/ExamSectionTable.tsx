@@ -70,7 +70,7 @@ export default function ExamSectionTable({ exam_id }: ExamSectionTableProps) {
         const id = row.original.section_id;
         return (
           <div className="flex items-center gap-1">
-            <Link href={`${exam_id}/${id}`}>
+            <Link href={`${exam_id}/section/${id}`}>
               <Button variant="ghost" size="icon">
                 <Eye className="h-4 w-4" />
               </Button>

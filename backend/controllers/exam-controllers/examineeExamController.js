@@ -1,66 +1,108 @@
 "use strict";
 
-const { ExamineeExam, ExamSchedule, Exam, User } = require("../../models");
+const {
+  ExamineeExam,
+  ExamSchedule,
+  Exam,
+  User,
+  sequelize,
+} = require("../../models");
+const { Op } = require("sequelize");
 
 /**
- * Create Examinee Exam
+ * Create Examinee Exams (Bulk)
  */
 const createExamineeExam = async (req, res) => {
-  try {
-    const { examinee_id, exam_id, total_score, is_passed, exam_schedule_id } =
-      req.body;
+  const transaction = await sequelize.transaction();
 
-    // Ensure examinee exists
-    const examinee = await User.findByPk(examinee_id);
-    if (!examinee) {
-      return res.status(404).json({
+  try {
+    const {
+      examinee_ids,
+      exam_id,
+      exam_schedule_id,
+      total_score = 0,
+      is_passed = false,
+    } = req.body;
+
+    // ===== Validation =====
+    if (!Array.isArray(examinee_ids) || examinee_ids.length === 0) {
+      await transaction.rollback();
+      return res.status(400).json({
         success: false,
-        message: "Examinee not found",
+        message: "examinee_ids must be a non-empty array",
       });
     }
 
-    // Ensure exam exists
-    const exam = await Exam.findByPk(exam_id);
+    // ===== Ensure exam exists =====
+    const exam = await Exam.findByPk(exam_id, { transaction });
     if (!exam) {
+      await transaction.rollback();
       return res.status(404).json({
         success: false,
         message: "Exam not found",
       });
     }
 
-    // Validate schedule
+    // ===== Validate schedule belongs to exam =====
     const schedule = await ExamSchedule.findOne({
-      where: {
-        exam_schedule_id,
-        exam_id,
-      },
+      where: { exam_schedule_id, exam_id },
+      transaction,
     });
 
     if (!schedule) {
+      await transaction.rollback();
       return res.status(404).json({
         success: false,
         message: "Exam schedule not found or does not belong to this exam",
       });
     }
 
-    const examineeExam = await ExamineeExam.create({
+    // ===== Ensure all examinees exist =====
+    const examinees = await User.findAll({
+      where: { user_id: examinee_ids },
+      attributes: ["user_id"],
+      transaction,
+    });
+
+    if (examinees.length !== examinee_ids.length) {
+      await transaction.rollback();
+      return res.status(404).json({
+        success: false,
+        message: "One or more examinees not found",
+      });
+    }
+
+    // ===== Prepare bulk insert =====
+    const payload = examinee_ids.map((examinee_id) => ({
       examinee_id,
       exam_id,
       exam_schedule_id,
       total_score,
       is_passed,
+    }));
+
+    // ===== Create all records =====
+    const examineeExams = await ExamineeExam.bulkCreate(payload, {
+      transaction,
+      returning: true,
     });
+
+    // Commit transaction
+    await transaction.commit();
 
     return res.status(201).json({
       success: true,
-      message: "Examinee exam created successfully",
-      data: examineeExam,
+      message: "Examinees assigned to exam successfully",
+      data: examineeExams,
     });
   } catch (error) {
-    console.error("Create Examinee Exam Error:", error);
+    // Rollback on ANY failure
+    await transaction.rollback();
+    console.error("Create Examinee Exams Error:", error);
+
     return res.status(500).json({
       success: false,
-      message: "Failed to create examinee exam",
+      message: "Failed to assign examinees to exam",
     });
   }
 };
@@ -75,7 +117,7 @@ const getExamineeExams = async (req, res) => {
         {
           model: User,
           as: "examinee",
-          attributes: ["id", "full_name", "email"],
+          attributes: ["user_id", "full_name", "email"],
         },
         {
           model: Exam,

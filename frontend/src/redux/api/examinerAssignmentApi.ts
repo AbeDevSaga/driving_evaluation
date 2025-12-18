@@ -19,7 +19,10 @@ export const examinerAssignmentApi = baseApi.injectEndpoints({
         is_active?: boolean;
       } | void
     >({
-      query: () => ({ url: "/examiner-assignments" }),
+      query: (params) =>
+        params
+          ? { url: "/examiner-assignments", params }
+          : { url: "/examiner-assignments" },
       transformResponse: (response: any): ExaminerAssignment[] =>
         response.data ?? [],
       providesTags: ["ExaminerAssignment"],

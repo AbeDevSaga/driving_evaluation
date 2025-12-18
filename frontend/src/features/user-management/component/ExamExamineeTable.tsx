@@ -9,12 +9,77 @@ import { Button } from "@/components/ui/button";
 import { Download, Plus, Eye, Edit, Trash, Users } from "lucide-react";
 
 import type { FilterField, ActionButton } from "@/types/tableLayout";
-import { useExportUsersMutation } from "@/redux/api/userApi";
+import {
+  useExportUsersMutation,
+  useGetExternalUserTypesQuery,
+  useGetUsersQuery,
+} from "@/redux/api/userApi";
 import { CreateUserModal } from "@/components/common/modal/CreateUserModal";
 import { ExaminerAssignment } from "@/redux/types/examinerAssignment";
 import { useGetAssignmentsQuery } from "@/redux/api/examinerAssignmentApi";
 import { CreateExamExaminerModal } from "@/components/common/modal/CreateExamExaminerModal";
 import { formatExamDateTime } from "@/utils/examScheduleConverter";
+import { useGetExamineeExamsQuery } from "@/redux/api/examineeExamApi";
+import { User } from "@/redux/types/user";
+
+const examineeColumns: ColumnDef<User>[] = [
+  {
+    accessorKey: "full_name",
+    header: "Full Name",
+    cell: ({ row }) => (
+      <span className="font-medium text-secondary">
+        {row.getValue("full_name")}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "email",
+    header: "Email",
+    cell: ({ row }: any) => <div>{row.getValue("email")}</div>,
+  },
+  {
+    accessorKey: "phone_number",
+    header: "Phone Number",
+    cell: ({ row }: any) => <div>{row.getValue("phone_number")}</div>,
+  },
+  {
+    id: "externalUserType",
+    header: "User Type",
+    cell: ({ row }) => {
+      const type = row.original.externalUserType;
+      return <span className="text-sm font-medium">{type?.name ?? "—"}</span>;
+    },
+  },
+  {
+    accessorKey: "is_active",
+    header: "Status",
+    cell: ({ row }) => {
+      const isActive = row.getValue("is_active") as boolean;
+      return (
+        <Badge variant={isActive ? "default" : "secondary"}>
+          {isActive ? "Active" : "Inactive"}
+        </Badge>
+      );
+    },
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <div className="flex items-center">
+        <Button variant="ghost" size="icon">
+          <Eye className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon">
+          <Edit className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon">
+          <Trash className="h-4 w-4" />
+        </Button>
+      </div>
+    ),
+  },
+];
 
 const columns: ColumnDef<ExaminerAssignment>[] = [
   {
@@ -89,24 +154,31 @@ const columns: ColumnDef<ExaminerAssignment>[] = [
   },
 ];
 
-export interface ExamExaminerTableProps {
+export interface ExamExamineeTableProps {
   exam_id: string;
-  section_id: string;
+  schedule_id: string;
   sideActions?: ActionButton[];
 }
 // structure_node_id
-export default function ExamExaminerTable({
+export default function ExamExamineeTable({
   exam_id,
-  section_id,
+  schedule_id,
   sideActions,
-}: ExamExaminerTableProps) {
+}: ExamExamineeTableProps) {
+  const { data: userTypes = [] } = useGetExternalUserTypesQuery();
+  const userTypeId = userTypes?.find(
+    (type: any) => type.name === "examinee"
+  )?.external_user_type_id;
+  const { data: examinee = [] } = useGetUsersQuery({
+    external_user_type_id: userTypeId,
+  });
   const {
     data = [],
     isLoading,
     isError,
     refetch,
-  } = useGetAssignmentsQuery({
-    section_id: section_id,
+  } = useGetExamineeExamsQuery({
+    schedule_id: schedule_id,
   });
   const [exportUsers, { isLoading: exportLoading }] = useExportUsersMutation();
 
@@ -163,7 +235,7 @@ export default function ExamExaminerTable({
     },
 
     {
-      label: "Assign Examiner",
+      label: "Assign Examinee",
       icon: <Plus className="h-4 w-4" />,
       variant: "default",
       onClick: () => setModalOpen(true),
@@ -201,8 +273,8 @@ export default function ExamExaminerTable({
       </TableLayout>
       <CreateExamExaminerModal
         exam_id={exam_id}
-        section_id={section_id}
-        user_type="examiner"
+        section_id={schedule_id}
+        user_type="examinee"
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
       />

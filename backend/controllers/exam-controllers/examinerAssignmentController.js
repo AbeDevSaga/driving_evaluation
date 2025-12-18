@@ -67,6 +67,7 @@ const createAssignment = async (req, res) => {
 const getAssignments = async (req, res) => {
   try {
     const { section_id, examiner_id, exam_schedule_id, is_active } = req.query;
+    console.log("req.query: ", req.query);
 
     // ====== Build filters dynamically ======
     const whereClause = {};
@@ -82,7 +83,7 @@ const getAssignments = async (req, res) => {
         {
           model: User,
           as: "examiner",
-          attributes: ["id", "full_name", "email"],
+          attributes: ["user_id", "full_name", "email"],
         },
         {
           model: ExamSection,
@@ -92,7 +93,7 @@ const getAssignments = async (req, res) => {
         {
           model: ExamSchedule,
           as: "schedule",
-          attributes: ["exam_schedule_id", "exam_date", "location"],
+          attributes: ["schedule_id", "exam_date", "location"],
         },
       ],
       order: [["assignment_id", "ASC"]],
