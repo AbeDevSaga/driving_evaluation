@@ -32,6 +32,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import Image from "next/image";
 
 // Navigation items - update these based on your app's needs
 const navigationItems = [
@@ -96,11 +97,15 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <Link
               href="/dashboard"
-              className="flex items-center flex-col gap-2"
+              className="flex items-center flex-col "
             >
-              <div className="flex aspect-square p-3 group-data-[collapsible=icon]:aspect-square group-data-[collapsible=icon]:size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                LOGO
-              </div>
+              <Image
+                src="/logo-ego.png"
+                alt="Organization Logo"
+                width={100}
+                height={100}
+                className="mx-auto mb-1 rounded-xl p-2"
+              />
               <div className="grid flex-1 group-data-[collapsible=icon]:opacity-0 text-center gap-1 text-sm leading-tight">
                 <span className="truncate font-semibold">
                   Driving Evaluation
@@ -118,6 +123,7 @@ export function AppSidebar() {
         <SidebarGroup className="px-5 group-data-[collapsible=icon]:px-0">
           <SidebarGroupContent>
             <SidebarMenu className="gap-2 group-data-[collapsible=icon]:items-center">
+              
               {navigationItems.map((item) => (
                 <SidebarMenuItem
                   key={item.title}
@@ -150,9 +156,11 @@ export function AppSidebar() {
                 defaultOpen={pathname.startsWith("/users")}
                 className="group/collapsible"
               >
-                 
                 <SidebarMenuItem className="group-data-[collapsible=icon]:w-fit">
-                  <CollapsibleTrigger asChild className="data-[active=true]:hover:bg-primary data-[active=true]:hover:text-white">
+                  <CollapsibleTrigger
+                    asChild
+                    className="data-[active=true]:hover:bg-primary data-[active=true]:hover:text-white"
+                  >
                     <SidebarMenuButton
                       tooltip="Users"
                       isActive={pathname.startsWith("/users")}
@@ -175,7 +183,9 @@ export function AppSidebar() {
                           >
                             <Link href={subItem.url}>
                               <subItem.icon className="h-4 w-4 text-primary group-data-[collapsible=icon]:size-5" />
-                              <span className="text-secondary">{subItem.title}</span>
+                              <span className="text-secondary">
+                                {subItem.title}
+                              </span>
                             </Link>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>

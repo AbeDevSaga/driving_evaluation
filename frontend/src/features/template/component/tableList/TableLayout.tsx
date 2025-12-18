@@ -50,12 +50,12 @@ export const TableLayout: React.FC<PageLayoutProps> = ({
           {title && description && (
             <div>
               {title && (
-                <h1 className="text-2xl font-semibold text-[#073954]">
+                <h1 className="text-xl font-semibold text-[#073954]">
                   {title}
                 </h1>
               )}
               {description && (
-                <p className="text-gray-500 text-lg">{description}</p>
+                <p className="text-gray-500 text-base">{description}</p>
               )}
             </div>
           )}

@@ -6,7 +6,7 @@ import { TableLayout } from "@/features/template/component/tableList/TableLayout
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Plus, Download, Eye, Edit, Trash } from "lucide-react";
+import { Plus, Download, Eye, Edit, Trash } from "lucide-react";
 import type { FilterField, ActionButton } from "@/types/tableLayout";
 import { formatStatus } from "@/utils/statusFormatter";
 
@@ -102,7 +102,13 @@ const columns: ColumnDef<Evaluation>[] = [
       const status = row.getValue("status") as string;
       return (
         <Badge
-          status={status === "passed" ? "active" : status === "failed" ? "rejected" : "pending"}
+          status={
+            status === "passed"
+              ? "active"
+              : status === "failed"
+              ? "rejected"
+              : "pending"
+          }
         >
           {formatStatus(status)}
         </Badge>
@@ -130,7 +136,7 @@ const columns: ColumnDef<Evaluation>[] = [
   },
 ];
 
-const TableComponentExample = () => {
+const ReportTable = () => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [vehicleFilter, setVehicleFilter] = useState("");
@@ -176,8 +182,8 @@ const TableComponentExample = () => {
 
   return (
     <TableLayout
-      title="Recent Evaluations"
-      description="View and manage all driving evaluations"
+      title="Reports"
+      description="View and manage all reports"
       actions={actions}
       filters={filters}
       filterColumnsPerRow={1}
@@ -194,4 +200,4 @@ const TableComponentExample = () => {
   );
 };
 
-export default TableComponentExample;
+export default ReportTable;

@@ -29,16 +29,14 @@ export default function Home() {
       <header className="w-full z-20 bg-white/80 backdrop-blur-md shadow-md border-b border-gray-100 fixed top-0 left-0">
         <div className=" mx-auto px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* <Image
-              src="/logo-aii.png"
+            <Image
+              src="/logo-ego.png"
               alt="Logo"
-              width={40}
-              height={40}
+              width={60}
+              height={60}
               className="object-contain"
-            /> */}
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-              <span className="text-white text-2xl font-bold">D</span>
-            </div>
+            />
+             
             <h1 className="text-xl font-semibold text-primary tracking-wide hidden sm:block">
               Driving Evaluation System
             </h1>

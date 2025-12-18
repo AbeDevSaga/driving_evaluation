@@ -58,16 +58,16 @@ export default function ExternalLogin() {
         {/* Left Section */}
         <div className="w-full bg-cover bg-center p-8 flex items-center justify-center">
           <div className="backdrop-blur-md p-6 rounded-xl text-center">
-            <div className="w-48   text-white text-2xl font-bold h-48 bg-primary rounded-xl flex items-center justify-center">
+            {/* <div className="w-48   text-white text-2xl font-bold h-48 bg-primary rounded-xl flex items-center justify-center">
               Logo
-            </div>
-            {/* <Image
-              src="/logo-aii.png"
+            </div> */}
+            <Image
+              src="/logo-ego.png"
               alt="Organization Logo"
-              width={288}
-              height={288}
+              width={300}
+              height={300}
               className="mx-auto mb-3 rounded-xl p-2"
-            /> */}
+            />
           </div>
         </div>
 

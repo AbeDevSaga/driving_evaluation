@@ -16,6 +16,7 @@ import {
 } from "@/redux/api/userApi";
 import { User } from "@/redux/types/user";
 import { CreateUserModal } from "@/components/common/modal/CreateUserModal";
+import { formatStatus } from "@/utils/statusFormatter";
 
 const columns: ColumnDef<User>[] = [
   {
@@ -43,8 +44,8 @@ const columns: ColumnDef<User>[] = [
     cell: ({ row }) => {
       const isActive = row.getValue("is_active") as boolean;
       return (
-        <Badge variant={isActive ? "default" : "secondary"}>
-          {isActive ? "Active" : "Inactive"}
+        <Badge className="text-white" status={isActive ? "active" : "inactive"}>
+          {formatStatus(isActive ? "Active" : "Inactive")}
         </Badge>
       );
     },

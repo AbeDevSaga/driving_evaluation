@@ -1,25 +1,28 @@
 "use client";
 import Loading01 from "@/features/template/component/Loading/Loading01";
-import { FileText } from "lucide-react";
+import { FileText, List, Calendar } from "lucide-react";
 import { useParams } from "next/navigation";
 import DetailCard from "@/components/common/cards/DetailCard";
 import { useGetExamByIdQuery } from "@/redux/api/examApi";
 import ExamSectionTable from "@/features/basedata/component/ExamSectionTable";
 import ExamScheduleTable from "@/features/basedata/component/ExamScheduleTable";
+import { useState } from "react";
+import { ActionButton } from "@/types/tableLayout";
 
 function ExamDetailPage() {
   const { exam_id } = useParams() as { exam_id: string };
+  const [activeTab, setActiveTab] = useState<"section" | "schedule">("section");
+
   const {
-    data = [],
+    data,
     isLoading,
     isError,
-    refetch,
   } = useGetExamByIdQuery(exam_id);
 
   if (isLoading) return <Loading01 />;
-  if (isError || !data) return <div>Failed to load vehicle category</div>;
+  if (isError || !data) return <div>Failed to load exam</div>;
 
-  const detailItem: DetailCardItem = {
+  const detailItem = {
     title: data.name,
     subtitle: data.description,
     icon: FileText,
@@ -27,11 +30,34 @@ function ExamDetailPage() {
     active: data.is_active,
   };
 
+  const sideActions: ActionButton[] = [
+    {
+      label: "Exam Sections",
+      icon: <List className="h-4 w-4" />,
+      variant: activeTab === "section" ? "default" : "outline",
+      size: "default",
+      onClick: () => setActiveTab("section"),
+    },
+    {
+      label: "Exam Schedules",
+      icon: <Calendar className="h-4 w-4" />,
+      variant: activeTab === "schedule" ? "default" : "outline",
+      size: "default",
+      onClick: () => setActiveTab("schedule"),
+    },
+  ];
+
   return (
     <div className="flex flex-col space-y-4">
-      <DetailCard item={detailItem} />
-      <ExamSectionTable exam_id={exam_id} />
-      <ExamScheduleTable exam_id={exam_id}/>
+      <DetailCard item={detailItem}  />
+
+      {activeTab === "section" && (
+        <ExamSectionTable  exam_id={exam_id} sideActions={sideActions} />
+      )}
+
+      {activeTab === "schedule" && (
+        <ExamScheduleTable exam_id={exam_id} sideActions={sideActions} />
+      )}
     </div>
   );
 }

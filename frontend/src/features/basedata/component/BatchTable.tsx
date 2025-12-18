@@ -13,6 +13,7 @@ import Loading01 from "@/features/template/component/Loading/Loading01";
 import { Batch } from "@/redux/types/batch";
 import { useGetBatchesQuery } from "@/redux/api/batchApi";
 import { CreateBatchModal } from "@/components/common/modal/CreateBatchModal";
+import { formatStatus } from "@/utils/statusFormatter";
 
 export const columns: ColumnDef<Batch>[] = [
   {
@@ -51,8 +52,8 @@ export const columns: ColumnDef<Batch>[] = [
     cell: ({ row }) => {
       const isActive = row.getValue("is_active") as boolean;
       return (
-        <Badge variant={isActive ? "default" : "secondary"}>
-          {isActive ? "Active" : "Inactive"}
+        <Badge status={isActive ? "active" : "inactive"}>
+          {formatStatus(isActive ? "Active" : "Inactive")}
         </Badge>
       );
     },

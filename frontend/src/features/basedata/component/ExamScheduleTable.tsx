@@ -13,6 +13,7 @@ import Loading01 from "@/features/template/component/Loading/Loading01";
 import { ExamSchedule } from "@/redux/types/examSchedule";
 import { useGetSchedulesByExamQuery } from "@/redux/api/examScheduleApi";
 import { CreateExamScheduleModal } from "@/components/common/modal/CreateExamScheduleModal";
+import { formatStatus } from "@/utils/statusFormatter";
 
 export const columns: ColumnDef<ExamSchedule>[] = [
   {
@@ -42,8 +43,8 @@ export const columns: ColumnDef<ExamSchedule>[] = [
     cell: ({ row }) => {
       const isActive = row.getValue("is_active") as boolean;
       return (
-        <Badge variant={isActive ? "default" : "secondary"}>
-          {isActive ? "Active" : "Inactive"}
+        <Badge status={isActive ? "active" : "inactive"}>
+          {formatStatus(isActive ? "Active" : "Inactive")}
         </Badge>
       );
     },
@@ -74,11 +75,12 @@ export const columns: ColumnDef<ExamSchedule>[] = [
   },
 ];
 
-interface ExamSectionTableProps {
+interface ExamScheduleTableProps {
   exam_id: string;
+  sideActions?: ActionButton[];
 }
 
-export default function ExamScheduleTable({ exam_id }: ExamSectionTableProps) {
+export default function ExamScheduleTable({ exam_id, sideActions }: ExamScheduleTableProps) {
   const {
     data = [],
     isLoading,
@@ -142,7 +144,7 @@ export default function ExamScheduleTable({ exam_id }: ExamSectionTableProps) {
   );
   return (
     <>
-      <TableLayout actions={actions} filters={filters} filterColumnsPerRow={1}>
+      <TableLayout actions={actions} filters={filters} filterColumnsPerRow={1} sideActions={sideActions}>
         <DataTable
           columns={columns}
           data={paginatedData}
