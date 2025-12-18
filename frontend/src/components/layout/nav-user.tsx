@@ -37,18 +37,18 @@ export function NavUser({ user }: NavUserProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2 rounded-lg p-2 hover:bg-accent focus:outline-none  ">
-          <Avatar className="h-8 w-8 rounded-lg">
+        <button className="flex items-center gap-2 border rounded-full  hover:bg-accent focus:outline-none  ">
+          <Avatar className="h-8 w-8 md:h-12 md:w-12 ">
             <AvatarImage src={user.avatar} alt={user.name} />
             <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
           </Avatar>
           {/* Hide name/email on mobile, show on md and up */}
-          <div className="hidden md:grid flex-1 text-left text-sm leading-tight">
+          {/* <div className="hidden md:grid flex-1 text-left text-sm leading-tight">
             <span className="truncate font-semibold">{user.name}</span>
             <span className="truncate text-xs text-muted-foreground">
               {user.email}
             </span>
-          </div>
+          </div> */}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

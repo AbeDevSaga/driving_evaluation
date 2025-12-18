@@ -19,6 +19,7 @@ import {
 import { shortenText } from "@/utils/shortenText";
 import { StructureNode } from "@/redux/types/structureNode";
 import { buildStructureTree } from "@/utils/buildStructureTree";
+import { Textarea } from "@/components/ui/textarea";
 
   interface StructureCreationProps {
   parent_hierarchy_node_id?: string | null;
@@ -51,6 +52,7 @@ export function CreateStructureModal({
     useGetStructureNodesQuery({
       is_active: true,
     });
+
   const [createNode, { isLoading: isCreatingNode }] =
     useCreateStructureNodeMutation();
 // create a function to create a structure node
@@ -139,6 +141,12 @@ export function CreateStructureModal({
     console.log("Navigation stack:", navigationStack);
     console.log("Selected parent:", selectedParentNode);
   };
+  const handleClose = () => {
+    setName("");
+    setDescription("");
+    onClose();
+  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,7 +170,7 @@ export function CreateStructureModal({
         setDescription("");
         resetNavigation();
         setHasSelectedParent(false);
-        onClose();
+        handleClose();
       } else {
         toast.error((response  as { data: { message: string } }).data?.message || "Failed to create structure");
       }
@@ -170,9 +178,15 @@ export function CreateStructureModal({
       toast.error((error as Error).message || "Failed to create structure");
     }
   };
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) handleClose();
+  };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+    <div 
+    className="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
+    onClick={handleBackdropClick}
+    >
       {/* parent_hierarchy_node_id is provided then show the modal with width 500px else hasSelectedParent is true then show the modal with width 1000px else show the modal with width 700px */}
       <div className={`bg-white p-6 rounded-lg shadow-lg ${parent_hierarchy_node_id ? "w-[400px]" : hasSelectedParent ? "w-[1000px]" : "min-w-[700px]"} max-h-[85vh] overflow-y-auto`}>
         <div className="flex items-center justify-between mb-6">
@@ -180,7 +194,7 @@ export function CreateStructureModal({
             Create Structure
           </h2>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="text-secondary hover:text-gray-600 transition-colors duration-200"
           >
             <XIcon className="w-6 h-6 cursor-pointer" />
@@ -269,8 +283,8 @@ export function CreateStructureModal({
                             <div
                               key={node.structure_node_id}
                               className={`flex border border-gray-300 rounded-md items-center
-                                hover:bg-blue-100  pr-3
-                                ${selectedParentNode === node.structure_node_id ? "bg-secondary/10 border border-secondary text-secondary " : ""}`}
+                                hover:bg-green-50  pr-3
+                                ${selectedParentNode === node.structure_node_id ? "bg-green-100 border border-primary text-secondary " : ""}`}
                             >
                               <button
                                 type="button"
@@ -290,7 +304,8 @@ export function CreateStructureModal({
                                       <div className="text-sm text-gray-600 truncate">{shortenText(node.description,40)}</div>
                                     )}
                                     <div className="text-xs text-gray-500 mt-1">
-                                      Level {node.level} • {node.children?.length || 0} children
+                                      {/* Level {node.level} •  */}
+                                      {node.children?.length || 0} children
                                     </div>
                                   </div>
                           
@@ -340,7 +355,7 @@ export function CreateStructureModal({
                   <Label className="block text-sm text-secondary font-medium mb-2">
                     Structure Name <span className="text-red-500">*</span>
                   </Label>
-                  <input
+                  <Input
                     id="structure-name"
                     placeholder="Enter structure name"
                     value={name}
@@ -348,10 +363,10 @@ export function CreateStructureModal({
                     onChange={(e) => setName(e.target.value)}
                     required
                   />
-                  <Label className="block text-sm text-secondary font-medium mb-2">
+                  <Label className="block text-sm text-secondary font-medium mt-3 mb-2">
                     Structure Description
                   </Label>
-                  <textarea
+                  <Textarea
                     rows={3}
                     id="structure-description"
                     placeholder="Enter structure description"
@@ -399,7 +414,7 @@ export function CreateStructureModal({
             <Button
               type="button"
               variant="outline"
-              onClick={onClose}
+              onClick={handleClose}
               disabled={isCreatingNode}
             >
               Cancel
@@ -408,7 +423,7 @@ export function CreateStructureModal({
             <Button
               type="submit"
               disabled={isCreatingNode || !name.trim()}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-primary hover:bg-primary/80 text-white"
             >
               {isCreatingNode ? "Creating..." : "Create "}
             </Button>

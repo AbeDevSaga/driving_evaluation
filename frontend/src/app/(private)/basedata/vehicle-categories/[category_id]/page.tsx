@@ -27,7 +27,7 @@ function VehicleCategoryDetail() {
   };
 
   return (
-    <div className="flex flex-col space-y-4">
+    <div className="flex flex-col gap-4">
       <DetailCard item={detailItem} />
       <BatchTable vehicle_category_id={category_id} />
     </div>

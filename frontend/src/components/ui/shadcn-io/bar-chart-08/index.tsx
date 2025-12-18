@@ -55,7 +55,7 @@ export function ChartBarMixed() {
       </div>
 
       <div className="flex-1 flex items-center justify-center min-h-0">
-        <ChartContainer config={chartConfig} className="h-[300px] w-full">
+        <ChartContainer config={chartConfig} className="h-[200px] w-full">
           <BarChart
             accessibilityLayer
             data={chartData}

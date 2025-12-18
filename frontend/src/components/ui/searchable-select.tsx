@@ -103,7 +103,8 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
           }),
           multiValue: (provided) => ({
             ...provided,
-            backgroundColor: '#0c4A6b',
+            // green similar to secondary color
+            backgroundColor: '#15803D',
             color: 'white',
           }),
           multiValueLabel: (provided) => ({

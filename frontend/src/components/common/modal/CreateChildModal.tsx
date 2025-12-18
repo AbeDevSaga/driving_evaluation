@@ -70,17 +70,29 @@ export function CreateChildModal({
       toast.error(errorMessage);
     }
   };
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) handleClose();
+  };
+  const handleClose = () => {
+    setName("");
+    setDescription("");
+    onClose();
+  };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+    <div
+    
+    className="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
+    onClick={handleBackdropClick}
+    >
       <div className="bg-white p-6 rounded-lg shadow-lg w-[400px] max-h-[85vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-semibold text-secondary">
-            Create Child Structure
+            Create Child  
           </h2>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="text-secondary hover:text-gray-600 transition-colors duration-200"
             aria-label="Close modal"
           >
@@ -134,8 +146,9 @@ export function CreateChildModal({
             <Button
               type="button"
               variant="outline"
-              onClick={onClose}
+              onClick={handleClose}
               disabled={isCreatingNode}
+              className="px-7 flex items-center justify-center"
             >
               Cancel
             </Button>
@@ -143,7 +156,7 @@ export function CreateChildModal({
             <Button
               type="submit"
               disabled={isCreatingNode || !name.trim()}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-primary px-7 flex items-center justify-center hover:bg-primary/80 text-white"
             >
               {isCreatingNode ? "Creating..." : "Create"}
             </Button>
