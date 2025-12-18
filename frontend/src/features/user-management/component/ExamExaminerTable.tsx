@@ -66,11 +66,7 @@ const columns: ColumnDef<ExaminerAssignment>[] = [
     header: "Location",
     cell: ({ row }) => {
       const schedule = row.original.schedule;
-      return (
-        <Badge className="text-white" status={isActive ? "active" : "inactive"}>
-          {formatStatus(isActive ? "Active" : "Inactive")}
-        </Badge>
-      );
+      return <span className="text-sm font-medium">{schedule?.location}</span>;
     },
   },
   {
