@@ -22,7 +22,7 @@ export const columns: ColumnDef<StructureNode>[] = [
     cell: ({ row }) => (
       console.log(row.original.name, "row.original.name"),
       (
-        <span className="font-medium text-blue-600">
+        <span className="font-medium text-secondary">
           {row.getValue("name")}
         </span>
       )

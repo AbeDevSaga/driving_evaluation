@@ -2,10 +2,16 @@ const Joi = require("joi");
 
 // =================== Create Examinee Exam Schema ===================
 const createExamineeExamSchema = Joi.object({
-  examinee_id: Joi.string().guid({ version: "uuidv4" }).required().messages({
-    "string.guid": "Examinee ID must be a valid UUID.",
-    "any.required": "Examinee ID is required.",
-  }),
+  examinee_ids: Joi.array()
+    .items(Joi.string().guid({ version: "uuidv4" }))
+    .min(1)
+    .required()
+    .messages({
+      "array.base": "Examinee IDs must be an array.",
+      "array.min": "At least one examinee ID is required.",
+      "any.required": "Examinee IDs are required.",
+      "string.guid": "Each Examinee ID must be a valid UUID.",
+    }),
   exam_id: Joi.string().guid({ version: "uuidv4" }).required().messages({
     "string.guid": "Exam ID must be a valid UUID.",
     "any.required": "Exam ID is required.",

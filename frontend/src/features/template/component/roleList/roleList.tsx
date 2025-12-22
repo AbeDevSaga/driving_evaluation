@@ -12,6 +12,7 @@ import { useGetRolesQuery } from "@/redux/api/roleApi";
 import type { Role } from "@/redux/types/auth";
 import type { FilterField, ActionButton } from "@/types/tableLayout";
 import { useRouter } from "next/navigation";
+import { formatStatus } from "@/utils/statusFormatter";
 
 const columns: ColumnDef<Role>[] = [
   {
@@ -31,8 +32,8 @@ const columns: ColumnDef<Role>[] = [
     cell: ({ row }) => {
       const isActive = row.getValue("is_active") as boolean;
       return (
-        <Badge variant={isActive ? "default" : "secondary"}>
-          {isActive ? "Active" : "Inactive"}
+        <Badge status={isActive ? "active" : "inactive"}>
+          {formatStatus(isActive ? "Active" : "Inactive")}
         </Badge>
       );
     },

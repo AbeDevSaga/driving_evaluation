@@ -11,14 +11,18 @@ import { Download, Plus, Eye, Edit, Trash, Users } from "lucide-react";
 import type { FilterField, ActionButton } from "@/types/tableLayout";
 import {
   useExportUsersMutation,
+  useGetExternalUserTypesQuery,
   useGetUsersQuery,
-  useGetUserTypesQuery,
 } from "@/redux/api/userApi";
-import { User } from "@/redux/types/user";
 import { CreateUserModal } from "@/components/common/modal/CreateUserModal";
-import { formatStatus } from "@/utils/statusFormatter";
+import { ExaminerAssignment } from "@/redux/types/examinerAssignment";
+import { useGetAssignmentsQuery } from "@/redux/api/examinerAssignmentApi";
+import { CreateExamExaminerModal } from "@/components/common/modal/CreateExamExaminerModal";
+import { formatExamDateTime } from "@/utils/examScheduleConverter";
+import { useGetExamineeExamsQuery } from "@/redux/api/examineeExamApi";
+import { User } from "@/redux/types/user";
 
-const columns: ColumnDef<User>[] = [
+const examineeColumns: ColumnDef<User>[] = [
   {
     accessorKey: "full_name",
     header: "Full Name",
@@ -39,13 +43,21 @@ const columns: ColumnDef<User>[] = [
     cell: ({ row }: any) => <div>{row.getValue("phone_number")}</div>,
   },
   {
+    id: "externalUserType",
+    header: "User Type",
+    cell: ({ row }) => {
+      const type = row.original.externalUserType;
+      return <span className="text-sm font-medium">{type?.name ?? "—"}</span>;
+    },
+  },
+  {
     accessorKey: "is_active",
     header: "Status",
     cell: ({ row }) => {
       const isActive = row.getValue("is_active") as boolean;
       return (
-        <Badge className="text-white" status={isActive ? "active" : "inactive"}>
-          {formatStatus(isActive ? "Active" : "Inactive")}
+        <Badge variant={isActive ? "default" : "secondary"}>
+          {isActive ? "Active" : "Inactive"}
         </Badge>
       );
     },
@@ -69,26 +81,105 @@ const columns: ColumnDef<User>[] = [
   },
 ];
 
-export interface UserTableProps {
+const columns: ColumnDef<ExaminerAssignment>[] = [
+  {
+    accessorKey: "examiner.full_name",
+    header: "Full Name",
+    cell: ({ row }) => {
+      const examiner = row.original.examiner;
+      return (
+        <span className="font-medium text-blue-600">
+          {examiner?.full_name || "—"}
+        </span>
+      );
+    },
+  },
+  {
+    accessorKey: "examiner.email",
+    header: "Email",
+    cell: ({ row }) => {
+      const examiner = row.original.examiner;
+      return <div>{examiner?.email || "—"}</div>;
+    },
+  },
+  {
+    id: "section",
+    header: "Section",
+    cell: ({ row }) => {
+      const section = row.original.section;
+      return (
+        <span className="text-sm font-medium">{section?.name || "—"}</span>
+      );
+    },
+  },
+  {
+    id: "exam_date",
+    header: "Exam Date",
+    cell: ({ row }) => {
+      const schedule = row.original.schedule;
+      if (!schedule?.exam_date) return <span>—</span>;
+      return (
+        <span className="text-sm font-medium">
+          {formatExamDateTime(schedule.exam_date)}
+        </span>
+      );
+    },
+  },
+  {
+    id: "location",
+    header: "Location",
+    cell: ({ row }) => {
+      const schedule = row.original.schedule;
+      return (
+        <span className="text-sm font-medium">{schedule?.location || "—"}</span>
+      );
+    },
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <div className="flex items-center">
+        <Button variant="ghost" size="icon">
+          <Eye className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon">
+          <Edit className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon">
+          <Trash className="h-4 w-4" />
+        </Button>
+      </div>
+    ),
+  },
+];
+
+export interface ExamExamineeTableProps {
+  exam_id: string;
+  schedule_id: string;
   sideActions?: ActionButton[];
 }
-
-export default function InternalUserTable({ sideActions }: UserTableProps) {
-  const {
-    data: userTypes = [],
-    isLoading: isLoadingType,
-    isError: typeError,
-    refetch: refetchType,
-  } = useGetUserTypesQuery();
+// structure_node_id
+export default function ExamExamineeTable({
+  exam_id,
+  schedule_id,
+  sideActions,
+}: ExamExamineeTableProps) {
+  const { data: userTypes = [] } = useGetExternalUserTypesQuery();
   const userTypeId = userTypes?.find(
-    (type: any) => type.name === "internal"
-  )?.user_type_id;
+    (type: any) => type.name === "examinee"
+  )?.external_user_type_id;
+  const { data: examinee = [] } = useGetUsersQuery({
+    external_user_type_id: userTypeId,
+  });
   const {
     data = [],
     isLoading,
     isError,
     refetch,
-  } = useGetUsersQuery({ user_type_id: userTypeId });
+  } = useGetExamineeExamsQuery({
+    schedule_id: schedule_id,
+  });
   const [exportUsers, { isLoading: exportLoading }] = useExportUsersMutation();
 
   // Pagination states
@@ -144,7 +235,7 @@ export default function InternalUserTable({ sideActions }: UserTableProps) {
     },
 
     {
-      label: "New Internal User",
+      label: "Assign Examinee",
       icon: <Plus className="h-4 w-4" />,
       variant: "default",
       onClick: () => setModalOpen(true),
@@ -180,8 +271,10 @@ export default function InternalUserTable({ sideActions }: UserTableProps) {
           currentIndex={pageIndex}
         />
       </TableLayout>
-      <CreateUserModal
-        user_type="internal"
+      <CreateExamExaminerModal
+        exam_id={exam_id}
+        section_id={schedule_id}
+        user_type="examinee"
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
       />

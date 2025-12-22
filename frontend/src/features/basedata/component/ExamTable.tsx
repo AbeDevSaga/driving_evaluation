@@ -14,6 +14,7 @@ import { CreateVehicleCategoryModal } from "@/components/common/modal/CreateVehi
 import { Exam } from "@/redux/types/exam";
 import { useGetExamsQuery } from "@/redux/api/examApi";
 import { CreateExamModal } from "@/components/common/modal/CreateExamModal";
+import { formatStatus } from "@/utils/statusFormatter";
 
 export const columns: ColumnDef<Exam>[] = [
   {
@@ -62,8 +63,8 @@ export const columns: ColumnDef<Exam>[] = [
     cell: ({ row }) => {
       const isActive = row.getValue("is_active") as boolean;
       return (
-        <Badge variant={isActive ? "default" : "secondary"}>
-          {isActive ? "Active" : "Inactive"}
+        <Badge status={isActive ? "active" : "inactive"}>
+          {formatStatus(isActive ? "Active" : "Inactive")}
         </Badge>
       );
     },
@@ -153,8 +154,12 @@ export default function ExamTable() {
   );
   return (
     <>
-      <TableLayout actions={actions} filters={filters} filterColumnsPerRow={1}>
+      <TableLayout 
+      title="Exams"
+      description="Manage your exams"
+      actions={actions} filters={filters} filterColumnsPerRow={1}>
         <DataTable
+
           columns={columns}
           data={paginatedData}
           totalPageCount={Math.ceil(filteredData.length / pageSize)}

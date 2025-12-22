@@ -30,7 +30,7 @@ export function Header({ title }: HeaderProps) {
 
       <BreadcrumbTitle title={title} />
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex items-end gap-5">
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="size-5" />
           {notificationCount > 0 && (

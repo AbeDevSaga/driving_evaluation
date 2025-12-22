@@ -10,8 +10,19 @@ export const examineeExamApi = baseApi.injectEndpoints({
     /** ---------------------------
      * GET ALL EXAMS
      * --------------------------- */
-    getExamineeExams: builder.query<ExamineeExam[], void>({
-      query: () => ({ url: "/examinee-exams" }),
+    getExamineeExams: builder.query<
+      ExamineeExam[],
+      {
+        schedule_id?: string;
+        examiner_id?: string;
+        exam_schedule_id?: string;
+        is_active?: boolean;
+      } | void
+    >({
+      query: (params) =>
+        params
+          ? { url: "/examinee-exams", params }
+          : { url: "/examinee-exams" },
       transformResponse: (response: any): ExamineeExam[] => response.data ?? [],
       providesTags: ["ExamineeExam"],
     }),
@@ -40,7 +51,7 @@ export const examineeExamApi = baseApi.injectEndpoints({
      * CREATE EXAM
      * --------------------------- */
     createExamineeExam: builder.mutation<
-      ExamineeExam,
+      ExamineeExam[],
       CreateExamineeExamPayload
     >({
       query: (body) => ({
@@ -48,7 +59,7 @@ export const examineeExamApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      transformResponse: (response: any): ExamineeExam => response.data,
+      transformResponse: (response: any): ExamineeExam[] => response.data,
       invalidatesTags: ["ExamineeExam"],
     }),
 

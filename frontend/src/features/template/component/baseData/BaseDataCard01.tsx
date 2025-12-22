@@ -65,7 +65,10 @@ const dataCards: DataCardItem[] = [
 function BaseDataCard01() {
   const router = useRouter();
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="flex min-h-[calc(100vh-150px)] rounded-lg flex-col bg-white p-5 ">
+      <h1 className="text-2xl font-bold text-secondary">Base Data</h1>
+      <p className="text-sm text-muted-foreground">Manage all your base data here</p>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mt-6 ">
       {dataCards.map((item) => {
         const Icon = item.icon;
 
@@ -73,12 +76,12 @@ function BaseDataCard01() {
           <Card
             key={item.id}
             onClick={() => router.push(item.link)}
-             className="flex gap-5 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-b from-[#F9FBFC] to-[#EFF6FB] rounded-3xl justify-between items-center p-4 bg-white  border border-gray-200 dark:bg-gray-800 dark:border-gray-700 w-full"
+             className="flex gap-5 bg-green-50 shadow-md hover:shadow-xl transition-shadow duration-300  rounded-3xl justify-between items-center p-4   border border-gray-200 dark:bg-gray-800 dark:border-gray-700 w-full"
           >
-            <CardContent className="flex items-center w-full justify-between p-6">
+            <CardContent className="flex items-center w-full px-2   py-2 justify-between">
               {/* Left Section */}
-              <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10">
+              <div className="flex items-center gap-2  ">
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl ">
                   <Icon className="h-8 w-8 text-primary" />
                 </div>
 
@@ -91,8 +94,8 @@ function BaseDataCard01() {
               </div>
 
               {/* Action */}
-              <Button variant="outline" size="default" className="rounded-lg bg-primary text-white gap-1 hover:bg-primary/90 hover:text-white">
-                <Eye className="h-4 w-4" />
+              <Button variant="outline" size="default" className="rounded-lg bg-primary px-7 text-white gap-1 hover:bg-primary hover:text-white ">
+                {/* <Eye className="h-4 w-4" /> */}
                 View
               </Button>
             </CardContent>
@@ -100,6 +103,7 @@ function BaseDataCard01() {
         );
       })}
     </div>
+      </div>
   );
 }
 

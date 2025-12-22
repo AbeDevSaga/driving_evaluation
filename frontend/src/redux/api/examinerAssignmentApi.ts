@@ -10,8 +10,19 @@ export const examinerAssignmentApi = baseApi.injectEndpoints({
     /** ---------------------------
      * GET ALL ASSIGNMENTS
      * --------------------------- */
-    getAssignments: builder.query<ExaminerAssignment[], void>({
-      query: () => ({ url: "/examiner-assignments" }),
+    getAssignments: builder.query<
+      ExaminerAssignment[],
+      {
+        section_id?: string;
+        examiner_id?: string;
+        exam_schedule_id?: string;
+        is_active?: boolean;
+      } | void
+    >({
+      query: (params) =>
+        params
+          ? { url: "/examiner-assignments", params }
+          : { url: "/examiner-assignments" },
       transformResponse: (response: any): ExaminerAssignment[] =>
         response.data ?? [],
       providesTags: ["ExaminerAssignment"],

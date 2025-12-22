@@ -13,6 +13,7 @@ import Loading01 from "@/features/template/component/Loading/Loading01";
 import { VehicleCategory } from "@/redux/types/vehicleCategory";
 import { useGetVehicleCategoriesQuery } from "@/redux/api/vehicleCategoryApi";
 import { CreateVehicleCategoryModal } from "@/components/common/modal/CreateVehicleCategoryModal";
+import { formatStatus } from "@/utils/statusFormatter";
 
 export const columns: ColumnDef<VehicleCategory>[] = [
   {
@@ -21,7 +22,7 @@ export const columns: ColumnDef<VehicleCategory>[] = [
     cell: ({ row }) => (
       console.log(row.original.name, "row.original.name"),
       (
-        <span className="font-medium text-blue-600">
+        <span className="font-medium text-secondary">
           {row.getValue("name")}
         </span>
       )
@@ -42,8 +43,8 @@ export const columns: ColumnDef<VehicleCategory>[] = [
     cell: ({ row }) => {
       const isActive = row.getValue("is_active") as boolean;
       return (
-        <Badge variant={isActive ? "default" : "secondary"}>
-          {isActive ? "Active" : "Inactive"}
+        <Badge status={isActive ? "active" : "inactive"}>
+          {formatStatus(isActive ? "Active" : "Inactive")}
         </Badge>
       );
     },
@@ -55,7 +56,7 @@ export const columns: ColumnDef<VehicleCategory>[] = [
     cell: ({ row }) => {
       const id = row.original.vehicle_category_id;
       return (
-        <div className="flex items-center gap-1">
+        <div className="flex items-center w-fit max-w-[100px] gap-1">
           <Link href={`vehicle-categories/${id}`}>
             <Button variant="ghost" size="icon">
               <Eye className="h-4 w-4" />
@@ -66,7 +67,7 @@ export const columns: ColumnDef<VehicleCategory>[] = [
             <Edit className="h-4 w-4" />
           </Button>
           <Button variant="ghost" size="icon">
-            <Trash className="h-4 w-4" />
+            <Trash className="h-4 w-4" color="red" />
           </Button>
         </div>
       );

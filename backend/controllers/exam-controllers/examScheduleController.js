@@ -99,7 +99,8 @@ const getSchedulesByExam = async (req, res) => {
  */
 const getScheduleById = async (req, res) => {
   try {
-    const { schedule_id } = req.params;
+    const { id: schedule_id } = req.params;
+    // console.log("req.params: ", req.params, "schedule_id: ", schedule_id);
 
     const schedule = await ExamSchedule.findByPk(schedule_id, {
       include: [

@@ -10,7 +10,7 @@ export interface ExamineeExam {
 }
 
 export interface CreateExamineeExamPayload {
-  examinee_id: string;
+  examinee_ids: string[];
   exam_id: string;
   schedule_id: string;
   total_score?: number;

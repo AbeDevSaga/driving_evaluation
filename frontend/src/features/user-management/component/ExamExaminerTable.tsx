@@ -9,62 +9,64 @@ import { Button } from "@/components/ui/button";
 import { Download, Plus, Eye, Edit, Trash, Users } from "lucide-react";
 
 import type { FilterField, ActionButton } from "@/types/tableLayout";
-import {
-  useExportUsersMutation,
-  useGetUsersQuery,
-  useGetUserTypesQuery,
-} from "@/redux/api/userApi";
-import { User } from "@/redux/types/user";
+import { useExportUsersMutation } from "@/redux/api/userApi";
 import { CreateUserModal } from "@/components/common/modal/CreateUserModal";
+import { ExaminerAssignment } from "@/redux/types/examinerAssignment";
+import { useGetAssignmentsQuery } from "@/redux/api/examinerAssignmentApi";
+import { CreateExamExaminerModal } from "@/components/common/modal/CreateExamExaminerModal";
+import { formatExamDateTime } from "@/utils/examScheduleConverter";
+import { formatStatus } from "@/utils/statusFormatter";
 
-const columns: ColumnDef<User>[] = [
+const columns: ColumnDef<ExaminerAssignment>[] = [
   {
-    accessorKey: "full_name",
+    accessorKey: "examiner.full_name",
     header: "Full Name",
-    cell: ({ row }) => (
-      <span className="font-medium text-blue-600">
-        {row.getValue("full_name")}
-      </span>
-    ),
+    cell: ({ row }) => {
+      const examiner = row.original.examiner;
+      return (
+        <span className="font-medium text-blue-600">
+          {examiner?.full_name || "—"}
+        </span>
+      );
+    },
   },
   {
-    accessorKey: "email",
+    accessorKey: "examiner.email",
     header: "Email",
-    cell: ({ row }: any) => <div>{row.getValue("email")}</div>,
-  },
-  {
-    accessorKey: "phone_number",
-    header: "Phone Number",
-    cell: ({ row }: any) => <div>{row.getValue("phone_number")}</div>,
-  },
-  {
-    id: "externalUserType",
-    header: "User Type",
     cell: ({ row }) => {
-      const type = row.original.externalUserType;
-      return <span className="text-sm font-medium">{type?.name ?? "—"}</span>;
+      const examiner = row.original.examiner;
+      return <div>{examiner?.email || "—"}</div>;
     },
   },
   {
-    id: "structure",
-    header: "Structure",
+    id: "section",
+    header: "Section",
     cell: ({ row }) => {
-      const structure = row.original.structureNode;
+      const section = row.original.section;
       return (
-        <span className="text-sm font-medium">{structure?.name ?? "—"}</span>
+        <span className="text-sm font-medium">{section?.name || "—"}</span>
       );
     },
   },
   {
-    accessorKey: "is_active",
-    header: "Status",
+    id: "exam_date",
+    header: "Exam Date",
     cell: ({ row }) => {
-      const isActive = row.getValue("is_active") as boolean;
+      const schedule = row.original.schedule;
+      if (!schedule?.exam_date) return <span>—</span>;
       return (
-        <Badge variant={isActive ? "default" : "secondary"}>
-          {isActive ? "Active" : "Inactive"}
-        </Badge>
+        <span className="text-sm font-medium">
+          {formatExamDateTime(schedule.exam_date)}
+        </span>
       );
+    },
+  },
+  {
+    id: "location",
+    header: "Location",
+    cell: ({ row }) => {
+      const schedule = row.original.schedule;
+      return <span className="text-sm font-medium">{schedule?.location}</span>;
     },
   },
   {
@@ -85,28 +87,26 @@ const columns: ColumnDef<User>[] = [
     ),
   },
 ];
+
 export interface ExamExaminerTableProps {
+  exam_id: string;
+  section_id: string;
   sideActions?: ActionButton[];
 }
 // structure_node_id
 export default function ExamExaminerTable({
+  exam_id,
+  section_id,
   sideActions,
 }: ExamExaminerTableProps) {
-  const {
-    data: userTypes = [],
-    isLoading: isLoadingType,
-    isError: typeError,
-    refetch: refetchType,
-  } = useGetUserTypesQuery();
-  const userTypeId = userTypes?.find(
-    (type: any) => type.name === "external"
-  )?.user_type_id;
   const {
     data = [],
     isLoading,
     isError,
     refetch,
-  } = useGetUsersQuery({ user_type_id: userTypeId });
+  } = useGetAssignmentsQuery({
+    section_id: section_id,
+  });
   const [exportUsers, { isLoading: exportLoading }] = useExportUsersMutation();
 
   // Pagination states
@@ -198,8 +198,10 @@ export default function ExamExaminerTable({
           currentIndex={pageIndex}
         />
       </TableLayout>
-      <CreateUserModal
-        user_type="external"
+      <CreateExamExaminerModal
+        exam_id={exam_id}
+        section_id={section_id}
+        user_type="examiner"
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
       />

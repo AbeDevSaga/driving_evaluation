@@ -5,11 +5,13 @@ const Joi = require("joi");
 const createExaminerAssignmentSchema = Joi.object({
   examiner_id: Joi.string().uuid().required(),
   section_id: Joi.string().uuid().required(),
+  exam_schedule_id: Joi.string().uuid().required(),
 });
 
 const updateExaminerAssignmentSchema = Joi.object({
   examiner_id: Joi.string().uuid(),
   section_id: Joi.string().uuid(),
+  exam_schedule_id: Joi.string().uuid(),
 });
 
 const validateCreateExaminerAssignment = (req, res, next) => {

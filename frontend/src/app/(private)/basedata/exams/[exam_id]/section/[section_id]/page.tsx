@@ -7,13 +7,12 @@ import { useGetExamSectionByIdQuery } from "@/redux/api/examSectionApi";
 import ExamExaminerTable from "@/features/user-management/component/ExamExaminerTable";
 
 function ExamSectionDetailPage() {
-  const { section_id } = useParams() as { section_id: string };
-  const {
-    data = [],
-    isLoading,
-    isError,
-    refetch,
-  } = useGetExamSectionByIdQuery(section_id);
+  const { section_id, exam_id } = useParams() as {
+    section_id: string;
+    exam_id: string;
+  };
+  const { data, isLoading, isError, refetch } =
+    useGetExamSectionByIdQuery(section_id);
 
   if (isLoading) return <Loading01 />;
   if (isError || !data) return <div>Failed to load vehicle category</div>;
@@ -29,7 +28,7 @@ function ExamSectionDetailPage() {
   return (
     <div className="flex flex-col space-y-4">
       <DetailCard item={detailItem} />
-      <ExamExaminerTable />
+      <ExamExaminerTable exam_id={exam_id} section_id={section_id} />
     </div>
   );
 }
