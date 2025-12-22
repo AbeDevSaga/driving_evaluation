@@ -11,12 +11,8 @@ function ExamSectionDetailPage() {
     section_id: string;
     exam_id: string;
   };
-  const {
-    data = [],
-    isLoading,
-    isError,
-    refetch,
-  } = useGetExamSectionByIdQuery(section_id);
+  const { data, isLoading, isError, refetch } =
+    useGetExamSectionByIdQuery(section_id);
 
   if (isLoading) return <Loading01 />;
   if (isError || !data) return <div>Failed to load vehicle category</div>;

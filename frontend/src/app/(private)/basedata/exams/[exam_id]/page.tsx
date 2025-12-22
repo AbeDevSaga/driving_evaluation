@@ -13,18 +13,14 @@ function ExamDetailPage() {
   const { exam_id } = useParams() as { exam_id: string };
   const [activeTab, setActiveTab] = useState<"section" | "schedule">("section");
 
-  const {
-    data,
-    isLoading,
-    isError,
-  } = useGetExamByIdQuery(exam_id);
+  const { data, isLoading, isError } = useGetExamByIdQuery(exam_id);
 
   if (isLoading) return <Loading01 />;
   if (isError || !data) return <div>Failed to load exam</div>;
 
   const detailItem = {
     title: data.name,
-    subtitle: data.description,
+    subtitle: data.description || "",
     icon: FileText,
     date: new Date(data.created_at),
     active: data.is_active,
@@ -49,10 +45,10 @@ function ExamDetailPage() {
 
   return (
     <div className="flex flex-col space-y-4">
-      <DetailCard item={detailItem}  />
+      <DetailCard item={detailItem} />
 
       {activeTab === "section" && (
-        <ExamSectionTable  exam_id={exam_id} sideActions={sideActions} />
+        <ExamSectionTable exam_id={exam_id} sideActions={sideActions} />
       )}
 
       {activeTab === "schedule" && (

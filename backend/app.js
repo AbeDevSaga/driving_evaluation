@@ -138,11 +138,11 @@ app.use((err, req, res, next) => {
 });
 
 // ================== Start App Server ==================
-const appPort = process.env.PORT || 4001;
+const appPort = process.env.PORT || 4000;
 appServer.listen(appPort, () => {
   console.log(` App server running at http://localhost:${appPort}`);
 });
-
+ 
 // ================== Socket.IO Setup ==================
 const socketServer = http.createServer();
 const io = new Server(socketServer, {
@@ -165,7 +165,7 @@ io.on("connection", (socket) => {
   });
 });
 
-const socketPort = process.env.SOCKET_PORT || 5001;
+const socketPort = process.env.SOCKET_PORT || 5000;
 socketServer.listen(socketPort, () => {
   console.log(`Socket.IO server running at http://localhost:${socketPort}`);
 });
