@@ -1,8 +1,14 @@
 import ExamTable from "@/features/basedata/component/ExamTable";
-import React from "react";
+import { Suspense } from 'react'
+
+export const dynamic = 'force-dynamic';
 
 function ExamPage() {
-  return <ExamTable />;
+  return (
+    <Suspense fallback={null}>
+      <ExamTable />
+    </Suspense>
+  );
 }
 
 export default ExamPage;
