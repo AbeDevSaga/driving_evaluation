@@ -1,8 +1,14 @@
 import StructuresTable from "@/features/basedata/component/StructuresTable";
-import React from "react";
+import { Suspense } from 'react'
+
+export const dynamic = 'force-dynamic';
 
 const page = () => {
-  return <StructuresTable />;
+  return (
+    <Suspense fallback={null}>
+      <StructuresTable />
+    </Suspense>
+  );
 };
 
 export default page;

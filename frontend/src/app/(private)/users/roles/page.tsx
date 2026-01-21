@@ -1,10 +1,13 @@
 import RoleList from "@/features/template/component/roleList/roleList";
+import { Suspense } from 'react'
+
+export const dynamic = 'force-dynamic';
 
 function Roles() {
   return (
-    <div>
+    <Suspense fallback={null}>
       <RoleList />
-    </div>
+    </Suspense>
   );
 }
 

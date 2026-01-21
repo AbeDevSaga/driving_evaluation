@@ -5,6 +5,9 @@ import { useGetVehicleCategoryByIdQuery } from "@/redux/api/vehicleCategoryApi";
 import { useParams } from "next/navigation";
 import DetailCard from "@/components/common/cards/DetailCard";
 import BatchTable from "@/features/basedata/component/BatchTable";
+import { Suspense } from 'react'
+
+export const dynamic = 'force-dynamic';
 
 function VehicleCategoryDetail() {
   const { category_id } = useParams() as { category_id: string };
@@ -29,7 +32,9 @@ function VehicleCategoryDetail() {
   return (
     <div className="flex flex-col gap-4">
       <DetailCard item={detailItem} />
-      <BatchTable vehicle_category_id={category_id} />
+      <Suspense fallback={null}>
+        <BatchTable vehicle_category_id={category_id} />
+      </Suspense>
     </div>
   );
 }
