@@ -49,6 +49,16 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "SET NULL",
       },
+      vehicle_category_id: {
+        type: Sequelize.UUID,
+        allowNull: true,
+        references: {
+          model: "vehicle_categories",
+          key: "vehicle_category_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
+      },
       full_name: {
         type: Sequelize.STRING(100),
         allowNull: false,
