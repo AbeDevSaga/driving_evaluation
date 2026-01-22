@@ -11,6 +11,7 @@ import { Download, Plus, Eye, Edit, Trash, Users } from "lucide-react";
 import type { FilterField, ActionButton } from "@/types/tableLayout";
 import {
   useExportUsersMutation,
+  useGetExternalUserTypesQuery,
   useGetUsersQuery,
   useGetUserTypesQuery,
 } from "@/redux/api/userApi";
@@ -90,22 +91,23 @@ export interface UserTableProps {
   sideActions?: ActionButton[];
 }
 // structure_node_id
-export default function ExternalUserTable({ sideActions }: UserTableProps) {
+export default function ExaminerTable({ sideActions }: UserTableProps) {
+
   const {
     data: userTypes = [],
     isLoading: isLoadingType,
     isError: typeError,
     refetch: refetchType,
-  } = useGetUserTypesQuery();
+  } = useGetExternalUserTypesQuery();
   const userTypeId = userTypes?.find(
-    (type: any) => type.name === "external"
-  )?.user_type_id;
+    (type: any) => type.name === "examiner"
+  )?.external_user_type_id;
   const {
     data = [],
     isLoading,
     isError,
     refetch,
-  } = useGetUsersQuery({ user_type_id: userTypeId });
+  } = useGetUsersQuery({ external_user_type_id: userTypeId });
   const [exportUsers, { isLoading: exportLoading }] = useExportUsersMutation();
 
   // Pagination states
@@ -161,7 +163,7 @@ export default function ExternalUserTable({ sideActions }: UserTableProps) {
     },
 
     {
-      label: "New External User",
+      label: "New Examiner",
       icon: <Plus className="h-4 w-4" />,
       variant: "default",
       onClick: () => setModalOpen(true),

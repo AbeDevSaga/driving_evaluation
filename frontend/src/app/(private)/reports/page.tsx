@@ -1,9 +1,13 @@
-import React from 'react'
 import ReportTable from '@/features/reports/components/ReportTable'
+import { Suspense } from 'react'
+
+export const dynamic = 'force-dynamic';
 
 const Page = () => {
   return (
-    <ReportTable />
+    <Suspense fallback={null}>
+      <ReportTable />
+    </Suspense>
   )
 }
 

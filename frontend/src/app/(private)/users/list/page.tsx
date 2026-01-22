@@ -4,6 +4,10 @@ import InternalUserTable from "@/features/user-management/component/InternalUser
 import { ActionButton } from "@/types/tableLayout";
 import { Users } from "lucide-react";
 import { useState } from "react";
+import { Suspense } from 'react'
+
+export const dynamic = 'force-dynamic';
+
 
 function UsersList() {
   const [activeTab, setActiveTab] = useState<"internal" | "external">(
@@ -18,7 +22,7 @@ function UsersList() {
       onClick: () => setActiveTab("internal"),
     },
     {
-      label: "External Users",
+      label: "Examiners",
       icon: <Users className="h-4 w-4" />,
       variant: activeTab === "external" ? "default" : "outline",
       size: "default",
@@ -29,10 +33,14 @@ function UsersList() {
     <>
       {/* Pass sideActions to your layout/header if needed */}
       {activeTab === "internal" && (
-        <InternalUserTable sideActions={sideActions} />
+        <Suspense fallback={null}>
+          <InternalUserTable sideActions={sideActions} />
+        </Suspense>
       )}
       {activeTab === "external" && (
-        <ExternalUserTable sideActions={sideActions} />
+        <Suspense fallback={null}>
+          <ExternalUserTable sideActions={sideActions} />
+        </Suspense>
       )}
     </>
   );
