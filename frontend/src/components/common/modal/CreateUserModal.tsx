@@ -138,7 +138,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
           {/* User Detail */}
           <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4  mt-2 pr-2">
             {/* Structure Selection (only if not passed from parent) */}
-            {!structure_node_id && user_type === "external" && (
+            {!structure_node_id && (
               <div className="w-full space-y-2">
                 <Label className="block text-sm text-[#094C81] font-medium mb-2">
                   Structure <span className="text-red-500">*</span>
@@ -305,10 +305,10 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     {roles.filter(
                       (r: any) => !selectedRoles.includes(r.role_id)
                     ).length === 0 && (
-                      <div className="px-3 py-2 text-sm text-gray-400 text-center">
-                        All roles selected
-                      </div>
-                    )}
+                        <div className="px-3 py-2 text-sm text-gray-400 text-center">
+                          All roles selected
+                        </div>
+                      )}
                   </div>
                 </PopoverContent>
               </Popover>
