@@ -18,81 +18,15 @@ import {
 import { User } from "@/redux/types/user";
 import { CreateUserModal } from "@/components/common/modal/CreateUserModal";
 import { formatStatus } from "@/utils/statusFormatter";
+import { useRouter } from "next/navigation";
 
-const columns: ColumnDef<User>[] = [
-  {
-    accessorKey: "full_name",
-    header: "Full Name",
-    cell: ({ row }) => (
-      <span className="font-medium text-secondary">
-        {row.getValue("full_name")}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-    cell: ({ row }: any) => <div>{row.getValue("email")}</div>,
-  },
-  {
-    accessorKey: "phone_number",
-    header: "Phone Number",
-    cell: ({ row }: any) => <div>{row.getValue("phone_number")}</div>,
-  },
-  {
-    id: "externalUserType",
-    header: "User Type",
-    cell: ({ row }) => {
-      const type = row.original.externalUserType;
-      return <span className="text-sm font-medium">{type?.name ?? "—"}</span>;
-    },
-  },
-  {
-    id: "structure",
-    header: "Structure",
-    cell: ({ row }) => {
-      const structure = row.original.structureNode;
-      return (
-        <span className="text-sm font-medium">{structure?.name ?? "—"}</span>
-      );
-    },
-  },
-  {
-    accessorKey: "is_active",
-    header: "Status",
-    cell: ({ row }) => {
-      const isActive = row.getValue("is_active") as boolean;
-      return (
-        <Badge className="text-white" status={isActive ? "active" : "inactive"}>
-          {formatStatus(isActive ? "Active" : "Inactive")}
-        </Badge>
-      );
-    },
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => (
-      <div className="flex items-center">
-        <Button variant="ghost" size="icon">
-          <Eye className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon">
-          <Edit className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon">
-          <Trash className="h-4 w-4" />
-        </Button>
-      </div>
-    ),
-  },
-];
+
 export interface UserTableProps {
   sideActions?: ActionButton[];
 }
 // structure_node_id
 export default function ExaminerTable({ sideActions }: UserTableProps) {
-
+  const router = useRouter()
   const {
     data: userTypes = [],
     isLoading: isLoadingType,
@@ -119,6 +53,75 @@ export default function ExaminerTable({ sideActions }: UserTableProps) {
     setPageSize(size);
   };
 
+
+  const columns: ColumnDef<User>[] = [
+    {
+      accessorKey: "full_name",
+      header: "Full Name",
+      cell: ({ row }) => (
+        <span className="font-medium text-secondary">
+          {row.getValue("full_name")}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
+      cell: ({ row }: any) => <div>{row.getValue("email")}</div>,
+    },
+    {
+      accessorKey: "phone_number",
+      header: "Phone Number",
+      cell: ({ row }: any) => <div>{row.getValue("phone_number")}</div>,
+    },
+    {
+      id: "externalUserType",
+      header: "User Type",
+      cell: ({ row }) => {
+        const type = row.original.externalUserType;
+        return <span className="text-sm font-medium">{type?.name ?? "—"}</span>;
+      },
+    },
+    {
+      id: "structure",
+      header: "Structure",
+      cell: ({ row }) => {
+        const structure = row.original.structureNode;
+        return (
+          <span className="text-sm font-medium">{structure?.name ?? "—"}</span>
+        );
+      },
+    },
+    {
+      accessorKey: "is_active",
+      header: "Status",
+      cell: ({ row }) => {
+        const isActive = row.getValue("is_active") as boolean;
+        return (
+          <Badge className="text-white" status={isActive ? "active" : "inactive"}>
+            {formatStatus(isActive ? "Active" : "Inactive")}
+          </Badge>
+        );
+      },
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex items-center">
+          <Button onClick={() => { router.push(`/users/list/${row.original.user_id}`) }} variant="ghost" size="icon">
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Trash className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
   // Filters
   const [statusFilter, setStatusFilter] = useState("");
 
