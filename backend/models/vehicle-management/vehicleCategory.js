@@ -9,6 +9,14 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "vehicle_category_id",
         as: "exams",
       });
+
+      // Many categories can belong to many users
+      VehicleCategory.belongsToMany(models.User, {
+        through: models.UserVehicleCategory,
+        foreignKey: "vehicle_category_id",
+        otherKey: "user_id",
+        as: "users",
+      });
     }
   }
 
@@ -60,7 +68,7 @@ module.exports = (sequelize, DataTypes) => {
       tableName: "vehicle_categories",
       timestamps: false,
       underscored: true,
-    }
+    },
   );
 
   return VehicleCategory;

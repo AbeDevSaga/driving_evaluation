@@ -11,6 +11,8 @@ export interface Exam {
   updated_at: string;
   vehicleCategory?: VehicleCategory;
   structure?: StructureNode;
+  structureNode?: StructureNode;
+  
 }
 
 export interface CreateExamPayload {

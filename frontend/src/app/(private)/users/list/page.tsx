@@ -22,7 +22,7 @@ function UsersList() {
       onClick: () => setActiveTab("internal"),
     },
     {
-      label: "External Users",
+      label: "Examiners",
       icon: <Users className="h-4 w-4" />,
       variant: activeTab === "external" ? "default" : "outline",
       size: "default",

@@ -13,6 +13,7 @@ function ExamSectionDetailPage() {
   };
   const { data, isLoading, isError, refetch } =
     useGetExamSectionByIdQuery(section_id);
+  const structure_node_id = data?.exam?.structureNode?.structure_node_id;
 
   if (isLoading) return <Loading01 />;
   if (isError || !data) return <div>Failed to load vehicle category</div>;
@@ -28,7 +29,7 @@ function ExamSectionDetailPage() {
   return (
     <div className="flex flex-col space-y-4">
       <DetailCard item={detailItem} />
-      <ExamExaminerTable exam_id={exam_id} section_id={section_id} />
+      <ExamExaminerTable exam_id={exam_id} section_id={section_id} structure_node_id={structure_node_id} />
     </div>
   );
 }

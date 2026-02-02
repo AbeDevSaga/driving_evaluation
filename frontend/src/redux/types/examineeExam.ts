@@ -1,4 +1,11 @@
+import { Exam } from "./exam";
+import { ExamSchedule } from "./examSchedule";
+import { User } from "./user";
+
 export interface ExamineeExam {
+  examinee: User;
+  exam: Exam;
+  schedule: ExamSchedule;
   examinee_exam_id: string;
   examinee_id: string;
   exam_id: string;
@@ -12,7 +19,7 @@ export interface ExamineeExam {
 export interface CreateExamineeExamPayload {
   examinee_ids: string[];
   exam_id: string;
-  schedule_id: string;
+  exam_schedule_id: string;
   total_score?: number;
   is_passed?: boolean;
 }

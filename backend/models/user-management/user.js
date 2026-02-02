@@ -33,6 +33,19 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "batch_id",
         as: "batch",
       });
+
+      // User has many ExamineeExams
+      User.hasMany(models.ExamineeExam, {
+        foreignKey: "examinee_id",
+        as: "examineeExams",
+      });
+
+      User.belongsToMany(models.VehicleCategory, {
+        through: models.UserVehicleCategory,
+        foreignKey: "user_id",
+        otherKey: "vehicle_category_id",
+        as: "vehicleCategories",
+      });
     }
   }
 
@@ -121,7 +134,7 @@ module.exports = (sequelize, DataTypes) => {
       tableName: "users",
       timestamps: false,
       underscored: true,
-    }
+    },
   );
 
   return User;

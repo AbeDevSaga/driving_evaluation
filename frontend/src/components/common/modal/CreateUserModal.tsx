@@ -26,9 +26,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useGetVehicleCategoriesQuery } from "@/redux/api/vehicleCategoryApi";
 
 interface CreateUserModalProps {
   user_type?: string;
+  external_user_type?: string;
   structure_node_id?: string;
   isOpen: boolean;
   onClose: () => void;
@@ -36,6 +38,7 @@ interface CreateUserModalProps {
 
 export const CreateUserModal: React.FC<CreateUserModalProps> = ({
   user_type,
+  external_user_type,
   structure_node_id,
   isOpen,
   onClose,
@@ -45,6 +48,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
   const [phoneNumber, setPhoneNumber] = useState("");
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [selectedStructure, setSelectedStructure] = useState<string>("");
+  const [selectedVehicleCategory, setSelectedVehicleCategory] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("");
 
   const { data: userTypeResponse } = useGetExternalUserTypesQuery();
@@ -64,10 +68,19 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
     refetch: refetchType,
   } = useGetUserTypesQuery();
 
+  const {
+    data: vehicleCategories = [],
+    refetch: refetchVehicleCategories,
+  } = useGetVehicleCategoriesQuery();
+
   const [createUser, { isLoading }] = useCreateUserMutation();
   const userTypeId = userTypes?.find(
     (type: any) => type.name === user_type
   )?.user_type_id;
+
+  const externalUserTypeId = userTypeResponse?.find(
+    (type: any) => type.name === external_user_type
+  )?.external_user_type_id;
 
   const handleSubmit = async () => {
     if (!fullName || !email || !selectedRoles.length) {
@@ -84,12 +97,13 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
       full_name: fullName,
       email,
       role_ids: selectedRoles,
-      external_user_type_id: selectedType,
+      vehicle_category_id: selectedVehicleCategory,
       structure_node_id: structure_node_id
         ? structure_node_id
         : selectedStructure,
       ...(phoneNumber && { phone_number: phoneNumber }),
       ...(userTypeId && { user_type_id: userTypeId }),
+      ...(externalUserTypeId && { external_user_type_id: externalUserTypeId }),
     };
 
     try {
@@ -138,7 +152,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
           {/* User Detail */}
           <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4  mt-2 pr-2">
             {/* Structure Selection (only if not passed from parent) */}
-            {!structure_node_id && user_type === "external" && (
+            {!structure_node_id && (
               <div className="w-full space-y-2">
                 <Label className="block text-sm text-[#094C81] font-medium mb-2">
                   Structure <span className="text-red-500">*</span>
@@ -166,7 +180,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
               </div>
             )}
             {/* External User Types */}
-            {user_type === "external" && (
+            {user_type === "external" && external_user_type === null && (
               <div className="w-full space-y-2">
                 <Label className="block text-sm text-[#094C81] font-medium mb-2">
                   User Type <span className="text-red-500">*</span>
@@ -182,6 +196,32 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                       <SelectItem
                         key={s.external_user_type_id}
                         value={s.external_user_type_id}
+                      >
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Vehicle Category */}
+            {external_user_type === "examinee" && (
+              <div className="w-full space-y-2">
+                <Label className="block text-sm text-[#094C81] font-medium mb-2">
+                  Vehicle Category <span className="text-red-500">*</span>
+                </Label>
+
+                <Select value={selectedVehicleCategory} onValueChange={setSelectedVehicleCategory}>
+                  <SelectTrigger className="w-full h-12 border border-gray-300 px-4 py-5 rounded-md focus:ring focus:ring-[#094C81] focus:border-transparent transition-all duration-200 outline-none">
+                    <SelectValue placeholder="Select Vehicle Category" />
+                  </SelectTrigger>
+
+                  <SelectContent className="text-[#094C81] bg-white max-h-64 overflow-y-auto">
+                    {vehicleCategories.map((s: any) => (
+                      <SelectItem
+                        key={s.vehicle_category_id}
+                        value={s.vehicle_category_id}
                       >
                         {s.name}
                       </SelectItem>
@@ -305,10 +345,10 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     {roles.filter(
                       (r: any) => !selectedRoles.includes(r.role_id)
                     ).length === 0 && (
-                      <div className="px-3 py-2 text-sm text-gray-400 text-center">
-                        All roles selected
-                      </div>
-                    )}
+                        <div className="px-3 py-2 text-sm text-gray-400 text-center">
+                          All roles selected
+                        </div>
+                      )}
                   </div>
                 </PopoverContent>
               </Popover>

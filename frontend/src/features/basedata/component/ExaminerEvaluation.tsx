@@ -6,67 +6,67 @@ import { TableLayout } from "@/features/template/component/tableList/TableLayout
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Download, Plus, Eye, Edit, Trash, Users } from "lucide-react";
-
+import { Plus, Eye, Edit, Trash } from "lucide-react";
+import Link from "next/link";
 import type { FilterField, ActionButton } from "@/types/tableLayout";
-import {
-  useExportUsersMutation,
-  useGetExternalUserTypesQuery,
-  useGetUsersQuery,
-  useGetUserTypesQuery,
-} from "@/redux/api/userApi";
-import { User } from "@/redux/types/user";
-import { CreateUserModal } from "@/components/common/modal/CreateUserModal";
+import Loading01 from "@/features/template/component/Loading/Loading01";
+import { CreateExamModal } from "@/components/common/modal/CreateExamModal";
 import { formatStatus } from "@/utils/statusFormatter";
+import { useGetAssignmentsQuery } from "@/redux/api/examinerAssignmentApi";
+import { ExaminerAssignment } from "@/redux/types/examinerAssignment";
+import { formatExamDateTime } from "@/utils/examScheduleConverter";
+import { useSession } from "next-auth/react";
 
-const columns: ColumnDef<User>[] = [
+const columns: ColumnDef<ExaminerAssignment>[] = [
   {
-    accessorKey: "full_name",
+    accessorKey: "examiner.full_name",
     header: "Full Name",
-    cell: ({ row }) => (
-      <span className="font-medium text-secondary">
-        {row.getValue("full_name")}
-      </span>
-    ),
+    cell: ({ row }) => {
+      const examiner = row.original.examiner;
+      return (
+        <span className="font-medium text-blue-600">
+          {examiner?.full_name || "—"}
+        </span>
+      );
+    },
   },
   {
-    accessorKey: "email",
+    accessorKey: "examiner.email",
     header: "Email",
-    cell: ({ row }: any) => <div>{row.getValue("email")}</div>,
-  },
-  {
-    accessorKey: "phone_number",
-    header: "Phone Number",
-    cell: ({ row }: any) => <div>{row.getValue("phone_number")}</div>,
-  },
-  {
-    id: "externalUserType",
-    header: "User Type",
     cell: ({ row }) => {
-      const type = row.original.externalUserType;
-      return <span className="text-sm font-medium">{type?.name ?? "—"}</span>;
+      const examiner = row.original.examiner;
+      return <div>{examiner?.email || "—"}</div>;
     },
   },
   {
-    id: "structure",
-    header: "Structure",
+    id: "section",
+    header: "Section",
     cell: ({ row }) => {
-      const structure = row.original.structureNode;
+      const section = row.original.section;
       return (
-        <span className="text-sm font-medium">{structure?.name ?? "—"}</span>
+        <span className="text-sm font-medium">{section?.name || "—"}</span>
       );
     },
   },
   {
-    accessorKey: "is_active",
-    header: "Status",
+    id: "exam_date",
+    header: "Exam Date",
     cell: ({ row }) => {
-      const isActive = row.getValue("is_active") as boolean;
+      const schedule = row.original.schedule;
+      if (!schedule?.exam_date) return <span>—</span>;
       return (
-        <Badge className="text-white" status={isActive ? "active" : "inactive"}>
-          {formatStatus(isActive ? "Active" : "Inactive")}
-        </Badge>
+        <span className="text-sm font-medium">
+          {formatExamDateTime(schedule.exam_date)}
+        </span>
       );
+    },
+  },
+  {
+    id: "location",
+    header: "Location",
+    cell: ({ row }) => {
+      const schedule = row.original.schedule;
+      return <span className="text-sm font-medium">{schedule?.location}</span>;
     },
   },
   {
@@ -87,29 +87,23 @@ const columns: ColumnDef<User>[] = [
     ),
   },
 ];
-export interface UserTableProps {
+
+export interface ExaminerEvaluationProps {
   sideActions?: ActionButton[];
 }
-// structure_node_id
-export default function ExaminerTable({ sideActions }: UserTableProps) {
 
-  const {
-    data: userTypes = [],
-    isLoading: isLoadingType,
-    isError: typeError,
-    refetch: refetchType,
-  } = useGetExternalUserTypesQuery();
-  const userTypeId = userTypes?.find(
-    (type: any) => type.name === "examiner"
-  )?.external_user_type_id;
+export default function ExaminerEvaluation({ sideActions }: ExaminerEvaluationProps) {
+  const { data: sessionData } = useSession();
+  const examiner_id = sessionData?.user?.id;
   const {
     data = [],
     isLoading,
     isError,
     refetch,
-  } = useGetUsersQuery({ external_user_type_id: userTypeId });
-  const [exportUsers, { isLoading: exportLoading }] = useExportUsersMutation();
-
+  } = useGetAssignmentsQuery(
+      //  { examiner_id },
+      //   { skip: !examiner_id }
+    );
   // Pagination states
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
@@ -118,7 +112,6 @@ export default function ExaminerTable({ sideActions }: UserTableProps) {
     setPageIndex(index);
     setPageSize(size);
   };
-
   // Filters
   const [statusFilter, setStatusFilter] = useState("");
 
@@ -140,30 +133,7 @@ export default function ExaminerTable({ sideActions }: UserTableProps) {
   // Actions
   const actions: ActionButton[] = [
     {
-      label: "Export",
-      icon: <Download className="h-4 w-4" />,
-      variant: "outline",
-      loading: exportLoading,
-      onClick: async () => {
-        try {
-          const blob = await exportUsers().unwrap();
-          // Create download link
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = "users.csv";
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          window.URL.revokeObjectURL(url);
-        } catch (err) {
-          console.error("Export failed", err);
-        }
-      },
-    },
-
-    {
-      label: "New Examiner",
+      label: "New Exam",
       icon: <Plus className="h-4 w-4" />,
       variant: "default",
       onClick: () => setModalOpen(true),
@@ -177,6 +147,13 @@ export default function ExaminerTable({ sideActions }: UserTableProps) {
     return true;
   });
 
+  if (isLoading) {
+    return <Loading01 />;
+  }
+  if (isError) {
+    return <div>Error loading Exams</div>;
+  }
+
   // Pagination slice
   const paginatedData = filteredData.slice(
     pageIndex * pageSize,
@@ -185,11 +162,8 @@ export default function ExaminerTable({ sideActions }: UserTableProps) {
   return (
     <>
       <TableLayout
-        actions={actions}
         sideActions={sideActions}
-        filters={filters}
-        filterColumnsPerRow={1}
-      >
+        actions={actions} filters={filters} filterColumnsPerRow={1}>
         <DataTable
           columns={columns}
           data={paginatedData}
@@ -199,9 +173,7 @@ export default function ExaminerTable({ sideActions }: UserTableProps) {
           currentIndex={pageIndex}
         />
       </TableLayout>
-      <CreateUserModal
-        user_type="external"
-        external_user_type="examiner"
+      <CreateExamModal
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
       />

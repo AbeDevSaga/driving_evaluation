@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import {
   useGetExternalUserTypesQuery,
   useGetUsersQuery,
-  useGetUserTypesQuery,
 } from "@/redux/api/userApi";
 import { Check, XIcon } from "lucide-react";
 import {
@@ -17,61 +16,61 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useCreateAssignmentMutation } from "@/redux/api/examinerAssignmentApi";
-import { useGetSchedulesByExamQuery } from "@/redux/api/examScheduleApi";
-import { CreateExaminerAssignmentPayload } from "@/redux/types/examinerAssignment";
-import { formatExamDateTime } from "@/utils/examScheduleConverter";
+import { CreateExamineeExamPayload } from "@/redux/types/examineeExam";
+import { useGetExamByIdQuery } from "@/redux/api/examApi";
+import { useCreateExamineeExamMutation } from "@/redux/api/examineeExamApi";
 
 interface CreateExamExaminerProps {
   exam_id: string;
-  section_id: string;
-  structure_node_id?: string;
-  user_type?: string;
+  exam_schedule_id: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const CreateExamExaminerModal = ({
-  user_type,
+export const CreateExamExamineeModal = ({
   exam_id,
-  section_id,
-  structure_node_id,
+  exam_schedule_id,
   isOpen,
   onClose,
 }: CreateExamExaminerProps) => {
   const [selectedSchedule, setSelectedSchedule] = useState<string>("");
-  const [selectedExaminer, setSelectedExaminer] = useState<string>("");
+  const [selectedExaminees, setSelectedExaminees] = useState<string[]>([]);
+
+  const { data: examData, isLoading: examLoading, isError: examError } = useGetExamByIdQuery(exam_id);
 
   const { data: userTypes = [] } = useGetExternalUserTypesQuery();
   const userTypeId = userTypes?.find(
-    (type: any) => type.name === user_type
+    (type: any) => type.name === "examinee"
   )?.external_user_type_id;
 
-  const { data: scheduleResponse } = useGetSchedulesByExamQuery(exam_id);
-  const { data: eximinerResponse } = useGetUsersQuery({
+  const vehicle_category_id = examData?.vehicleCategory?.vehicle_category_id
+
+  const { data: eximineeResponse } = useGetUsersQuery({
     external_user_type_id: userTypeId,
-    structure_node_id,
+    structure_node_id: examData?.structure_node_id,
+    vehicle_category_id: vehicle_category_id,
+    exam_schedule_id: exam_schedule_id,
+
   });
 
-  const schedules = scheduleResponse || [];
-  const examiners = eximinerResponse || [];
+  const examinees = eximineeResponse || [];
 
-  const [createExaminer, { isLoading }] = useCreateAssignmentMutation();
+  const [createExamineeExam, { isLoading }] = useCreateExamineeExamMutation();
 
   const handleSubmit = async () => {
-    if (!selectedSchedule || !section_id || !selectedExaminer) {
+    if (!exam_schedule_id || selectedExaminees.length === 0) {
       toast.error("Please fill all required fields");
       return;
     }
 
-    const payload: CreateExaminerAssignmentPayload = {
-      examiner_id: selectedExaminer,
-      section_id: section_id,
-      exam_schedule_id: selectedSchedule,
+    const payload: CreateExamineeExamPayload = {
+      exam_id: exam_id,
+      examinee_ids: selectedExaminees,
+      exam_schedule_id: exam_schedule_id,
     };
 
     try {
-      await createExaminer(payload).unwrap();
+      await createExamineeExam(payload).unwrap();
       toast.success("Examier Assigned successfully!");
       handleClose();
     } catch (error: any) {
@@ -80,10 +79,19 @@ export const CreateExamExaminerModal = ({
   };
 
   const handleClose = () => {
-    setSelectedExaminer("");
+    setSelectedExaminees([]);
     setSelectedSchedule("");
     onClose();
   };
+
+  const toggleExaminee = (userId: string) => {
+    setSelectedExaminees((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) handleClose();
@@ -116,49 +124,40 @@ export const CreateExamExaminerModal = ({
           <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4  mt-2 pr-2">
             <div className="w-full space-y-2">
               <Label className="block text-sm text-[#094C81] font-medium mb-2">
-                Examiner <span className="text-red-500">*</span>
+                Examinees <span className="text-red-500">*</span>
               </Label>
-
-              <Select
-                value={selectedExaminer}
-                onValueChange={setSelectedExaminer}
-              >
+              <Select>
                 <SelectTrigger className="w-full h-12 border border-gray-300 px-4 py-5 rounded-md focus:ring focus:ring-[#094C81] focus:border-transparent transition-all duration-200 outline-none">
-                  <SelectValue placeholder="Select Structure" />
+                  <SelectValue placeholder="Select Examinees" />
                 </SelectTrigger>
 
                 <SelectContent className="text-[#094C81] bg-white max-h-64 overflow-y-auto">
-                  {examiners.map((s: any) => (
-                    <SelectItem key={s.user_id} value={s.user_id}>
-                      {`${s.full_name} (${s.email})`}
-                    </SelectItem>
-                  ))}
+                  {examinees.map((s: any) => {
+                    const checked = selectedExaminees.includes(s.user_id);
+
+                    return (
+                      <div
+                        key={s.user_id}
+                        className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-100"
+                        onClick={() => toggleExaminee(s.user_id)}
+                      >
+                        {/* Checkbox */}
+                        <div className="flex items-center justify-center w-4 h-4 border rounded-sm">
+                          {checked && <Check className="w-3 h-3 text-[#094C81]" />}
+                        </div>
+
+                        {/* Label */}
+                        <span className="text-sm">
+                          {s.full_name} ({s.email})
+                        </span>
+                      </div>
+                    );
+                  })}
                 </SelectContent>
+
               </Select>
             </div>
-            {/* Exam Schedules */}
-            <div className="w-full space-y-2">
-              <Label className="block text-sm text-[#094C81] font-medium mb-2">
-                Exam Schedule <span className="text-red-500">*</span>
-              </Label>
 
-              <Select
-                value={selectedSchedule}
-                onValueChange={setSelectedSchedule}
-              >
-                <SelectTrigger className="w-full h-12 border border-gray-300 px-4 py-5 rounded-md focus:ring focus:ring-[#094C81] focus:border-transparent transition-all duration-200 outline-none">
-                  <SelectValue placeholder="Select User Type" />
-                </SelectTrigger>
-
-                <SelectContent className="text-[#094C81] bg-white max-h-64 overflow-y-auto">
-                  {schedules.map((s: any) => (
-                    <SelectItem key={s.schedule_id} value={s.schedule_id}>
-                      {formatExamDateTime(s.exam_date)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
           </div>
         </div>
 

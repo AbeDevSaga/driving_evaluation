@@ -39,6 +39,16 @@ export const columns: ColumnDef<Exam>[] = [
     ),
   },
   {
+    id: "structureNode",
+    header: "Structure Node",
+    cell: ({ row }) => {
+      const structureNode = row.original.structureNode?.name;
+      return (
+        <span className="text-sm text-muted-foreground">{structureNode ?? "—"}</span>
+      );
+    },
+  },
+  {
     accessorKey: "pass_percentage",
     header: "Pass Percentage",
     cell: ({ row }) => (
@@ -154,10 +164,10 @@ export default function ExamTable() {
   );
   return (
     <>
-      <TableLayout 
-      title="Exams"
-      description="Manage your exams"
-      actions={actions} filters={filters} filterColumnsPerRow={1}>
+      <TableLayout
+        title="Exams"
+        description="Manage your exams"
+        actions={actions} filters={filters} filterColumnsPerRow={1}>
         <DataTable
 
           columns={columns}

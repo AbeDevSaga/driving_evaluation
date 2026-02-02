@@ -4,6 +4,10 @@ const {
   ExternalUserType,
   UserPosition,
   StructureNode,
+  VehicleCategory,
+  RolePermission,
+  ExamineeExam,
+  Permission,
   Role,
   Batch,
   UserRoles,
@@ -93,6 +97,7 @@ const createUser = async (req, res) => {
       email,
       user_type_id,
       external_user_type_id,
+      vehicle_category_id,
       batch_id,
       role_ids,
       phone_number,
@@ -111,6 +116,13 @@ const createUser = async (req, res) => {
         .json({ success: false, message: "User already exists." });
     }
 
+    if (!user_type_id) {
+      await t.rollback();
+      return res
+        .status(400)
+        .json({ success: false, message: "User type is required." });
+    }
+
     // ====== Validate user type ======
     const userType = await UserType.findByPk(user_type_id, { transaction: t });
     if (!userType) {
@@ -121,59 +133,74 @@ const createUser = async (req, res) => {
     }
 
     // ====== Validate External user type ======
-    const externalUserType = await ExternalUserType.findByPk(
-      external_user_type_id,
-      { transaction: t }
-    );
-    if (!externalUserType) {
-      await t.rollback();
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid external user type." });
+    if (external_user_type_id) {
+      const externalUserType = await ExternalUserType.findByPk(
+        external_user_type_id,
+        { transaction: t },
+      );
+      if (!externalUserType) {
+        await t.rollback();
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid external user type." });
+      }
     }
 
     // ====== STRUCTURE NODE VALIDATION FOR EXTERNAL USERS ======
-    const isExternalUser = userType.name === "external";
 
-    if (isExternalUser) {
-      // Structure node is required for external users
-      if (!structure_node_id) {
-        await t.rollback();
-        return res.status(400).json({
-          success: false,
-          message: "Structure node is required for external users.",
-        });
-      }
-      // Validate structure node exists
-      const structureNode = await StructureNode.findByPk(structure_node_id, {
-        transaction: t,
+    if (!structure_node_id) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        message: "Structure node is required",
       });
+    }
+    // Validate structure node exists
+    const structureNode = await StructureNode.findByPk(structure_node_id, {
+      transaction: t,
+    });
 
-      if (!structureNode) {
+    if (!structureNode) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        message: "Invalid structure node.",
+      });
+    }
+    // Optional: Validate structure node is active
+    if (!structureNode.is_active) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        message: "The selected structure node is not active.",
+      });
+    }
+
+    // Validate Vehicle category if exists
+
+    if (vehicle_category_id) {
+      const vehicleCategory = await VehicleCategory.findByPk(
+        vehicle_category_id,
+        {
+          transaction: t,
+        },
+      );
+      if (!vehicleCategory) {
         await t.rollback();
         return res.status(400).json({
           success: false,
-          message: "Invalid structure node.",
+          message: "Invalid vehicle category.",
         });
       }
-      // Optional: Validate structure node is active
-      if (!structureNode.is_active) {
+      if (!vehicleCategory.is_active) {
         await t.rollback();
         return res.status(400).json({
           success: false,
-          message: "The selected structure node is not active.",
-        });
-      }
-    } else {
-      // For internal users, structure node should be null
-      if (structure_node_id) {
-        await t.rollback();
-        return res.status(400).json({
-          success: false,
-          message: "Structure node should not be assigned to internal users.",
+          message: "The selected vehicle category is not active.",
         });
       }
     }
+
     // ====== MULTIPLE ROLE VALIDATION ======
     if (role_ids && Array.isArray(role_ids) && role_ids.length > 0) {
       const roles = await Role.findAll({
@@ -205,15 +232,21 @@ const createUser = async (req, res) => {
         phone_number,
         user_type_id,
         external_user_type_id,
-        structure_node_id: isExternalUser ? structure_node_id : null,
+        structure_node_id: structure_node_id,
         batch_id: batch_id ? batch_id : null,
         is_first_logged_in: true,
         is_active: true,
         created_at: new Date(),
         updated_at: new Date(),
       },
-      { transaction: t }
+      { transaction: t },
     );
+    // ====== ASSIGN VEHICLE CATEGORIES ======
+    if (vehicle_category_id) {
+      await user.setVehicleCategories(vehicle_category_id, {
+        transaction: t,
+      });
+    }
 
     // =======================================================
     // 🔵 MULTIPLE ROLE ASSIGNMENT
@@ -243,8 +276,8 @@ const createUser = async (req, res) => {
       Email: ${email}
       Temporary Password: ${password}
       Please change your password after first login.
-      ${isExternalUser ? `Assigned Structure: ${structureNode?.name}` : ""}
-    `
+      ${structureNode ? `Assigned Structure: ${structureNode?.name}` : ""}
+    `,
     );
 
     return res.status(201).json({
@@ -261,8 +294,6 @@ const createUser = async (req, res) => {
 
 // =============== Update user ===============
 const updateUser = async (req, res) => {
-  // console.log("update user reached")
-
   const t = await sequelize.transaction();
   try {
     const { id: user_id } = req.params;
@@ -273,6 +304,7 @@ const updateUser = async (req, res) => {
       phone_number,
       is_active,
       role_ids,
+      vehicle_category_id,
     } = req.body;
 
     // ====== Find user ======
@@ -314,6 +346,30 @@ const updateUser = async (req, res) => {
       }
     }
 
+    // ====== Validate vehicle category ======
+    if (vehicle_category_id) {
+      const vehicleCategory = await VehicleCategory.findByPk(
+        vehicle_category_id,
+        { transaction: t },
+      );
+
+      if (!vehicleCategory) {
+        await t.rollback();
+        return res.status(400).json({
+          success: false,
+          message: "Invalid vehicle category.",
+        });
+      }
+
+      if (!vehicleCategory.is_active) {
+        await t.rollback();
+        return res.status(400).json({
+          success: false,
+          message: "The selected vehicle category is not active.",
+        });
+      }
+    }
+
     // ====== Update user ======
     await user.update(
       {
@@ -324,8 +380,15 @@ const updateUser = async (req, res) => {
         is_active: is_active ?? user.is_active,
         updated_at: new Date(),
       },
-      { transaction: t }
+      { transaction: t },
     );
+
+    // ====== UPDATE VEHICLE CATEGORY (REPLACE EXISTING) ======
+    if (vehicle_category_id) {
+      await user.setVehicleCategories(vehicle_category_id, {
+        transaction: t,
+      });
+    }
 
     // ====== Update roles if provided ======
     if (role_ids && Array.isArray(role_ids)) {
@@ -374,6 +437,77 @@ const updateUser = async (req, res) => {
   }
 };
 
+// ========== Add additional vehicle category (inactivate previous) ==========
+const addVehicleCategoryToUser = async (req, res) => {
+  const t = await sequelize.transaction();
+  try {
+    const { id: user_id } = req.params;
+    const { vehicle_category_id } = req.body;
+
+    if (!vehicle_category_id) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        message: "Vehicle category is required.",
+      });
+    }
+
+    // ====== Find user ======
+    const user = await User.findByPk(user_id, { transaction: t });
+    if (!user) {
+      await t.rollback();
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    // ====== Validate vehicle category ======
+    const vehicleCategory = await VehicleCategory.findByPk(
+      vehicle_category_id,
+      { transaction: t },
+    );
+
+    if (!vehicleCategory || !vehicleCategory.is_active) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or inactive vehicle category.",
+      });
+    }
+
+    // ====== Inactivate previous vehicle categories ======
+    await sequelize.models.UserVehicleCategory.update(
+      { is_active: false },
+      {
+        where: { user_id, is_active: true },
+        transaction: t,
+      },
+    );
+
+    // ====== Add new vehicle category ======
+    await user.addVehicleCategory(vehicle_category_id, {
+      through: { is_active: true, assigned_at: new Date() },
+      transaction: t,
+    });
+
+    await t.commit();
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Vehicle category added successfully. Previous categories inactivated.",
+    });
+  } catch (error) {
+    if (!t.finished) await t.rollback();
+    console.error("Error adding vehicle category:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 // ============Get all users=====================
 const getUsers = async (req, res) => {
   try {
@@ -381,6 +515,8 @@ const getUsers = async (req, res) => {
       structure_node_id,
       user_type_id,
       external_user_type_id,
+      vehicle_category_id,
+      exam_schedule_id,
       batch_id,
       is_active,
       search, // optional: for name/email search
@@ -404,9 +540,54 @@ const getUsers = async (req, res) => {
       ];
     }
 
+    let examineeExamExcludeInclude = null;
+
+    if (exam_schedule_id && vehicle_category_id) {
+      examineeExamExcludeInclude = {
+        model: ExamineeExam,
+        as: "examineeExams", // 👈 association alias (see note below)
+        attributes: [],
+        required: false, // LEFT JOIN
+        where: {
+          exam_schedule_id,
+        },
+      };
+    }
+
+    // ====== Vehicle category include (dynamic) ======
+    const vehicleCategoryInclude = {
+      model: VehicleCategory,
+      as: "vehicleCategories",
+      attributes: ["vehicle_category_id", "name"],
+      through: {
+        attributes: [],
+        where: {
+          is_active: true,
+        },
+      },
+      required: false,
+    };
+
+    // Apply filter ONLY if vehicle_category_id is provided
+    if (vehicle_category_id) {
+      vehicleCategoryInclude.where = {
+        vehicle_category_id,
+      };
+      vehicleCategoryInclude.required = true;
+    }
+
     // ====== Fetch users with associations ======
     const users = await User.findAll({
-      where: whereClause,
+      where: {
+        ...whereClause,
+
+        ...(exam_schedule_id &&
+          vehicle_category_id && {
+            "$examineeExams.examinee_exam_id$": {
+              [Op.is]: null, // THIS excludes already assigned users
+            },
+          }),
+      },
       include: [
         {
           model: UserType,
@@ -428,6 +609,8 @@ const getUsers = async (req, res) => {
           as: "batch",
           attributes: ["batch_code", "name", "year"],
         },
+        vehicleCategoryInclude,
+        ...(examineeExamExcludeInclude ? [examineeExamExcludeInclude] : []),
       ],
       order: [["created_at", "DESC"]],
     });
@@ -470,6 +653,18 @@ const getUserById = async (req, res) => {
           model: Role,
           as: "roles",
           through: { attributes: [] },
+          include: [
+            {
+              model: Permission,
+              as: "permissions", // This alias should match the association in Role model
+              through: {
+                model: RolePermission,
+                attributes: [], // Exclude RolePermission attributes if not needed
+                as: "rolePermissions", // This matches the association alias in Role model
+              },
+              attributes: ["permission_id", "resource", "action"], // Select specific permission fields
+            },
+          ],
         },
         {
           model: StructureNode,
@@ -480,6 +675,11 @@ const getUserById = async (req, res) => {
           model: Batch,
           as: "batch",
           attributes: ["batch_code", "name", "year"],
+        },
+        {
+          model: VehicleCategory,
+          as: "vehicleCategories",
+          attributes: ["vehicle_category_id", "name"],
         },
       ],
     });
@@ -531,7 +731,7 @@ const deleteUser = async (req, res) => {
     // Soft delete (deactivate)
     await user.update(
       { is_active: false, updated_at: new Date() },
-      { transaction: t }
+      { transaction: t },
     );
     await t.commit();
 
@@ -581,7 +781,7 @@ const toggleUserActiveStatus = async (req, res) => {
 
     await user.update(
       { is_active, updated_at: new Date() },
-      { transaction: t }
+      { transaction: t },
     );
     await t.commit();
 
@@ -632,7 +832,7 @@ const resetUserPassword = async (req, res) => {
         is_first_logged_in: false,
         updated_at: new Date(),
       },
-      { transaction: t }
+      { transaction: t },
     );
 
     await t.commit();
@@ -647,7 +847,7 @@ const resetUserPassword = async (req, res) => {
       Email: ${user.email}
       New Temporary Password: ${newPassword}
       Please change your password after logging in.
-      `
+      `,
     );
 
     return res.status(200).json({
@@ -821,7 +1021,7 @@ const exportUsers = async (req, res) => {
 
       res.setHeader(
         "Content-Type",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       );
       res.setHeader("Content-Disposition", "attachment; filename=users.xlsx");
 
@@ -848,6 +1048,7 @@ module.exports = {
   getUsers,
   getUserById,
   updateUser,
+  addVehicleCategoryToUser,
   deleteUser,
   toggleUserActiveStatus,
   resetUserPassword,

@@ -55,7 +55,7 @@ module.exports = {
   async down(queryInterface, Sequelize) {
     await queryInterface.removeConstraint(
       "examiner_assignments",
-      "unique_examiner_section_assignment"
+      "unique_examiner_section_schedule_assignment", // 👈 exact name
     );
 
     await queryInterface.dropTable("examiner_assignments");
