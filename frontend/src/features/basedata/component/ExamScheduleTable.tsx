@@ -13,6 +13,7 @@ import Loading01 from "@/features/template/component/Loading/Loading01";
 import { ExamSchedule } from "@/redux/types/examSchedule";
 import { useGetSchedulesByExamQuery } from "@/redux/api/examScheduleApi";
 import { CreateExamScheduleModal } from "@/components/common/modal/CreateExamScheduleModal";
+import { formatDate, formatTime } from "../utils/dateFormatter";
 
 interface ExamSectionTableProps {
   exam_id: string;
@@ -26,14 +27,20 @@ export default function ExamScheduleTable({
   const columns: ColumnDef<ExamSchedule>[] = [
     {
       accessorKey: "exam_date",
-      header: "Exam Date",
+      header: "Date",
       cell: ({ row }) => (
-        console.log(row.original.exam_date, "row.original.exam_date"),
-        (
-          <span className="font-medium text-blue-600">
-            {row.getValue("exam_date")}
-          </span>
-        )
+        <span className="font-medium text-blue-600">
+          {formatDate(row.original.exam_date)}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "exam_date",
+      header: "Time",
+      cell: ({ row }) => (
+        <span className="font-medium text-blue-600">
+          {formatTime(row.original.exam_date)}
+        </span>
       ),
     },
     {

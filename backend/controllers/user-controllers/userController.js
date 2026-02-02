@@ -6,6 +6,7 @@ const {
   StructureNode,
   VehicleCategory,
   RolePermission,
+  ExamineeExam,
   Permission,
   Role,
   Batch,
@@ -233,7 +234,6 @@ const createUser = async (req, res) => {
         external_user_type_id,
         structure_node_id: structure_node_id,
         batch_id: batch_id ? batch_id : null,
-        vehicle_category_id: vehicle_category_id ? vehicle_category_id : null,
         is_first_logged_in: true,
         is_active: true,
         created_at: new Date(),
@@ -241,6 +241,12 @@ const createUser = async (req, res) => {
       },
       { transaction: t },
     );
+    // ====== ASSIGN VEHICLE CATEGORIES ======
+    if (vehicle_category_id) {
+      await user.setVehicleCategories(vehicle_category_id, {
+        transaction: t,
+      });
+    }
 
     // =======================================================
     // 🔵 MULTIPLE ROLE ASSIGNMENT
@@ -288,8 +294,6 @@ const createUser = async (req, res) => {
 
 // =============== Update user ===============
 const updateUser = async (req, res) => {
-  // console.log("update user reached")
-
   const t = await sequelize.transaction();
   try {
     const { id: user_id } = req.params;
@@ -300,6 +304,7 @@ const updateUser = async (req, res) => {
       phone_number,
       is_active,
       role_ids,
+      vehicle_category_id,
     } = req.body;
 
     // ====== Find user ======
@@ -341,6 +346,30 @@ const updateUser = async (req, res) => {
       }
     }
 
+    // ====== Validate vehicle category ======
+    if (vehicle_category_id) {
+      const vehicleCategory = await VehicleCategory.findByPk(
+        vehicle_category_id,
+        { transaction: t },
+      );
+
+      if (!vehicleCategory) {
+        await t.rollback();
+        return res.status(400).json({
+          success: false,
+          message: "Invalid vehicle category.",
+        });
+      }
+
+      if (!vehicleCategory.is_active) {
+        await t.rollback();
+        return res.status(400).json({
+          success: false,
+          message: "The selected vehicle category is not active.",
+        });
+      }
+    }
+
     // ====== Update user ======
     await user.update(
       {
@@ -353,6 +382,13 @@ const updateUser = async (req, res) => {
       },
       { transaction: t },
     );
+
+    // ====== UPDATE VEHICLE CATEGORY (REPLACE EXISTING) ======
+    if (vehicle_category_id) {
+      await user.setVehicleCategories(vehicle_category_id, {
+        transaction: t,
+      });
+    }
 
     // ====== Update roles if provided ======
     if (role_ids && Array.isArray(role_ids)) {
@@ -401,6 +437,77 @@ const updateUser = async (req, res) => {
   }
 };
 
+// ========== Add additional vehicle category (inactivate previous) ==========
+const addVehicleCategoryToUser = async (req, res) => {
+  const t = await sequelize.transaction();
+  try {
+    const { id: user_id } = req.params;
+    const { vehicle_category_id } = req.body;
+
+    if (!vehicle_category_id) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        message: "Vehicle category is required.",
+      });
+    }
+
+    // ====== Find user ======
+    const user = await User.findByPk(user_id, { transaction: t });
+    if (!user) {
+      await t.rollback();
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    // ====== Validate vehicle category ======
+    const vehicleCategory = await VehicleCategory.findByPk(
+      vehicle_category_id,
+      { transaction: t },
+    );
+
+    if (!vehicleCategory || !vehicleCategory.is_active) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or inactive vehicle category.",
+      });
+    }
+
+    // ====== Inactivate previous vehicle categories ======
+    await sequelize.models.UserVehicleCategory.update(
+      { is_active: false },
+      {
+        where: { user_id, is_active: true },
+        transaction: t,
+      },
+    );
+
+    // ====== Add new vehicle category ======
+    await user.addVehicleCategory(vehicle_category_id, {
+      through: { is_active: true, assigned_at: new Date() },
+      transaction: t,
+    });
+
+    await t.commit();
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Vehicle category added successfully. Previous categories inactivated.",
+    });
+  } catch (error) {
+    if (!t.finished) await t.rollback();
+    console.error("Error adding vehicle category:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 // ============Get all users=====================
 const getUsers = async (req, res) => {
   try {
@@ -408,6 +515,8 @@ const getUsers = async (req, res) => {
       structure_node_id,
       user_type_id,
       external_user_type_id,
+      vehicle_category_id,
+      exam_schedule_id,
       batch_id,
       is_active,
       search, // optional: for name/email search
@@ -431,9 +540,54 @@ const getUsers = async (req, res) => {
       ];
     }
 
+    let examineeExamExcludeInclude = null;
+
+    if (exam_schedule_id && vehicle_category_id) {
+      examineeExamExcludeInclude = {
+        model: ExamineeExam,
+        as: "examineeExams", // 👈 association alias (see note below)
+        attributes: [],
+        required: false, // LEFT JOIN
+        where: {
+          exam_schedule_id,
+        },
+      };
+    }
+
+    // ====== Vehicle category include (dynamic) ======
+    const vehicleCategoryInclude = {
+      model: VehicleCategory,
+      as: "vehicleCategories",
+      attributes: ["vehicle_category_id", "name"],
+      through: {
+        attributes: [],
+        where: {
+          is_active: true,
+        },
+      },
+      required: false,
+    };
+
+    // Apply filter ONLY if vehicle_category_id is provided
+    if (vehicle_category_id) {
+      vehicleCategoryInclude.where = {
+        vehicle_category_id,
+      };
+      vehicleCategoryInclude.required = true;
+    }
+
     // ====== Fetch users with associations ======
     const users = await User.findAll({
-      where: whereClause,
+      where: {
+        ...whereClause,
+
+        ...(exam_schedule_id &&
+          vehicle_category_id && {
+            "$examineeExams.examinee_exam_id$": {
+              [Op.is]: null, // THIS excludes already assigned users
+            },
+          }),
+      },
       include: [
         {
           model: UserType,
@@ -455,6 +609,8 @@ const getUsers = async (req, res) => {
           as: "batch",
           attributes: ["batch_code", "name", "year"],
         },
+        vehicleCategoryInclude,
+        ...(examineeExamExcludeInclude ? [examineeExamExcludeInclude] : []),
       ],
       order: [["created_at", "DESC"]],
     });
@@ -519,6 +675,11 @@ const getUserById = async (req, res) => {
           model: Batch,
           as: "batch",
           attributes: ["batch_code", "name", "year"],
+        },
+        {
+          model: VehicleCategory,
+          as: "vehicleCategories",
+          attributes: ["vehicle_category_id", "name"],
         },
       ],
     });
@@ -887,6 +1048,7 @@ module.exports = {
   getUsers,
   getUserById,
   updateUser,
+  addVehicleCategoryToUser,
   deleteUser,
   toggleUserActiveStatus,
   resetUserPassword,

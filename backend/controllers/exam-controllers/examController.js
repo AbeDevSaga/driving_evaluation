@@ -87,7 +87,7 @@ const createExam = async (req, res) => {
         created_at: new Date(),
         updated_at: new Date(),
       },
-      { transaction: t }
+      { transaction: t },
     );
 
     await t.commit();
@@ -143,6 +143,11 @@ const getExams = async (req, res) => {
           model: VehicleCategory,
           as: "vehicleCategory",
           attributes: ["vehicle_category_id", "name"],
+        },
+        {
+          model: StructureNode,
+          as: "structureNode",
+          attributes: ["structure_node_id", "name"],
         },
       ],
       order: [["created_at", "DESC"]],
@@ -232,7 +237,7 @@ const updateExam = async (req, res) => {
         ...req.body,
         updated_at: new Date(),
       },
-      { transaction: t }
+      { transaction: t },
     );
 
     await t.commit();
@@ -275,7 +280,7 @@ const deleteExam = async (req, res) => {
         is_active: false,
         updated_at: new Date(),
       },
-      { transaction: t }
+      { transaction: t },
     );
 
     await t.commit();
@@ -318,7 +323,7 @@ const toggleExamActiveStatus = async (req, res) => {
         is_active: !exam.is_active,
         updated_at: new Date(),
       },
-      { transaction: t }
+      { transaction: t },
     );
 
     await t.commit();

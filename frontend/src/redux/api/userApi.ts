@@ -13,7 +13,15 @@ export const userApi = baseApi.injectEndpoints({
      * --------------------------- */
     getUsers: builder.query<
       User[],
-      { user_type_id?: string; external_user_type_id?: string; is_active?: boolean; search?: string } | void
+      {
+        user_type_id?: string;
+        external_user_type_id?: string;
+        vehicle_category_id?: string;
+        structure_node_id?: string;
+        exam_schedule_id?: string;
+        is_active?: boolean;
+        search?: string;
+      } | void
     >({
       query: (params) =>
         params ? { url: "/users", params } : { url: "/users" },
@@ -53,6 +61,22 @@ export const userApi = baseApi.injectEndpoints({
     }),
 
     /** ---------------------------
+     * ADD VEHICLE CATEGORY TO USER
+     * --------------------------- */
+    addVehicleCategoryToUser: builder.mutation<
+      User,
+      { id: string; data: UpdateUserPayload }
+    >({
+      query: ({ id, data }) => ({
+        url: `/users/vehicle_category/${id}`,
+        method: "POST",
+        body: data,
+      }),
+      transformResponse: (response: any): User => response.data,
+      invalidatesTags: (_r, _e, { id }) => [{ type: "User", id }, "User"],
+    }),
+
+    /** ---------------------------
      * UPDATE USER
      * --------------------------- */
     updateUser: builder.mutation<User, { id: string; data: UpdateUserPayload }>(
@@ -64,7 +88,7 @@ export const userApi = baseApi.injectEndpoints({
         }),
         transformResponse: (response: any): User => response.data,
         invalidatesTags: (_r, _e, { id }) => [{ type: "User", id }, "User"],
-      }
+      },
     ),
 
     /** ---------------------------
@@ -154,6 +178,7 @@ export const {
   useGetUserByIdQuery,
   useGetProfileQuery,
   useCreateUserMutation,
+  useAddVehicleCategoryToUserMutation,
   useUpdateUserMutation,
   useDeleteUserMutation,
   useToggleUserStatusMutation,

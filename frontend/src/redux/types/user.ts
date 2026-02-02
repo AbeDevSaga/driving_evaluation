@@ -1,4 +1,5 @@
 import { StructureNode } from "./structureNode";
+import { VehicleCategory } from "./vehicleCategory";
 
 export interface UserType {
   user_type_id: string;
@@ -37,7 +38,8 @@ export interface User {
   full_name: string;
   email: string;
   phone_number?: string;
-  user_type_id: string;
+  user_type_id?: string;
+  external_user_type_id?: string;
   structure_node_id?: string;
   is_active: boolean;
   is_first_logged_in: boolean;
@@ -50,6 +52,7 @@ export interface User {
   externalUserType?: ExternalUserType;
   structureNode?: StructureNode;
   roles?: Role[];
+  vehicleCategories?: VehicleCategory[];
 }
 
 // Payloads
@@ -60,6 +63,7 @@ export interface CreateUserPayload {
   user_type_id?: string;
   external_user_type_id?: string;
   structure_node_id?: string;
+  vehicle_category_id?: string;
   role_ids?: string[];
 }
 
@@ -68,7 +72,9 @@ export interface UpdateUserPayload {
   email?: string;
   phone_number?: string;
   user_type_id?: string;
+  external_user_type_id?: string;
   structure_node_id?: string;
+  vehicle_category_id?: string;
   role_ids?: string[];
   is_active?: boolean;
 }

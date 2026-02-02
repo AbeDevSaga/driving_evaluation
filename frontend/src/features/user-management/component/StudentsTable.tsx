@@ -58,6 +58,16 @@ const columns: ColumnDef<User>[] = [
         },
     },
     {
+        id: "vehicleCategory",
+        header: "Vehicle Category",
+        cell: ({ row }) => {
+            const vehicleCategory = row.original.vehicleCategories;
+            return (
+                <span className="text-sm font-medium">{vehicleCategory?.[0]?.name ?? "—"}</span>
+            );
+        },
+    },
+    {
         accessorKey: "is_active",
         header: "Status",
         cell: ({ row }) => {
@@ -201,6 +211,7 @@ export default function StudentsTable({ sideActions }: UserTableProps) {
             </TableLayout>
             <CreateUserModal
                 user_type="external"
+                external_user_type="examinee"
                 isOpen={isModalOpen}
                 onClose={() => setModalOpen(false)}
             />

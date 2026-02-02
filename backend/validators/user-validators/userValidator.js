@@ -38,12 +38,18 @@ const createUserSchema = Joi.object({
     .messages({
       "string.guid": "Structure ID must be a valid UUID.",
     }),
+  vehicle_category_id: Joi.string()
+    .guid({ version: "uuidv4" })
+    .optional()
+    .messages({
+      "string.guid": "Vehicle category ID must be a valid UUID.",
+    }),
 
   role_ids: Joi.array()
     .items(
       Joi.string()
         .guid({ version: "uuidv4" })
-        .messages({ "string.guid": "Each role ID must be a valid UUID." })
+        .messages({ "string.guid": "Each role ID must be a valid UUID." }),
     )
     .optional()
     .allow(null)
@@ -64,6 +70,24 @@ const updateUserSchema = Joi.object({
         "Phone number must be a valid Ethiopian format (e.g., +2519XXXXXXXX or 09XXXXXXXX).",
     }),
   user_type_id: Joi.string().guid({ version: "uuidv4" }).optional(),
+  external_user_type_id: Joi.string()
+    .guid({ version: "uuidv4" })
+    .optional()
+    .messages({
+      "string.guid": "User type ID must be a valid UUID.",
+    }),
+  structure_node_id: Joi.string()
+    .guid({ version: "uuidv4" })
+    .optional()
+    .messages({
+      "string.guid": "Structure ID must be a valid UUID.",
+    }),
+  vehicle_category_id: Joi.string()
+    .guid({ version: "uuidv4" })
+    .optional()
+    .messages({
+      "string.guid": "Vehicle category ID must be a valid UUID.",
+    }),
   // Allow updating assigned roles
   role_ids: Joi.array()
     .items(Joi.string().guid({ version: "uuidv4" }))

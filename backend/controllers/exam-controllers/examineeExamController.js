@@ -45,7 +45,10 @@ const createExamineeExam = async (req, res) => {
 
     // ===== Validate schedule belongs to exam =====
     const schedule = await ExamSchedule.findOne({
-      where: { exam_schedule_id, exam_id },
+      where: {
+        schedule_id: exam_schedule_id,
+        exam_id,
+      },
       transaction,
     });
 
@@ -112,7 +115,30 @@ const createExamineeExam = async (req, res) => {
  */
 const getExamineeExams = async (req, res) => {
   try {
+    const {
+      examinee_id,
+      schedule_id,
+      is_active,
+      search, // optional: for name/email search
+    } = req.query;
+
+    // ====== Build filters dynamically ======
+    const whereClause = {};
+
+    if (schedule_id) whereClause.exam_schedule_id = schedule_id;
+    if (examinee_id) whereClause.examinee_id = examinee_id;
+    if (is_active !== undefined) whereClause.is_active = is_active === "true";
+
+    if (search) {
+      whereClause[Op.or] = [
+        { full_name: { [Op.like]: `%${search}%` } },
+        { email: { [Op.like]: `%${search}%` } },
+        { phone_number: { [Op.like]: `%${search}%` } },
+      ];
+    }
+
     const exams = await ExamineeExam.findAll({
+      where: whereClause,
       include: [
         {
           model: User,

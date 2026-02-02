@@ -13,6 +13,7 @@ const {
   getExternalUserTypes,
   getUserPositions,
   exportUsers,
+  addVehicleCategoryToUser,
 } = require("../../controllers/user-controllers/userController");
 
 // Middleware for authentication if needed (example)
@@ -216,6 +217,36 @@ router.get("/profile/me", getProfile);
  *         description: User created
  */
 router.post("/", createUser);
+
+/**
+ * @swagger
+ * /users/vehicle_category/{id}:
+ *   post:
+ *     summary: Add a vehicle category to a user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - vehicle_category_id
+ *             properties:
+ *               vehicle_category_id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Vehicle category added to user
+ */
+router.post("/vehicle_category/:id", addVehicleCategoryToUser);
 
 /**
  * @swagger
