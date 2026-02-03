@@ -176,11 +176,11 @@ const getExamineeExams = async (req, res) => {
  */
 const getExamineeExamById = async (req, res) => {
   try {
-    const { examinee_exam_id } = req.params;
+    const { id: examinee_exam_id } = req.params;
 
     const exam = await ExamineeExam.findByPk(examinee_exam_id, {
       include: [
-        { model: User, as: "examinee", attributes: ["id", "full_name"] },
+        { model: User, as: "examinee", attributes: ["user_id", "full_name"] },
         { model: Exam, as: "exam", attributes: ["exam_id", "name"] },
         {
           model: ExamSchedule,

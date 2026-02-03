@@ -14,6 +14,7 @@ export type DetailCardItem = {
   subtitle?: string;
   icon: React.ElementType;
   date: Date;
+  time?: Date;
   active: boolean;
 };
 
@@ -77,6 +78,14 @@ function DetailCard({ item }: { item: DetailCardItem }) {
               day: "numeric",
             })}
           </span>
+          {item.time && (
+            <span>
+              {item.time.toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
+          )}
         </div>
       </CardContent>
     </Card>

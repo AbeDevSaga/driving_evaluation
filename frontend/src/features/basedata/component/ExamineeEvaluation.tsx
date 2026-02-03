@@ -77,19 +77,25 @@ const columns: ColumnDef<ExamineeExam>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => (
-      <div className="flex items-center">
-        <Button variant="ghost" size="icon">
-          <Eye className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon">
-          <Edit className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon">
-          <Trash className="h-4 w-4" />
-        </Button>
-      </div>
-    ),
+    cell: ({ row }) => {
+      const id = row.original.examinee_exam_id;
+      return (
+        <div className="flex items-center gap-1">
+          <Link href={`/evaluations/examinee/${id}`}>
+            <Button variant="ghost" size="icon">
+              <Eye className="h-4 w-4" />
+            </Button>
+          </Link>
+
+          <Button variant="ghost" size="icon">
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Trash className="h-4 w-4" />
+          </Button>
+        </div>
+      );
+    },
   },
 ];
 
