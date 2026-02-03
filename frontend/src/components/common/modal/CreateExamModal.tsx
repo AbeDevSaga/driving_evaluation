@@ -17,6 +17,7 @@ import { useGetStructureNodesQuery } from "@/redux/api/structureNodeApi";
 import { useGetVehicleCategoriesQuery } from "@/redux/api/vehicleCategoryApi";
 import { useCreateExamMutation } from "@/redux/api/examApi";
 import { CreateExamPayload } from "@/redux/types/exam";
+import { Textarea } from "@/components/ui/textarea";
 
 interface CreateExamModal {
   structure_node_id?: string;
@@ -169,26 +170,16 @@ export const CreateExamModal = ({
 
             <div className="space-y-2">
               <Label className="block text-sm text-[#094C81] font-medium mb-2">
-                Name <span className="text-red-500">*</span>
+                Exam Name <span className="text-red-500">*</span>
               </Label>
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="John Doe"
+                placeholder="Enter exam name"
                 className="w-full h-12 border border-gray-300 px-4 py-3 rounded-md focus:ring focus:ring-[#094C81] focus:border-transparent transition-all duration-200 outline-none"
               />
             </div>
-            <div className="space-y-2">
-              <Label className="block text-sm text-[#094C81] font-medium mb-2">
-                Description <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="+251 9xxxxxxx"
-                className="w-full h-12 border border-gray-300 px-4 py-3 rounded-md focus:ring focus:ring-[#094C81] focus:border-transparent transition-all duration-200 outline-none"
-              />
-            </div>
+
             <div className="space-y-2">
               <Label className="block text-sm text-[#094C81] font-medium mb-2">
                 Pass Percentage <span className="text-red-500">*</span>
@@ -201,6 +192,18 @@ export const CreateExamModal = ({
                 onChange={(e) => setPassPercentage(Number(e.target.value))}
                 placeholder="e.g. 60"
                 className="w-full h-12 border border-gray-300 px-4 py-3 rounded-md focus:ring focus:ring-[#094C81] focus:border-transparent transition-all duration-200 outline-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="block text-sm text-[#094C81] font-medium mb-2">
+                Description <span className="text-red-500">*</span>
+              </Label>
+              <Textarea
+                value={description}
+                rows={3}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Enter description"
+                className="w-full border border-gray-300 px-4 py-3 rounded-md focus:ring focus:ring-[#094C81] focus:border-transparent transition-all duration-200 outline-none"
               />
             </div>
           </div>

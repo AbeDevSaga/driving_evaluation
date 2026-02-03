@@ -153,8 +153,8 @@ export default function ExamSectionTable({ exam_id, sideActions }: ExamSectionTa
   return (
     <>
       <TableLayout actions={actions} filters={filters}
-      sideActions={sideActions}
-      filterColumnsPerRow={1}>
+        sideActions={sideActions}
+        filterColumnsPerRow={1}>
         <DataTable
           columns={columns}
           data={paginatedData}
