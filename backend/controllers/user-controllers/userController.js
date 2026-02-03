@@ -222,6 +222,8 @@ const createUser = async (req, res) => {
     const password = "password";
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const registration_number = await generateRegistrationNumber();
+
     // ====== Create User ======
     const user = await User.create(
       {
@@ -234,6 +236,7 @@ const createUser = async (req, res) => {
         external_user_type_id,
         structure_node_id: structure_node_id,
         batch_id: batch_id ? batch_id : null,
+        registration_number: registration_number,
         is_first_logged_in: true,
         is_active: true,
         created_at: new Date(),
@@ -1057,4 +1060,44 @@ module.exports = {
   getExternalUserTypes,
   getUserPositions,
   exportUsers,
+};
+
+// Helper function to generate registration number - FIXED VERSION
+const generateRegistrationNumber = async () => {
+  const crypto = require("crypto");
+  const year = new Date().getFullYear().toString().slice(-2);
+
+  // Use a while loop with a safety limit to prevent infinite loops
+  let attempts = 0;
+  const maxAttempts = 10;
+
+  while (attempts < maxAttempts) {
+    const randomCode = crypto.randomBytes(3).toString("hex").toUpperCase();
+    const ticket = `OTA-${year}-${randomCode}`;
+
+    // Check if ticket exists in database
+    try {
+      const existing = await User.findOne({
+        where: { registration_number: ticket },
+      });
+
+      if (!existing) {
+        return ticket; // Return the unique ticket
+      }
+    } catch (error) {
+      // If there's an error checking, generate a new one
+      console.warn(
+        "Error checking registration number uniqueness:",
+        error.message,
+      );
+    }
+
+    attempts++;
+  }
+
+  // If we can't find a unique ticket after max attempts,
+  // generate one with a timestamp to ensure uniqueness
+  const timestamp = Date.now().toString(36).toUpperCase();
+  const randomCode = crypto.randomBytes(2).toString("hex").toUpperCase();
+  return `OTA-${year}-${timestamp}-${randomCode}`;
 };

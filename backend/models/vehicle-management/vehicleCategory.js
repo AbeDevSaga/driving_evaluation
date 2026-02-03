@@ -17,6 +17,12 @@ module.exports = (sequelize, DataTypes) => {
         otherKey: "user_id",
         as: "users",
       });
+
+      // Vehicle Category belongs to structure node
+      VehicleCategory.belongsTo(models.StructureNode, {
+        foreignKey: "structure_node_id",
+        as: "structure_node",
+      });
     }
   }
 
@@ -26,6 +32,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
+      },
+
+      structure_node_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
       },
 
       name: {

@@ -4,6 +4,7 @@ const {
   ExamineeExam,
   ExamSchedule,
   Exam,
+  SectionResult,
   User,
   sequelize,
 } = require("../../models");
@@ -117,6 +118,7 @@ const getExamineeExams = async (req, res) => {
   try {
     const {
       examinee_id,
+      exam_id,
       schedule_id,
       is_active,
       search, // optional: for name/email search
@@ -126,16 +128,20 @@ const getExamineeExams = async (req, res) => {
     const whereClause = {};
 
     if (schedule_id) whereClause.exam_schedule_id = schedule_id;
+    if (exam_id) whereClause.exam_id = exam_id;
     if (examinee_id) whereClause.examinee_id = examinee_id;
     if (is_active !== undefined) whereClause.is_active = is_active === "true";
 
-    if (search) {
-      whereClause[Op.or] = [
-        { full_name: { [Op.like]: `%${search}%` } },
-        { email: { [Op.like]: `%${search}%` } },
-        { phone_number: { [Op.like]: `%${search}%` } },
-      ];
-    }
+    // ====== User (examinee) search filter ======
+    const examineeWhere = search
+      ? {
+          [Op.or]: [
+            { full_name: { [Op.iLike]: `%${search}%` } },
+            { email: { [Op.iLike]: `%${search}%` } },
+            { phone_number: { [Op.iLike]: `%${search}%` } },
+          ],
+        }
+      : undefined;
 
     const exams = await ExamineeExam.findAll({
       where: whereClause,
@@ -144,6 +150,8 @@ const getExamineeExams = async (req, res) => {
           model: User,
           as: "examinee",
           attributes: ["user_id", "full_name", "email"],
+          where: examineeWhere,
+          required: !!search,
         },
         {
           model: Exam,
@@ -185,6 +193,10 @@ const getExamineeExamById = async (req, res) => {
         {
           model: ExamSchedule,
           as: "schedule",
+        },
+        {
+          model: SectionResult,
+          as: "sectionResults",
         },
       ],
     });

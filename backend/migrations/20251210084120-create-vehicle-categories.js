@@ -10,16 +10,25 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4,
       },
 
+      structure_node_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: "structure_nodes",
+          key: "structure_node_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "RESTRICT",
+      },
+
       name: {
         type: Sequelize.STRING(100),
         allowNull: false,
-        unique: true,
       },
 
       code: {
         type: Sequelize.STRING(20),
         allowNull: true,
-        unique: true,
       },
 
       description: {
@@ -45,9 +54,22 @@ module.exports = {
         defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
+
+    // ✅ Scoped unique indexes
+    await queryInterface.addIndex("vehicle_categories", {
+      unique: true,
+      fields: ["structure_node_id", "name"],
+      name: "uq_vehicle_categories_structure_name",
+    });
+
+    await queryInterface.addIndex("vehicle_categories", {
+      unique: true,
+      fields: ["structure_node_id", "code"],
+      name: "uq_vehicle_categories_structure_code",
+    });
   },
 
-  async down(queryInterface, Sequelize) {
+  async down(queryInterface) {
     await queryInterface.dropTable("vehicle_categories");
   },
 };

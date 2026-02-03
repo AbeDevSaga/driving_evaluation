@@ -16,12 +16,12 @@ module.exports = {
       WHERE name = 'internal'
       LIMIT 1
       `,
-      { type: Sequelize.QueryTypes.SELECT }
+      { type: Sequelize.QueryTypes.SELECT },
     );
 
     if (!internalUserType) {
       throw new Error(
-        "Internal user type not found. Please seed user_types first."
+        "Internal user type not found. Please seed user_types first.",
       );
     }
 
@@ -40,6 +40,7 @@ module.exports = {
         email: "admin@gmail.com",
         password: passwordHash,
         phone_number: "251911000001",
+        registration_number: "OTA-26-1108-120650",
         profile_image: null,
         user_type_id: internalUserType.user_type_id, // 👈 IMPORTANT
         is_first_logged_in: true,

@@ -14,6 +14,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "parent_id",
         as: "children",
       });
+
+      // Has many vehicle categories
+      StructureNode.hasMany(models.VehicleCategory, {
+        foreignKey: "structure_node_id",
+        as: "vehicle_categories",
+      });
     }
   }
 
@@ -66,7 +72,7 @@ module.exports = (sequelize, DataTypes) => {
           fields: ["parent_id"],
         },
       ],
-    }
+    },
   );
 
   return StructureNode;

@@ -9,6 +9,18 @@ const createVehicleCategorySchema = Joi.object({
     "any.required": "Vehicle category name is required.",
   }),
 
+  structure_node_id: Joi.string()
+    .allow(null, "")
+    .custom((value, helpers) => {
+      if (value && !isUuid(value)) {
+        return helpers.error("any.invalid");
+      }
+      return value;
+    }, "UUID validation")
+    .messages({
+      "any.invalid": "Structure node ID must be a valid UUID.",
+    }),
+
   description: Joi.string().allow(null, "").optional(),
 });
 

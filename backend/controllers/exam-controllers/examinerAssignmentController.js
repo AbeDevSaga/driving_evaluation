@@ -1,6 +1,7 @@
 "use strict";
 
 const {
+  Exam,
   ExaminerAssignment,
   User,
   ExamSection,
@@ -172,24 +173,32 @@ const getAssignmentsFiltered = async (req, res) => {
  */
 const getAssignmentById = async (req, res) => {
   try {
-    const { assignment_id } = req.params;
+    const { id: assignment_id } = req.params;
+    console.log("assignment_id: ", assignment_id);
+    console.log("req.params: ", req.params);
 
     const assignment = await ExaminerAssignment.findByPk(assignment_id, {
       include: [
         {
           model: User,
           as: "examiner",
-          attributes: ["id", "full_name", "email"],
+          attributes: ["user_id", "full_name", "email"],
         },
         {
           model: ExamSection,
           as: "section",
-          attributes: ["section_id", "name"],
+          include: [
+            {
+              model: Exam,
+              as: "exam",
+              attributes: ["exam_id", "name"],
+            },
+          ],
         },
         {
           model: ExamSchedule,
           as: "schedule",
-          attributes: ["exam_schedule_id", "exam_date", "location"],
+          attributes: ["schedule_id", "exam_id", "exam_date", "location"],
         },
       ],
     });

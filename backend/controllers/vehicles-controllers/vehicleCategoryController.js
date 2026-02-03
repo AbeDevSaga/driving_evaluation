@@ -1,6 +1,11 @@
 "use strict";
 
-const { VehicleCategory, Exam, sequelize } = require("../../models");
+const {
+  VehicleCategory,
+  Exam,
+  StructureNode,
+  sequelize,
+} = require("../../models");
 const { v4: uuidv4 } = require("uuid");
 const { Op } = require("sequelize");
 
@@ -10,7 +15,19 @@ const { Op } = require("sequelize");
 const createVehicleCategory = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const { name, description } = req.body;
+    const { structure_node_id, name, description } = req.body;
+
+    const structureNode = await StructureNode.findByPk(structure_node_id, {
+      transaction: t,
+    });
+
+    if (!structureNode) {
+      await t.rollback();
+      return res.status(404).json({
+        success: false,
+        message: "Structure node not found.",
+      });
+    }
 
     // ====== Check duplicate ======
     const existing = await VehicleCategory.findOne({
@@ -28,6 +45,7 @@ const createVehicleCategory = async (req, res) => {
 
     const category = await VehicleCategory.create(
       {
+        structure_node_id,
         vehicle_category_id: uuidv4(),
         name,
         description,
@@ -35,7 +53,7 @@ const createVehicleCategory = async (req, res) => {
         created_at: new Date(),
         updated_at: new Date(),
       },
-      { transaction: t }
+      { transaction: t },
     );
 
     await t.commit();
@@ -166,7 +184,7 @@ const updateVehicleCategory = async (req, res) => {
         ...req.body,
         updated_at: new Date(),
       },
-      { transaction: t }
+      { transaction: t },
     );
 
     await t.commit();
@@ -217,8 +235,7 @@ const deleteVehicleCategory = async (req, res) => {
       await t.rollback();
       return res.status(400).json({
         success: false,
-        message:
-          "Cannot deactivate vehicle category with existing exams.",
+        message: "Cannot deactivate vehicle category with existing exams.",
       });
     }
 
@@ -227,7 +244,7 @@ const deleteVehicleCategory = async (req, res) => {
         is_active: false,
         updated_at: new Date(),
       },
-      { transaction: t }
+      { transaction: t },
     );
 
     await t.commit();
@@ -272,7 +289,7 @@ const toggleVehicleCategoryStatus = async (req, res) => {
         is_active: !category.is_active,
         updated_at: new Date(),
       },
-      { transaction: t }
+      { transaction: t },
     );
 
     await t.commit();

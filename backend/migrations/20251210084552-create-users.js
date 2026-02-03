@@ -49,6 +49,11 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "SET NULL",
       },
+      registration_number: {
+        type: Sequelize.STRING(50),
+        allowNull: false,
+        unique: true,
+      },
       full_name: {
         type: Sequelize.STRING(100),
         allowNull: false,

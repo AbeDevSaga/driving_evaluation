@@ -104,7 +104,6 @@ export default function ExamExamineeTable({
   schedule_id,
   sideActions,
 }: ExamExamineeTableProps) {
-  console.log("schedule_id: ", schedule_id);
 
   const {
     data = [],
@@ -116,7 +115,6 @@ export default function ExamExamineeTable({
     { skip: !schedule_id }
   );
 
-  console.log("examinee data: ", data);
   const [exportUsers, { isLoading: exportLoading }] = useExportUsersMutation();
 
   // Pagination states
