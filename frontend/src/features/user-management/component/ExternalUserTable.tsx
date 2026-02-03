@@ -204,6 +204,7 @@ export default function ExaminerTable({ sideActions }: UserTableProps) {
       </TableLayout>
       <CreateUserModal
         user_type="external"
+        external_user_type="examiner"
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
       />

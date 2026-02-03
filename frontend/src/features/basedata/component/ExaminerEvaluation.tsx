@@ -10,103 +10,100 @@ import { Plus, Eye, Edit, Trash } from "lucide-react";
 import Link from "next/link";
 import type { FilterField, ActionButton } from "@/types/tableLayout";
 import Loading01 from "@/features/template/component/Loading/Loading01";
-import { CreateVehicleCategoryModal } from "@/components/common/modal/CreateVehicleCategoryModal";
-import { Exam } from "@/redux/types/exam";
-import { useGetExamsQuery } from "@/redux/api/examApi";
 import { CreateExamModal } from "@/components/common/modal/CreateExamModal";
 import { formatStatus } from "@/utils/statusFormatter";
+import { useGetAssignmentsQuery } from "@/redux/api/examinerAssignmentApi";
+import { ExaminerAssignment } from "@/redux/types/examinerAssignment";
+import { formatExamDateTime } from "@/utils/examScheduleConverter";
+import { useSession } from "next-auth/react";
 
-export const columns: ColumnDef<Exam>[] = [
+const columns: ColumnDef<ExaminerAssignment>[] = [
   {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => (
-      console.log(row.original.name, "row.original.name"),
-      (
+    accessorKey: "examiner.full_name",
+    header: "Full Name",
+    cell: ({ row }) => {
+      const examiner = row.original.examiner;
+      return (
         <span className="font-medium text-blue-600">
-          {row.getValue("name")}
+          {examiner?.full_name || "—"}
         </span>
-      )
-    ),
-  },
-  {
-    accessorKey: "description",
-    header: "Description",
-    cell: ({ row }) => (
-      <div className="max-w-[300px] truncate text-muted-foreground">
-        {row.getValue("description")}
-      </div>
-    ),
-  },
-  {
-    id: "structureNode",
-    header: "Structure Node",
-    cell: ({ row }) => {
-      const structureNode = row.original.structureNode?.name;
-      return (
-        <span className="text-sm text-muted-foreground">{structureNode ?? "—"}</span>
       );
     },
   },
   {
-    accessorKey: "pass_percentage",
-    header: "Pass Percentage",
-    cell: ({ row }) => (
-      <div className="max-w-[300px] truncate text-muted-foreground">
-        {row.getValue("pass_percentage")}
-      </div>
-    ),
+    accessorKey: "examiner.email",
+    header: "Email",
+    cell: ({ row }) => {
+      const examiner = row.original.examiner;
+      return <div>{examiner?.email || "—"}</div>;
+    },
   },
   {
-    id: "vehicleCategory",
-    header: "Vehicle Category",
+    id: "section",
+    header: "Section",
     cell: ({ row }) => {
-      const Category = row.original.vehicleCategory?.name;
+      const section = row.original.section;
       return (
-        <span className="text-sm text-muted-foreground">{Category ?? "—"}</span>
+        <span className="text-sm font-medium">{section?.name || "—"}</span>
       );
     },
   },
   {
-    accessorKey: "is_active",
-    header: "Status",
+    id: "exam_date",
+    header: "Exam Date",
     cell: ({ row }) => {
-      const isActive = row.getValue("is_active") as boolean;
+      const schedule = row.original.schedule;
+      if (!schedule?.exam_date) return <span>—</span>;
       return (
-        <Badge status={isActive ? "active" : "inactive"}>
-          {formatStatus(isActive ? "Active" : "Inactive")}
-        </Badge>
+        <span className="text-sm font-medium">
+          {formatExamDateTime(schedule.exam_date)}
+        </span>
       );
     },
   },
-
+  {
+    id: "location",
+    header: "Location",
+    cell: ({ row }) => {
+      const schedule = row.original.schedule;
+      return <span className="text-sm font-medium">{schedule?.location}</span>;
+    },
+  },
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => {
-      const id = row.original.exam_id;
-      return (
-        <div className="flex items-center gap-1">
-          <Link href={`exams/${id}`}>
-            <Button variant="ghost" size="icon">
-              <Eye className="h-4 w-4" />
-            </Button>
-          </Link>
-
-          <Button variant="ghost" size="icon">
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <Trash className="h-4 w-4" />
-          </Button>
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <div className="flex items-center">
+        <Button variant="ghost" size="icon">
+          <Eye className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon">
+          <Edit className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon">
+          <Trash className="h-4 w-4" />
+        </Button>
+      </div>
+    ),
   },
 ];
 
-export default function ExamTable() {
-  const { data = [], isLoading, isError, refetch } = useGetExamsQuery();
+export interface ExaminerEvaluationProps {
+  sideActions?: ActionButton[];
+}
+
+export default function ExaminerEvaluation({ sideActions }: ExaminerEvaluationProps) {
+  const { data: sessionData } = useSession();
+  const examiner_id = sessionData?.user?.id;
+  const {
+    data = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useGetAssignmentsQuery(
+      //  { examiner_id },
+      //   { skip: !examiner_id }
+    );
   // Pagination states
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
@@ -165,11 +162,9 @@ export default function ExamTable() {
   return (
     <>
       <TableLayout
-        title="Exams"
-        description="Manage your exams"
+        sideActions={sideActions}
         actions={actions} filters={filters} filterColumnsPerRow={1}>
         <DataTable
-
           columns={columns}
           data={paginatedData}
           totalPageCount={Math.ceil(filteredData.length / pageSize)}

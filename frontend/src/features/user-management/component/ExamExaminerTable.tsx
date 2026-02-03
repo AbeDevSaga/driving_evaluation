@@ -91,12 +91,14 @@ const columns: ColumnDef<ExaminerAssignment>[] = [
 export interface ExamExaminerTableProps {
   exam_id: string;
   section_id: string;
+  structure_node_id?: string;
   sideActions?: ActionButton[];
 }
 // structure_node_id
 export default function ExamExaminerTable({
   exam_id,
   section_id,
+  structure_node_id,
   sideActions,
 }: ExamExaminerTableProps) {
   const {
@@ -201,6 +203,7 @@ export default function ExamExaminerTable({
       <CreateExamExaminerModal
         exam_id={exam_id}
         section_id={section_id}
+        structure_node_id={structure_node_id}
         user_type="examiner"
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}

@@ -34,10 +34,17 @@ module.exports = (sequelize, DataTypes) => {
         as: "batch",
       });
 
-      // User belongs to vehicle category
-      User.belongsTo(models.VehicleCategory, {
-        foreignKey: "vehicle_category_id",
-        as: "vehicleCategory",
+      // User has many ExamineeExams
+      User.hasMany(models.ExamineeExam, {
+        foreignKey: "examinee_id",
+        as: "examineeExams",
+      });
+
+      User.belongsToMany(models.VehicleCategory, {
+        through: models.UserVehicleCategory,
+        foreignKey: "user_id",
+        otherKey: "vehicle_category_id",
+        as: "vehicleCategories",
       });
     }
   }
@@ -71,15 +78,6 @@ module.exports = (sequelize, DataTypes) => {
         references: {
           model: "batches",
           key: "batch_id",
-        },
-      },
-      
-      vehicle_category_id: {
-        type: DataTypes.UUID,
-        allowNull: true,
-        references: {
-          model: "vehicle_categories",
-          key: "vehicle_category_id",
         },
       },
 

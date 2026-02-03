@@ -9,7 +9,6 @@ function StudentsList() {
 
     return (
         <>
-
             <Suspense fallback={null}>
                 <StudentsTable />
             </Suspense>

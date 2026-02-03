@@ -14,7 +14,7 @@ export const examineeExamApi = baseApi.injectEndpoints({
       ExamineeExam[],
       {
         schedule_id?: string;
-        examiner_id?: string;
+        examinee_id?: string;
         exam_schedule_id?: string;
         is_active?: boolean;
       } | void

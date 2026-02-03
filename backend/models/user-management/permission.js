@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
 
-  Permission.init(
+    Permission.init(
     {
       permission_id: {
         type: DataTypes.UUID,

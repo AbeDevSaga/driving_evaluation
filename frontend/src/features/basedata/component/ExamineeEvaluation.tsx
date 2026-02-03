@@ -15,79 +15,73 @@ import { Exam } from "@/redux/types/exam";
 import { useGetExamsQuery } from "@/redux/api/examApi";
 import { CreateExamModal } from "@/components/common/modal/CreateExamModal";
 import { formatStatus } from "@/utils/statusFormatter";
+import { useGetExamineeExamsQuery } from "@/redux/api/examineeExamApi";
+import { useSession } from "next-auth/react";
+import { ExamineeExam } from "@/redux/types/examineeExam";
+import { formatExamDateTime } from "@/utils/examScheduleConverter";
 
-export const columns: ColumnDef<Exam>[] = [
+const columns: ColumnDef<ExamineeExam>[] = [
   {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => (
-      console.log(row.original.name, "row.original.name"),
-      (
+    accessorKey: "examinee.full_name",
+    header: "Full Name",
+    cell: ({ row }) => {
+      const examinee = row.original.examinee;
+      return (
         <span className="font-medium text-blue-600">
-          {row.getValue("name")}
+          {examinee?.full_name || "—"}
         </span>
-      )
-    ),
-  },
-  {
-    accessorKey: "description",
-    header: "Description",
-    cell: ({ row }) => (
-      <div className="max-w-[300px] truncate text-muted-foreground">
-        {row.getValue("description")}
-      </div>
-    ),
-  },
-  {
-    id: "structureNode",
-    header: "Structure Node",
-    cell: ({ row }) => {
-      const structureNode = row.original.structureNode?.name;
-      return (
-        <span className="text-sm text-muted-foreground">{structureNode ?? "—"}</span>
       );
     },
   },
   {
-    accessorKey: "pass_percentage",
-    header: "Pass Percentage",
-    cell: ({ row }) => (
-      <div className="max-w-[300px] truncate text-muted-foreground">
-        {row.getValue("pass_percentage")}
-      </div>
-    ),
+    accessorKey: "examinee.email",
+    header: "Email",
+    cell: ({ row }) => {
+      const examinee = row.original.examinee;
+      return <div>{examinee?.email || "—"}</div>;
+    },
   },
   {
-    id: "vehicleCategory",
-    header: "Vehicle Category",
+    id: "exam_id",
+    header: "Exam",
     cell: ({ row }) => {
-      const Category = row.original.vehicleCategory?.name;
+      const exam = row.original.exam;
       return (
-        <span className="text-sm text-muted-foreground">{Category ?? "—"}</span>
+        <span className="text-sm font-medium">{exam?.name || "—"}</span>
       );
     },
   },
   {
-    accessorKey: "is_active",
-    header: "Status",
+    id: "exam_date",
+    header: "Exam Date",
     cell: ({ row }) => {
-      const isActive = row.getValue("is_active") as boolean;
+      const schedule = row.original.schedule;
+      if (!schedule?.exam_date) return <span>—</span>;
       return (
-        <Badge status={isActive ? "active" : "inactive"}>
-          {formatStatus(isActive ? "Active" : "Inactive")}
-        </Badge>
+        <span className="text-sm font-medium">
+          {formatExamDateTime(schedule.exam_date)}
+        </span>
       );
     },
   },
-
+  {
+    id: "location",
+    header: "Location",
+    cell: ({ row }) => {
+      const schedule = row.original.schedule;
+      return (
+        <span className="text-sm font-medium">{schedule?.location || "—"}</span>
+      );
+    },
+  },
   {
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {
-      const id = row.original.exam_id;
+      const id = row.original.examinee_exam_id;
       return (
         <div className="flex items-center gap-1">
-          <Link href={`exams/${id}`}>
+          <Link href={`/evaluations/examinee/${id}`}>
             <Button variant="ghost" size="icon">
               <Eye className="h-4 w-4" />
             </Button>
@@ -105,8 +99,22 @@ export const columns: ColumnDef<Exam>[] = [
   },
 ];
 
-export default function ExamTable() {
-  const { data = [], isLoading, isError, refetch } = useGetExamsQuery();
+export interface ExamineeEvaluationProps {
+  sideActions?: ActionButton[];
+}
+
+export default function ExamineeEvaluation({ sideActions }: ExamineeEvaluationProps) {
+  const { data: sessionData } = useSession();
+  const examinee_id = sessionData?.user?.id;
+  const {
+    data = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useGetExamineeExamsQuery(
+      // { examinee_id },
+      // { skip: !examinee_id }
+    );
   // Pagination states
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
@@ -165,11 +173,9 @@ export default function ExamTable() {
   return (
     <>
       <TableLayout
-        title="Exams"
-        description="Manage your exams"
+        sideActions={sideActions}
         actions={actions} filters={filters} filterColumnsPerRow={1}>
         <DataTable
-
           columns={columns}
           data={paginatedData}
           totalPageCount={Math.ceil(filteredData.length / pageSize)}

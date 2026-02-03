@@ -1,6 +1,6 @@
 "use strict";
 
-const { ExamSection, Exam } = require("../../models");
+const { ExamSection, Exam, StructureNode } = require("../../models");
 const { Op } = require("sequelize");
 
 /**
@@ -92,6 +92,13 @@ const getSections = async (req, res) => {
           model: Exam,
           as: "exam",
           attributes: ["exam_id", "name"],
+          include: [
+            {
+              model: StructureNode,
+              as: "structureNode",
+              attributes: ["structure_node_id", "name", "level", "parent_id"],
+            },
+          ],
         },
       ],
       order: [["created_at", "ASC"]],
@@ -120,6 +127,20 @@ const getSectionsByExam = async (req, res) => {
 
     const sections = await ExamSection.findAll({
       where: { exam_id },
+      include: [
+        {
+          model: Exam,
+          as: "exam",
+          attributes: ["exam_id", "name"],
+          include: [
+            {
+              model: StructureNode,
+              as: "structureNode",
+              attributes: ["structure_node_id", "name", "level", "parent_id"],
+            },
+          ],
+        },
+      ],
       order: [["created_at", "ASC"]],
     });
 
@@ -151,6 +172,13 @@ const getSectionById = async (req, res) => {
           model: Exam,
           as: "exam",
           attributes: ["exam_id", "name"],
+          include: [
+            {
+              model: StructureNode,
+              as: "structureNode",
+              attributes: ["structure_node_id", "name", "level", "parent_id"],
+            },
+          ],
         },
       ],
     });
